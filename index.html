@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://bazlgroup.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bazlgroup.com/">
+<meta property="og:title" content="Brad Bowers · Product &amp; Digital Experience Leader">
+<meta property="og:description" content="Digital product and experience executive. Twenty years leading product, UX design and research, and still building.">
+<meta property="og:image" content="https://bazlgroup.com/headshot.jpg">
+<meta name="twitter:card" content="summary">
+<title>Brad Bowers · Product &amp; Digital Experience Leader</title>
+<meta name="description" content="Brad Bowers, digital product and experience executive in the Chicago area. Product, UX design and research leadership.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap">
+<style>
+/* Layout: editorial single page on the Bowers system. Neutral canvas, one pine accent, deep color fields carry the big moments. */
+:root {
+  --canvas:#f4f4f2; --surface:#ffffff; --surface-sunken:#e9e9e6;
+  --ink:#111112; --ink-muted:#5a5a60; --on-ink:#f4f4f2;
+  --line:#dcdcd8; --line-strong:#7c7c83;
+  --signal:#13604b; --on-signal:#ffffff; --signal-text:#13604b;
+  --field-navy:#172341; --field-forest:#0e3b31; --field-clay:#8c3a22; --field-sage:#cfe2d5;
+  --on-field:#f4f3ef; --on-field-muted:#c9ccd6; --on-field-light:#111112;
+  --success:#0b5cad; --warning:#8f5300;
+  --focus-ring:#111112;
+  --shadow-float:0 12px 32px -8px rgba(17,17,18,.18);
+  --font-display:"Archivo","Arial Black",system-ui,sans-serif;
+  --font-sans:"Geist","Helvetica Neue",Arial,system-ui,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:40px; --space-7:64px; --space-8:120px;
+  --radius-s:8px; --radius-m:14px; --radius-l:22px; --radius-pill:999px;
+  --duration-quick:160ms; --duration-base:260ms; --duration-reveal:700ms;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --gutter:var(--space-6);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --canvas:#0e0e0f; --surface:#18181b; --surface-sunken:#222226;
+  --ink:#f2f1ed; --ink-muted:#a3a3a9; --on-ink:#111112;
+  --line:#2c2c31; --line-strong:#6e6e76;
+  --signal:#1b7a5e; --signal-text:#5cc9a4;
+  --field-navy:#1f2f57; --field-forest:#14493d; --field-clay:#9a4429;
+  --success:#6aa9ff; --warning:#f2b04a; --focus-ring:#f2f1ed;
+  --shadow-float:0 12px 32px -8px rgba(0,0,0,.6);
+  color-scheme:dark } }
+:root[data-theme="dark"] {
+  --canvas:#0e0e0f; --surface:#18181b; --surface-sunken:#222226;
+  --ink:#f2f1ed; --ink-muted:#a3a3a9; --on-ink:#111112;
+  --line:#2c2c31; --line-strong:#6e6e76;
+  --signal:#1b7a5e; --signal-text:#5cc9a4;
+  --field-navy:#1f2f57; --field-forest:#14493d; --field-clay:#9a4429;
+  --success:#6aa9ff; --warning:#f2b04a; --focus-ring:#f2f1ed;
+  --shadow-float:0 12px 32px -8px rgba(0,0,0,.6);
+  color-scheme:dark }
+
+html { scroll-behavior:smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *, *::before, *::after { transition:none !important; animation:none !important; } }
+body { background:var(--canvas); color:var(--ink); font:400 16px/1.55 var(--font-sans); -webkit-font-smoothing:antialiased; }
+h1,h2,h3,p,ul,ol,dl,dd,figure { margin:0; }
+ul,ol { padding:0; list-style:none; }
+img { display:block; max-width:100%; }
+a { color:inherit; }
+:where(a,button,input,summary,[tabindex]):focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
+.field :focus-visible { outline-color:var(--on-field); }
+.field--sage :focus-visible { outline-color:var(--on-field-light); }
+
+/* Type scale */
+.display-xl { font:800 clamp(56px,9vw,104px)/.9 var(--font-display); font-stretch:125%; letter-spacing:-.02em; text-wrap:balance; }
+.display-l { font:800 clamp(40px,5.6vw,64px)/.95 var(--font-display); font-stretch:125%; letter-spacing:-.015em; text-wrap:balance; }
+.heading-1 { font:500 clamp(36px,4.6vw,52px)/1 var(--font-sans); letter-spacing:-.035em; text-wrap:balance; }
+.heading-2 { font:500 clamp(28px,3.2vw,34px)/1.08 var(--font-sans); letter-spacing:-.025em; text-wrap:balance; }
+.heading-3 { font:500 22px/1.2 var(--font-sans); letter-spacing:-.012em; text-wrap:balance; }
+.body-l { font:300 20px/1.45 var(--font-sans); letter-spacing:-.01em; }
+.body-s { font:400 14px/1.45 var(--font-sans); }
+.data { font:400 13px/1.4 var(--font-mono); font-variant-numeric:tabular-nums; }
+.micro { font:500 11.5px/1.3 var(--font-mono); letter-spacing:.02em; text-transform:uppercase; }
+.muted { color:var(--ink-muted); }
+.prose { max-width:65ch; }
+
+/* Frame */
+.wrap { max-width:1280px; margin-inline:auto; padding-left:max(16px, env(safe-area-inset-left,0px), var(--gutter)); padding-right:max(16px, env(safe-area-inset-right,0px), var(--gutter)); }
+@media (max-width:900px) { :root { --gutter:var(--space-5); } }
+@media (max-width:640px) { :root { --gutter:var(--space-4); } }
+.section { padding-block:var(--space-8); }
+@media (max-width:640px) { .section { padding-block:var(--space-7); } }
+.section-head { display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:var(--space-4) var(--space-6); margin-bottom:var(--space-6); }
+.section-head > * { min-width:0; }
+.skip { position:absolute; left:-9999px; top:0; }
+.skip:focus { left:16px; top:calc(env(safe-area-inset-top,0px) + 12px); z-index:20; background:var(--surface); padding:10px 16px; border-radius:var(--radius-pill); }
+
+/* Nav */
+.nav { position:sticky; top:env(safe-area-inset-top,0px); z-index:10; background:var(--canvas); border-bottom:1px solid var(--line); }
+.nav .wrap { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-2) var(--space-5); min-height:64px; }
+.brand { display:inline-flex; align-items:center; gap:var(--space-2); font:800 20px/1 var(--font-display); font-stretch:125%; letter-spacing:-.02em; text-decoration:none; }
+.mark { width:32px; height:26px; fill:currentColor; flex:none; }
+.nav-links { display:flex; flex-wrap:wrap; gap:var(--space-1) var(--space-5); margin-right:auto; }
+.nav-links a { font:500 14px/1 var(--font-sans); color:var(--ink-muted); text-decoration:none; padding:8px 0; transition:color var(--duration-quick) var(--ease-out); }
+.nav-links a:hover, .nav-links a[aria-current="true"] { color:var(--ink); }
+.nav-links a[aria-current="true"] { text-decoration:underline; text-decoration-thickness:2px; text-underline-offset:8px; }
+@media (max-width:760px) { .nav-links { order:3; width:100%; gap:var(--space-1) var(--space-4); padding-bottom:var(--space-2); overflow-x:auto; flex-wrap:nowrap; } .nav-links a { white-space:nowrap; } }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:var(--space-2); min-height:44px; padding:10px 22px; border-radius:var(--radius-pill); border:1px solid transparent; font:500 15px/1.2 var(--font-sans); letter-spacing:-.005em; cursor:pointer; text-decoration:none; transition:transform var(--duration-quick) var(--ease-out), border-color var(--duration-base) var(--ease-out), background-color var(--duration-base) var(--ease-out); }
+.btn:active { transform:scale(.98); }
+.btn--primary { background:var(--signal); color:var(--on-signal); }
+.btn--ghost { background:transparent; color:var(--ink); border-color:var(--line-strong); }
+.btn--ghost:hover { border-color:var(--ink); }
+.btn--s { min-height:36px; padding:8px 16px; font-size:14px; }
+.btn--inverse { background:var(--on-field); color:var(--field-forest); }
+.link { color:var(--signal-text); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:.18em; }
+.field .link { color:inherit; }
+.link:hover { text-decoration-thickness:2px; }
+
+/* Hero */
+.hero { padding-block:var(--space-7) var(--space-8); }
+.hero-grid { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,.75fr); gap:var(--space-6); align-items:end; }
+.hero-copy { display:flex; flex-direction:column; gap:var(--space-5); min-width:0; }
+.hero-meta { display:flex; flex-wrap:wrap; gap:var(--space-2) var(--space-4); align-items:center; }
+.status { display:inline-flex; align-items:center; gap:var(--space-2); font:500 14px/1.2 var(--font-sans); }
+.status svg { width:16px; height:16px; color:var(--success); flex:none; }
+.hero-actions { display:flex; flex-wrap:wrap; gap:var(--space-3); padding-top:var(--space-2); }
+.portrait { border-radius:var(--radius-l); overflow:hidden; background:var(--surface-sunken); aspect-ratio:4/5; max-width:100%; }
+.portrait img { width:100%; height:100%; object-fit:cover; }
+.portrait-cap { display:flex; justify-content:space-between; gap:var(--space-3); padding-top:var(--space-3); }
+@media (max-width:860px) { .hero-grid { grid-template-columns:1fr; } .hero-portrait { max-width:360px; order:-1; } }
+.reveal { animation:rise var(--duration-reveal) var(--ease-out) both; }
+.reveal-2 { animation-delay:90ms; } .reveal-3 { animation-delay:180ms; }
+@keyframes rise { from { transform:translateY(14px); opacity:.001; } to { transform:none; opacity:1; } }
+
+/* Proof band */
+.proof { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border-top:1px solid var(--line); }
+.proof > div { padding:var(--space-5) var(--space-5) 0 0; display:flex; flex-direction:column; gap:var(--space-2); min-width:0; }
+.proof .num { font:800 clamp(40px,4.4vw,56px)/.95 var(--font-display); font-stretch:125%; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+@media (max-width:860px) { .proof { grid-template-columns:repeat(2,minmax(0,1fr)); row-gap:var(--space-5); } }
+
+/* Color fields */
+.field { color:var(--on-field); }
+.field--navy { background:var(--field-navy); }
+.field--forest { background:var(--field-forest); }
+.field--clay { background:var(--field-clay); }
+.field--sage { background:var(--field-sage); color:var(--on-field-light); }
+.field .muted { color:var(--on-field); opacity:.82; }
+.field--sage .muted { color:var(--on-field-light); opacity:.78; }
+
+/* Work */
+.work-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-5) var(--space-4); }
+.work { background:var(--surface); border-radius:var(--radius-l); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); min-width:0; }
+.work .stat { font:800 44px/.95 var(--font-display); font-stretch:125%; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+.work dl { display:grid; gap:var(--space-3); border-top:1px solid var(--line); padding-top:var(--space-4); margin-top:auto; }
+.work dt { font:500 11.5px/1.3 var(--font-mono); letter-spacing:.02em; text-transform:uppercase; color:var(--ink-muted); }
+.work dd { font:400 15px/1.5 var(--font-sans); }
+@media (max-width:960px) { .work-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:620px) { .work-grid { grid-template-columns:1fr; } }
+.note { display:flex; gap:var(--space-3); align-items:flex-start; padding:var(--space-4) var(--space-5); border-radius:var(--radius-l); background:var(--surface-sunken); margin-top:var(--space-5); }
+.note svg { width:20px; height:20px; flex:none; margin-top:2px; }
+
+/* Paradigms */
+.core { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 var(--space-6); border-top:2px solid var(--on-field); }
+.core > div { padding:var(--space-5) 0 var(--space-6); border-bottom:1px solid rgba(244,243,239,.28); display:flex; flex-direction:column; gap:var(--space-3); min-width:0; }
+.core .say { font:300 20px/1.45 var(--font-sans); opacity:.9; max-width:40ch; }
+@media (max-width:760px) { .core { grid-template-columns:1fr; } }
+.all { margin-top:var(--space-7); display:grid; gap:var(--space-2); }
+.all details { background:rgba(244,243,239,.07); border-radius:var(--radius-m); }
+.all summary { list-style:none; display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:var(--space-4); align-items:center; padding:var(--space-4) var(--space-5); cursor:pointer; min-height:44px; border-radius:var(--radius-m); }
+.all summary::-webkit-details-marker { display:none; }
+.all summary .chev { width:20px; height:20px; transition:transform var(--duration-base) var(--ease-out); }
+.all details[open] .chev { transform:rotate(180deg); }
+.all .body { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-4) var(--space-6); padding:0 var(--space-5) var(--space-5) calc(var(--space-5) + 3ch + var(--space-4)); }
+.all .body > div { min-width:0; display:flex; flex-direction:column; gap:var(--space-2); }
+@media (max-width:760px) { .all .body { grid-template-columns:1fr; padding-left:var(--space-5); } }
+
+/* Operating model */
+.flow-scroll { overflow-x:auto; padding-bottom:var(--space-2); }
+.flow { display:flex; align-items:center; gap:var(--space-2); min-width:820px; }
+.stage { flex:1 1 0; background:var(--surface); border-radius:var(--radius-m); padding:var(--space-4) var(--space-3); text-align:center; font:500 16px/1.2 var(--font-sans); letter-spacing:-.01em; }
+.stage--end { background:var(--ink); color:var(--on-ink); }
+.gate { flex:none; display:flex; flex-direction:column; align-items:center; gap:var(--space-1); }
+.gate .diamond { width:44px; height:44px; transform:rotate(45deg); background:var(--signal); border-radius:6px; }
+.gate .data { color:var(--signal-text); }
+.arrow { flex:none; width:18px; height:12px; color:var(--line-strong); }
+.model-notes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-5); margin-top:var(--space-6); }
+.model-notes > div { display:flex; flex-direction:column; gap:var(--space-2); border-top:1px solid var(--line); padding-top:var(--space-4); min-width:0; }
+@media (max-width:860px) { .model-notes { grid-template-columns:1fr; } }
+
+/* Builder lab */
+.lab { display:grid; grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); gap:var(--space-5); align-items:start; }
+@media (max-width:980px) { .lab { grid-template-columns:1fr; } }
+.lab-side { display:flex; flex-direction:column; gap:var(--space-4); min-width:0; }
+.project { background:var(--surface); border-radius:var(--radius-l); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-3); }
+.tagrow { display:flex; flex-wrap:wrap; gap:var(--space-2); }
+.tag { font:500 13px/1 var(--font-sans); padding:7px 12px; border-radius:var(--radius-pill); border:1px solid var(--line-strong); }
+
+/* Command Center replica: dark by design, like the real one */
+.cc { --cc-bg:#141416; --cc-panel:#1c1c20; --cc-line:#2e2e34; --cc-ink:#f2f1ed; --cc-muted:#a3a3a9; --cc-warm:#e0855c; --cc-cool:#8fb7e0; --cc-good:#7fcfa8;
+  background:var(--cc-bg); color:var(--cc-ink); border-radius:var(--radius-l); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); box-shadow:var(--shadow-float); min-width:0; color-scheme:dark; }
+.cc-top { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--space-2); align-items:center; }
+.cc-badge { font:500 11.5px/1 var(--font-mono); letter-spacing:.02em; text-transform:uppercase; padding:5px 9px; border-radius:var(--radius-pill); background:#3a2a22; color:var(--cc-warm); }
+.cc h3 { font:600 clamp(22px,2.6vw,28px)/1.15 var(--font-sans); letter-spacing:-.02em; text-wrap:balance; }
+.cc-tiles { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:var(--space-2); }
+.cc-tile { background:var(--cc-panel); border:1px solid var(--cc-line); border-radius:var(--radius-m); padding:var(--space-3); display:flex; flex-direction:column; gap:var(--space-1); min-width:0; }
+.cc-tile b { font:800 30px/1 var(--font-display); font-stretch:110%; font-variant-numeric:tabular-nums; }
+.cc-tile span { font:400 13px/1.3 var(--font-sans); color:var(--cc-muted); }
+.cc-tile.warm { border-color:#5a3524; } .cc-tile.warm b { color:var(--cc-warm); }
+.cc-tile.cool b { color:var(--cc-cool); } .cc-tile.good b { color:var(--cc-good); }
+@media (max-width:640px) { .cc-tiles { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.cc-panel { background:var(--cc-panel); border:1px solid var(--cc-line); border-radius:var(--radius-m); padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-3); min-width:0; }
+.cc-panel-h { display:flex; justify-content:space-between; gap:var(--space-2); align-items:baseline; flex-wrap:wrap; }
+.cc-panel-h strong { font:600 15px/1.2 var(--font-sans); }
+.cc-muted { color:var(--cc-muted); }
+.cc-track { position:relative; height:10px; background:#26262b; border-radius:var(--radius-pill); }
+.cc-track i { position:absolute; top:0; bottom:0; border-radius:var(--radius-pill); background:var(--cc-cool); }
+.cc-track i.alt { background:#d8d6d0; }
+.cc-track .now { position:absolute; top:-5px; bottom:-5px; width:2px; background:var(--cc-warm); }
+.cc-axis { display:flex; justify-content:space-between; }
+.cc-sched { display:grid; grid-template-columns:auto minmax(0,1fr); gap:var(--space-2) var(--space-4); }
+.cc-todo { display:flex; flex-direction:column; }
+.cc-todo li { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:var(--space-3); align-items:start; padding:var(--space-3) 0; border-top:1px solid var(--cc-line); }
+.cc-todo li:first-child { border-top:0; }
+.cc-todo input { width:20px; height:20px; margin:2px 0 0; accent-color:var(--cc-good); }
+.cc-todo label { font:500 15px/1.35 var(--font-sans); cursor:pointer; }
+.cc-todo .src { display:block; font:400 13px/1.4 var(--font-sans); color:var(--cc-cool); }
+.cc-todo input:checked + label { color:var(--cc-muted); text-decoration:line-through; }
+.cc-when { font:500 11.5px/1 var(--font-mono); text-transform:uppercase; letter-spacing:.02em; padding:6px 9px; border-radius:var(--radius-pill); background:#2e231e; color:var(--cc-warm); white-space:nowrap; }
+.cc-when.later { background:#24242a; color:var(--cc-muted); }
+.cc-grid2 { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:var(--space-3); }
+@media (max-width:640px) { .cc-grid2 { grid-template-columns:1fr; } }
+.cc-foot { display:flex; flex-wrap:wrap; gap:var(--space-2) var(--space-4); justify-content:space-between; }
+
+/* Design system */
+.ds { display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); gap:var(--space-4); }
+.ds-card { background:var(--surface); border-radius:var(--radius-l); padding:var(--space-5); display:flex; flex-direction:column; gap:var(--space-4); min-width:0; }
+.ds-colors { grid-column:span 7; } .ds-type { grid-column:span 5; } .ds-comp { grid-column:span 12; }
+@media (max-width:960px) { .ds-colors, .ds-type { grid-column:span 12; } }
+.swatches { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:var(--space-3); }
+.sw { display:flex; flex-direction:column; gap:var(--space-2); min-width:0; }
+.sw i { display:block; aspect-ratio:3/2; border-radius:var(--radius-m); border:1px solid var(--line); max-width:100%; }
+.spec { display:flex; flex-direction:column; gap:var(--space-3); }
+.spec > div { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:var(--space-3); align-items:baseline; border-bottom:1px solid var(--line); padding-bottom:var(--space-3); }
+.comp-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
+.chip { display:inline-flex; align-items:center; min-height:36px; padding:0 14px; border-radius:var(--radius-pill); border:1px solid var(--line-strong); background:transparent; color:var(--ink); font:500 14px/1 var(--font-sans); cursor:pointer; transition:background-color var(--duration-base) var(--ease-out), color var(--duration-base) var(--ease-out); }
+.chip[aria-pressed="true"] { background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
+.ds-rules { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-5); border-top:1px solid var(--line); padding-top:var(--space-5); }
+.ds-rules > div { display:flex; flex-direction:column; gap:var(--space-2); min-width:0; }
+@media (max-width:760px) { .ds-rules { grid-template-columns:1fr; } }
+
+/* Resume */
+.cv { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2.2fr); gap:var(--space-6); }
+@media (max-width:860px) { .cv { grid-template-columns:1fr; } }
+.cv-side { display:flex; flex-direction:column; gap:var(--space-5); min-width:0; }
+.cv-side ul { display:grid; gap:var(--space-2); }
+.cv-side li { font:400 15px/1.45 var(--font-sans); }
+.roles { display:flex; flex-direction:column; }
+.role { display:grid; grid-template-columns:150px minmax(0,1fr); gap:var(--space-2) var(--space-5); padding-block:var(--space-5); border-top:1px solid var(--line); }
+.role:first-child { border-top:2px solid var(--ink); }
+.role-main { display:flex; flex-direction:column; gap:var(--space-3); min-width:0; }
+.role-main ul { display:grid; gap:var(--space-2); }
+.role-main li { position:relative; padding-left:18px; }
+.role-main li::before { content:""; position:absolute; left:0; top:.7em; width:8px; height:2px; background:var(--line-strong); }
+.role-main strong { font-weight:600; }
+.timeline { display:flex; height:10px; border-radius:var(--radius-pill); overflow:hidden; gap:2px; margin-bottom:var(--space-3); }
+.timeline i { display:block; height:100%; background:var(--surface-sunken); }
+.timeline i.on { background:var(--signal); }
+@media (max-width:620px) { .role { grid-template-columns:1fr; } }
+
+/* Contact */
+.contact { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:var(--space-6); align-items:end; }
+@media (max-width:860px) { .contact { grid-template-columns:1fr; } }
+.contact-card { display:flex; flex-direction:column; gap:var(--space-4); }
+.copyline { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; padding:var(--space-3) var(--space-3) var(--space-3) var(--space-5); border:1px solid rgba(244,243,239,.5); border-radius:var(--radius-pill); }
+.copyline span { font:400 17px/1.3 var(--font-mono); flex:1 1 200px; min-width:0; overflow-wrap:anywhere; user-select:all; }
+.toast { min-height:1.4em; }
+footer .wrap { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--space-3); align-items:center; padding-block:var(--space-6); }
+footer .brand { font-size:16px; }
+</style>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bb" viewBox="0 0 120 96"><path d="M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z"/><path transform="translate(120 0) scale(-1 1)" d="M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z"/></symbol>
+  <symbol id="arrow" viewBox="0 0 18 12"><path d="M0 6h15M11 1.5 16 6l-5 4.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  <symbol id="chev" viewBox="0 0 20 20"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><svg class="mark" aria-hidden="true"><use href="#bb"/></svg>Brad Bowers</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#work">Work</a>
+      <a href="#paradigms">Paradigms</a>
+      <a href="#model">Operating model</a>
+      <a href="#lab">Builder lab</a>
+      <a href="#system">Design system</a>
+      <a href="#resume">Resume</a>
+    </nav>
+    <a class="btn btn--ghost btn--s" href="#contact">Get in touch</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- Hero -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="hero-meta reveal">
+        <span class="status"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m4.8 8.2 2.1 2.1 4.3-4.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Open to senior-level product &amp; digital experience roles</span>
+        <span class="body-s muted">Greater Chicago Area</span>
+      </div>
+      <h1 class="display-xl reveal reveal-2">Building is cheap. Knowing what to build is the job.</h1>
+      <p class="body-l prose muted reveal reveal-3">Digital product and experience executive. Twenty years leading product, UX design and research, and still building.</p>
+      <div class="hero-actions reveal reveal-3">
+        <a class="btn btn--primary" href="#contact">Start a conversation</a>
+        <a class="btn btn--ghost" href="#resume">Read the resume</a>
+      </div>
+    </div>
+    <figure class="hero-portrait reveal reveal-2">
+      <div class="portrait"><img src="headshot.jpg" alt="Brad Bowers, smiling, in a navy quarter-zip over a white collared shirt" width="720" height="900"></div>
+      <figcaption class="portrait-cap"><span class="body-s">Brad Bowers</span><span class="body-s muted">Sr. Director, Global Digital Product</span></figcaption>
+    </figure>
+  </div>
+
+  <div class="wrap" style="margin-top:var(--space-7)">
+    <div class="proof">
+      <div><span class="num">$100M+</span><span class="body-s muted">Incremental revenue delivered by teams I led over five years</span></div>
+      <div><span class="num">70 → 45</span><span class="body-s muted">Days to market on major initiatives, after a new operating model</span></div>
+      <div><span class="num">12 · 50</span><span class="body-s muted">Product, UX and research org I ran; largest consulting team I led</span></div>
+      <div><span class="num">20+</span><span class="body-s muted">Years across eCommerce, SaaS, direct selling, media and consulting</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Selected work -->
+<section class="section" id="work" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="heading-1">Selected work</h2>
+      <p class="body-l muted prose" style="max-width:44ch">The decisions behind the numbers. Each one started as a problem, not a feature request.</p>
+    </div>
+    <div class="work-grid">
+      <article class="work">
+        <p class="micro muted">eCommerce</p>
+        <p class="stat">$7M+</p>
+        <h3 class="heading-3">A guest offer that paid for itself</h3>
+        <dl>
+          <div><dt>Problem</dt><dd>Party guests left value on the table, and the old process cost money to run.</dd></div>
+          <div><dt>Result</dt><dd>$7M+ incremental revenue and $400K+ in cost savings.</dd></div>
+        </dl>
+      </article>
+      <article class="work">
+        <p class="micro muted">Seller onboarding</p>
+        <p class="stat">+5%</p>
+        <h3 class="heading-3">The first two months, rebuilt</h3>
+        <dl>
+          <div><dt>Problem</dt><dd>New sellers stalled between signing up and making their first sale.</dd></div>
+          <div><dt>Result</dt><dd>Productivity up 5% in the first two months; $2.6M anticipated yearly lift.</dd></div>
+        </dl>
+      </article>
+      <article class="work">
+        <p class="micro muted">Checkout</p>
+        <p class="stat">$1.2M</p>
+        <h3 class="heading-3">One step between cart and checkout</h3>
+        <dl>
+          <div><dt>Problem</dt><dd>Order value had flattened, and recommendations were guesswork.</dd></div>
+          <div><dt>Result</dt><dd>$1.2M incremental, with ongoing A/B tests on the algorithm.</dd></div>
+        </dl>
+      </article>
+      <article class="work">
+        <p class="micro muted">Operating model</p>
+        <p class="stat">−36%</p>
+        <h3 class="heading-3">Faster by deciding earlier</h3>
+        <dl>
+          <div><dt>Problem</dt><dd>Work reached engineering before anyone agreed it was worth building.</dd></div>
+          <div><dt>Result</dt><dd>Time to market cut from about 70 days to under 45.</dd></div>
+        </dl>
+      </article>
+      <article class="work">
+        <p class="micro muted">Financial services, consulting</p>
+        <p class="stat">+36%</p>
+        <h3 class="heading-3">Reviving a neglected app area</h3>
+        <dl>
+          <div><dt>Problem</dt><dd>A key mobile area was lagging, with no product owner.</dd></div>
+          <div><dt>Result</dt><dd>Usage up 36% and conversion up 15% after I stepped in as owner.</dd></div>
+        </dl>
+      </article>
+      <article class="work">
+        <p class="micro muted">Events marketplace startup</p>
+        <p class="stat">−40%</p>
+        <h3 class="heading-3">Support that answered itself</h3>
+        <dl>
+          <div><dt>Problem</dt><dd>The same customer questions kept landing on the support team.</dd></div>
+          <div><dt>Result</dt><dd>A knowledge base cut support requests 40% in its first month.</dd></div>
+        </dl>
+      </article>
+    </div>
+    <div class="note">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 9v5M10 6.2v.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <p class="body-s">Full case studies, including what we chose not to build, are available in conversation. Figures here are the same ones on my resume; client and employer specifics stay private.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Paradigms -->
+<section class="field field--navy section" id="paradigms">
+  <div class="wrap">
+    <div class="section-head">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <p class="micro">A product point of view</p>
+        <h2 class="display-l">Brad’s Product Paradigms</h2>
+      </div>
+      <p class="body-l muted" style="max-width:40ch">Ten beliefs shape how I run product. Four of them come up in every serious conversation.</p>
+    </div>
+
+    <div class="core">
+      <div><p class="micro muted">Paradigm 1</p><h3 class="heading-2">Direction beats speed</h3><p class="say">Speed is table stakes now. The question is whether we’re fast at the right things.</p></div>
+      <div><p class="micro muted">Paradigm 3</p><h3 class="heading-2">Strategy is what we won’t do</h3><p class="say">Show me what you decided not to do, and I’ll tell you whether you have a strategy.</p></div>
+      <div><p class="micro muted">Paradigm 6</p><h3 class="heading-2">Demos aren’t products</h3><p class="say">A demo proves the idea can work. Production proves customers can trust it.</p></div>
+      <div><p class="micro muted">Paradigm 9</p><h3 class="heading-2">Builder-executive</h3><p class="say">I lead through others, but I never stopped building. Ask me what I made last month.</p></div>
+    </div>
+
+    <div class="all" id="paradigm-list">
+      <p class="micro muted" style="margin-bottom:var(--space-2)">All ten, with the belief and the proof</p>
+    </div>
+  </div>
+</section>
+
+<!-- Operating model -->
+<section class="section" id="model">
+  <div class="wrap">
+    <div class="section-head">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <p class="micro muted">I-D3-M operating model</p>
+        <h2 class="heading-1" style="max-width:20ch">Nothing reaches engineering without clearing two gates.</h2>
+      </div>
+      <p class="body-l muted" style="max-width:38ch">Intake, Discovery, Definition, Development, Measure. Product owns the outcome at the end.</p>
+    </div>
+    <div class="flow-scroll" role="region" aria-label="I-D3-M stages" tabindex="0">
+      <ol class="flow">
+        <li class="stage">Intake</li>
+        <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
+        <li class="stage">Discovery</li>
+        <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
+        <li class="gate"><span class="diamond" aria-hidden="true"></span><span class="data">Invest?</span></li>
+        <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
+        <li class="stage">Definition</li>
+        <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
+        <li class="gate"><span class="diamond" aria-hidden="true"></span><span class="data">Build?</span></li>
+        <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
+        <li class="stage">Development</li>
+        <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
+        <li class="stage stage--end">Measure</li>
+      </ol>
+    </div>
+    <div class="model-notes">
+      <div><h3 class="heading-3">Briefs, not PRDs</h3><p class="muted">Initiative briefs, opportunity statements, prototypes and technical guardrails replace long requirement documents.</p></div>
+      <div><h3 class="heading-3">Scored, not lobbied</h3><p class="muted">Every bet is scored on Impact, Effort and Confidence and tied to an outcome pillar on the roadmap.</p></div>
+      <div><h3 class="heading-3">Reviewed every quarter</h3><p class="muted">A quarterly strategy review restates the bets, checks results and keeps a killed list so what we dropped stays dropped.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Builder lab -->
+<section class="field field--sage section" id="lab">
+  <div class="wrap">
+    <div class="section-head">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <p class="micro">Builder lab</p>
+        <h2 class="heading-1" style="max-width:18ch">Things I built this year, by hand, with AI.</h2>
+      </div>
+      <p class="body-l muted" style="max-width:40ch">Senior product leaders still have to build. This is the proof.</p>
+    </div>
+    <div class="lab">
+      <div class="cc" role="figure" aria-label="Interactive replica of my Command Center with sample data">
+        <div class="cc-top">
+          <span class="data cc-muted" id="cc-date">Wednesday · October 14</span>
+          <span class="cc-badge">Sample data</span>
+        </div>
+        <h3>Tonight’s 7:30 demo is the one thing setting today apart.</h3>
+        <div class="cc-tiles">
+          <div class="cc-tile"><b>3</b><span>meetings today</span></div>
+          <div class="cc-tile warm"><b>1</b><span>reply waiting on you</span></div>
+          <div class="cc-tile cool"><b>4</b><span>new roles matched</span></div>
+          <div class="cc-tile"><b>3</b><span>newsletters briefed</span></div>
+          <div class="cc-tile good"><b>2</b><span>deals on watch</span></div>
+        </div>
+        <div class="cc-panel">
+          <div class="cc-panel-h"><strong>Today, live</strong><span class="body-s cc-muted">Calendar, email and notes, refreshed through the day</span></div>
+          <div class="cc-track" aria-hidden="true">
+            <i style="left:34%;width:12.5%"></i><i class="alt" style="left:56%;width:3%"></i><i style="left:84.5%;width:6.3%"></i><span class="now" style="left:61%"></span>
+          </div>
+          <div class="cc-axis data cc-muted" aria-hidden="true"><span>6a</span><span>10a</span><span>2p</span><span>6p</span><span>10p</span></div>
+          <div class="cc-sched body-s">
+            <span class="data cc-muted">11:30 AM</span><span>Lunch with a former colleague</span>
+            <span class="data cc-muted">3:00 PM</span><span>Recruiter sync</span>
+            <span class="data cc-muted">7:30 PM</span><span>Product demo</span>
+          </div>
+        </div>
+        <div class="cc-grid2">
+          <div class="cc-panel">
+            <div class="cc-panel-h"><strong>Inbox since the brief</strong></div>
+            <p><b style="font:800 30px/1 var(--font-display)">0</b> <span class="body-s cc-muted">unread from people</span></p>
+            <p class="body-s cc-muted">Nothing new since the morning brief.</p>
+          </div>
+          <div class="cc-panel">
+            <div class="cc-panel-h"><strong>Priorities</strong><span class="body-s cc-muted" id="cc-count">3 open</span></div>
+            <ul class="cc-todo" id="cc-todo">
+              <li><input type="checkbox" id="cc1"><label for="cc1">Prep questions for the 3 PM call<span class="src">Suggested focus · from brief</span></label><span class="cc-when">Today</span></li>
+              <li><input type="checkbox" id="cc2"><label for="cc2">Draft interview prep thread<span class="src">From notes</span></label><span class="cc-when">Today</span></li>
+              <li><input type="checkbox" id="cc3"><label for="cc3">Outline two case studies for interviews<span class="src">From notes</span></label><span class="cc-when later">Later</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="cc-foot body-s cc-muted"><span>Replica of my real Command Center. Names and details changed.</span><span>Try the checkboxes.</span></div>
+      </div>
+
+      <div class="lab-side">
+        <article class="project">
+          <p class="micro muted">Daily tool</p>
+          <h3 class="heading-3">Command Center</h3>
+          <p>A morning brief and live dashboard that reads my calendar, inbox and notes, then tells me the one thing that matters today. Built for fast decisions and quick actions.</p>
+          <div class="tagrow"><span class="tag">Claude</span><span class="tag">Connected data</span><span class="tag">Scheduled agents</span></div>
+        </article>
+        <article class="project">
+          <p class="micro muted">You’re looking at it</p>
+          <h3 class="heading-3">This site</h3>
+          <p>Designed and built on my own design system, below. No template, no page builder.</p>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Design system -->
+<section class="section" id="system">
+  <div class="wrap">
+    <div class="section-head">
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <p class="micro muted">Bowers design system</p>
+        <h2 class="heading-1" style="max-width:18ch">Confident type, a neutral canvas, color with intent.</h2>
+      </div>
+      <p class="body-l muted" style="max-width:40ch">Every page here runs on it, in light and dark, to WCAG 2.1 AA. Switch your system theme to see both.</p>
+    </div>
+    <div class="ds">
+      <div class="ds-card ds-colors">
+        <h3 class="heading-3">Color</h3>
+        <div class="swatches">
+          <div class="sw"><i style="background:var(--canvas)"></i><span class="body-s">canvas</span><span class="data muted">Page ground</span></div>
+          <div class="sw"><i style="background:var(--ink)"></i><span class="body-s">ink</span><span class="data muted">Text</span></div>
+          <div class="sw"><i style="background:var(--signal)"></i><span class="body-s">signal</span><span class="data muted">The one accent</span></div>
+          <div class="sw"><i style="background:var(--field-navy)"></i><span class="body-s">field-navy</span><span class="data muted">Deep section</span></div>
+          <div class="sw"><i style="background:var(--field-forest)"></i><span class="body-s">field-forest</span><span class="data muted">Deep section</span></div>
+          <div class="sw"><i style="background:var(--field-clay)"></i><span class="body-s">field-clay</span><span class="data muted">Once per page</span></div>
+          <div class="sw"><i style="background:var(--field-sage)"></i><span class="body-s">field-sage</span><span class="data muted">Relief</span></div>
+          <div class="sw"><i style="background:var(--surface-sunken)"></i><span class="body-s">surface-sunken</span><span class="data muted">Recessed</span></div>
+        </div>
+      </div>
+      <div class="ds-card ds-type">
+        <h3 class="heading-3">Type</h3>
+        <div class="spec">
+          <div><span style="font:800 40px/.95 var(--font-display);font-stretch:125%;letter-spacing:-.02em">Display</span><span class="data muted">Archivo 125%</span></div>
+          <div><span style="font:500 30px/1 var(--font-sans);letter-spacing:-.035em">Heading</span><span class="data muted">Geist 500</span></div>
+          <div><span class="body-l">Lead text, light</span><span class="data muted">Geist 300</span></div>
+          <div><span class="data" style="font-size:15px">$184.00 · 07:30</span><span class="data muted">Geist Mono</span></div>
+        </div>
+      </div>
+      <div class="ds-card ds-comp">
+        <h3 class="heading-3">Components</h3>
+        <div class="comp-row">
+          <button class="btn btn--primary" type="button">Find your tutor</button>
+          <button class="btn btn--ghost" type="button">See the menu</button>
+          <span style="width:1px;height:28px;background:var(--line)" aria-hidden="true"></span>
+          <div class="comp-row" role="group" aria-label="Sample filter chips">
+            <button class="chip" type="button" aria-pressed="true">All</button>
+            <button class="chip" type="button" aria-pressed="false">Weeknight</button>
+            <button class="chip" type="button" aria-pressed="false">Under 30 min</button>
+          </div>
+        </div>
+        <div class="ds-rules">
+          <div><h4 class="micro muted">Shape</h4><p class="body-s">Interactive things are pills. Containers are soft. Never the other way round.</p></div>
+          <div><h4 class="micro muted">Depth</h4><p class="body-s">Depth comes from surface color. Shadows only for things that float.</p></div>
+          <div><h4 class="micro muted">Color</h4><p class="body-s">One pine signal per view region. If two things are pine, one is wrong.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Resume -->
+<section class="section" id="resume" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="heading-1">Resume</h2>
+      <p class="body-l muted" style="max-width:44ch">Digital Product &amp; Experience Executive. Product, UX design and research, AI-enabled transformation.</p>
+    </div>
+    <div class="cv">
+      <aside class="cv-side">
+        <div><p class="micro muted" style="margin-bottom:var(--space-3)">Leadership &amp; strategy</p>
+          <ul><li>Product, UX design and research leadership</li><li>Product strategy and vision</li><li>AI-native product operating models</li><li>Org design, coaching and team leadership</li></ul></div>
+        <div><p class="micro muted" style="margin-bottom:var(--space-3)">Product &amp; platform</p>
+          <ul><li>Digital commerce and revenue growth</li><li>Design systems</li><li>Platform modernization</li><li>Experimentation and optimization</li></ul></div>
+        <div><p class="micro muted" style="margin-bottom:var(--space-3)">Credentials</p>
+          <ul><li>Patents: media content discovery; media accessibility information</li><li>Certified Agile Leadership I</li><li>BA, Coe College</li><li>Panelist, eTail West 2024; speaker to 2,000+ at a national seller conference</li></ul></div>
+      </aside>
+      <div>
+        <div class="timeline" aria-hidden="true" id="timeline"></div>
+        <div class="roles">
+          <article class="role">
+            <p class="data muted">2021 – 2026</p>
+            <div class="role-main">
+              <div><h3 class="heading-3">Pampered Chef</h3><p class="body-s muted"><strong>Sr. Director, Global Digital Product Management</strong> 2026 · Director, Digital Product Management 2021 – 2026</p></div>
+              <p>Led global digital product for customer and consultant experiences across a global eCommerce ecosystem, with a team of 12 across Product, UX Design and UX Research.</p>
+              <ul>
+                <li>Built an AI-centered product operating model: outcome ownership, standard documentation, redefined roles.</li>
+                <li>Built a Claude-based design system from scratch and wired it into the development pipeline.</li>
+                <li>Teams delivered <strong>$100M+</strong> incremental revenue over five years; one launch alone delivered $7M+.</li>
+                <li>Cut time to market on major initiatives from about 70 days to under 45.</li>
+                <li>Oversaw the move from a mostly legacy platform to a modern headless stack.</li>
+              </ul>
+            </div>
+          </article>
+          <article class="role">
+            <p class="data muted">2017 – 2021</p>
+            <div class="role-main">
+              <div><h3 class="heading-3">Valtech (formerly Kin + Carta)</h3><p class="body-s muted"><strong>Director, Product Strategy</strong> · Senior Principal, Product Strategy &amp; Delivery</p></div>
+              <p>Defined and delivered product for clients across industries; led teams of up to 50 on one engagement.</p>
+              <ul>
+                <li>Mobile product owner for a financial services firm: usage up 36%, conversion up 15%.</li>
+                <li>Built a disputes middleware and agent servicing platform for a consumer finance leader.</li>
+                <li>Ran product vision and North Star workshops for an industrial manufacturer.</li>
+              </ul>
+            </div>
+          </article>
+          <article class="role">
+            <p class="data muted">2014 – 2017</p>
+            <div class="role-main">
+              <div><h3 class="heading-3">Kapow</h3><p class="body-s muted"><strong>Partner, Product &amp; Product Marketing Director</strong></p></div>
+              <ul>
+                <li>Built the product team from scratch for a corporate events marketplace.</li>
+                <li>Shipped the first real-time corporate event booking platform, contributing to a 2015 funding round.</li>
+                <li>Held P&amp;L across Product and UX; presented strategy to the Board.</li>
+              </ul>
+            </div>
+          </article>
+          <article class="role">
+            <p class="data muted">2009 – 2014</p>
+            <div class="role-main">
+              <div><h3 class="heading-3">Redbox Instant by Verizon · Redbox</h3><p class="body-s muted"><strong>Manager, Consumer Product Management (Web, Mobile, TV)</strong> · earlier program and strategy roles</p></div>
+              <ul>
+                <li>Launched and ran every consumer platform for the Redbox and Verizon streaming joint venture.</li>
+                <li>Redesigned sign-up, cutting sign-up time 15%; led the experience 2.0 reboot.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="field field--forest section" id="contact">
+  <div class="wrap contact">
+    <div style="display:flex;flex-direction:column;gap:var(--space-4)">
+      <p class="micro">Get in touch</p>
+      <h2 class="display-l">Hiring a product leader who still builds?</h2>
+      <p class="body-l muted" style="max-width:40ch">I’m talking with companies about senior-level product and digital experience roles.</p>
+    </div>
+    <div class="contact-card">
+      <div class="copyline"><span id="email">pbradleybowers@gmail.com</span><button class="btn btn--inverse btn--s" type="button" id="copy">Copy email</button></div>
+      <p class="body-s toast" role="status" id="toast"></p>
+      <p class="body-s"><a class="link" href="https://www.linkedin.com/in/brad-bowers-000" target="_blank" rel="noopener">LinkedIn: brad-bowers-000</a></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><svg class="mark" aria-hidden="true"><use href="#bb"/></svg>Brad Bowers</a>
+    <p class="body-s muted">BAZL Group, the family name behind my independent work.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // Paradigms, all ten. Proofs use resume-level facts only.
+  const P = [
+    ["Direction beats speed","AI collapsed the cost of building, so engineering now outruns discovery. The scarce work is deciding what is worth building, and making sure it sells.","Built an operating model with two explicit gates, “Invest?” and “Build?”, and still cut time to market from about 70 days to under 45."],
+    ["Outcomes, not features","Teams own outcomes, not feature lists. The roadmap names the outcome we are moving; features earn a place after we understand the problem.","Organized the portfolio around outcome pillars. Those teams delivered $100M+ in incremental revenue over five years."],
+    ["Strategy is what we won’t do","A strategy that can’t say no is a wish list. Good strategy is a few bets, each with a named sacrifice and a real diagnosis.","Held further investment in a major platform until we knew where users needed value. Every other bet was scored on Impact, Effort and Confidence."],
+    ["Complaints are evidence, not requirements","A request tells you where to look, not what to build. One “export button” can hide five different problems.","Turned scattered seller complaints into one measurable problem, the first 90 days, and lifted early productivity 5%. At Kapow, recurring questions became a knowledge base that cut support 40%."],
+    ["Prototypes are questions","A short brief, an opportunity statement and a prototype move faster than a long spec. Every prototype states the question it answers.","Replaced PRDs with initiative briefs, prototypes and technical guardrails across a whole product organization."],
+    ["Demos aren’t products","A polished prototype looks finished. Behind it sit edge cases, data, permissions, performance and, with AI, evals and cost.","Clearing “Build?” still means going through Definition. When speed matters more than polish, the work ships as a pilot with an explicit learning frame."],
+    ["Invisible AI","The best AI disappears into the experience. Customers should notice the product knows what they need, not “the AI feature.”","Put AI under the surface of a long-term product vision: personalized inspiration for shoppers and time back for sellers."],
+    ["Transformation is a people problem","Licenses don’t change how people decide or trust output. AI programs stall on ownership and culture, so I fix those first.","Led a 40+ person, multi-year, $10M digital transformation for an industrial manufacturer. Helped stand up an AI committee for customer and seller use cases."],
+    ["Builder-executive","Senior leaders still have to build: run the function, hire and coach, and stay close enough to prototype.","Ran discovery and built the mock-ups myself in my final months as Sr. Director. Built the Command Center and this site, on my own design system."],
+    ["Rent before you buy","Prove value cheaply before committing money, headcount or roadmap. A/B tests, prototypes with real users, small pilots. Then scale what earns it.","The “Invest?” gate exists for exactly this. Recommendation algorithms ran as continuous A/B tests before anything was locked in."]
+  ];
+  const list = document.getElementById('paradigm-list');
+  P.forEach(([t, b, p], i) => {
+    const d = document.createElement('details');
+    d.innerHTML = `<summary><span class="data">${String(i+1).padStart(2,'0')}</span><span class="heading-3">${t}</span><svg class="chev" aria-hidden="true"><use href="#chev"/></svg></summary>
+      <div class="body"><div><p class="micro muted">I believe</p><p>${b}</p></div><div><p class="micro muted">Proof</p><p>${p}</p></div></div>`;
+    list.appendChild(d);
+  });
+
+  // Resume timeline 2009 to 2026, PC years highlighted
+  const tl = document.getElementById('timeline');
+  for (let y = 2009; y <= 2026; y++) { const i = document.createElement('i'); i.style.flex = '1'; if (y >= 2021) i.className = 'on'; tl.appendChild(i); }
+
+  // Command Center date and todo count
+  try { document.getElementById('cc-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }).replace(',', ' ·'); } catch (e) {}
+  const todo = document.getElementById('cc-todo'), count = document.getElementById('cc-count');
+  todo.addEventListener('change', () => {
+    const open = todo.querySelectorAll('input:not(:checked)').length;
+    count.textContent = open ? `${open} open` : 'All done today';
+  });
+
+  // Chips
+  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')));
+
+  // Copy email
+  const toast = document.getElementById('toast'), email = document.getElementById('email');
+  document.getElementById('copy').addEventListener('click', () => {
+    const done = () => { toast.textContent = 'Email copied.'; };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast.textContent = 'Email selected. Press Ctrl or Cmd + C to copy.'; };
+    try { navigator.clipboard.writeText(email.textContent).then(done, fallback); } catch (e) { fallback(); }
+  });
+
+  // Current section in nav
+  const links = [...document.querySelectorAll('.nav-links a')];
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) links.forEach(a => { if (a.getAttribute('href') === '#' + e.target.id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    }), { rootMargin: '-45% 0px -50% 0px' });
+    links.forEach(a => { const s = document.querySelector(a.getAttribute('href')); if (s) io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
