@@ -58,6 +58,8 @@
   color-scheme:dark }
 
 html { scroll-behavior:smooth; }
+section[id] { scroll-margin-top:72px; }
+@media (max-width:760px) { section[id] { scroll-margin-top:104px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *, *::before, *::after { transition:none !important; animation:none !important; } }
 body { background:var(--canvas); color:var(--ink); font:400 16px/1.55 var(--font-sans); -webkit-font-smoothing:antialiased; }
 h1,h2,h3,p,ul,ol,dl,dd,figure { margin:0; }
@@ -790,6 +792,12 @@ body{margin:0}
     const fallback = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast.textContent = 'Email selected. Press Ctrl or Cmd + C to copy.'; };
     try { navigator.clipboard.writeText(email.textContent).then(done, fallback); } catch (e) { fallback(); }
   });
+
+  // Deep links (bazlgroup.com#resume): jump once fonts settle, since smooth scrolling and font loading cancel the browser's own jump
+  if (location.hash.length > 1) {
+    const go = () => { const t = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (t) t.scrollIntoView({ behavior: 'instant', block: 'start' }); };
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => requestAnimationFrame(go));
+  }
 
   // Current section in nav
   const links = [...document.querySelectorAll('.nav-links a')];
