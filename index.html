@@ -153,8 +153,12 @@ a { color:inherit; }
 .work dl { display:grid; gap:var(--space-3); border-top:1px solid var(--line); padding-top:var(--space-4); margin-top:auto; }
 .work dt { font:500 11.5px/1.3 var(--font-mono); letter-spacing:.02em; text-transform:uppercase; color:var(--ink-muted); }
 .work dd { font:400 15px/1.5 var(--font-sans); }
-@media (max-width:960px) { .work-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+.work-grid { grid-template-columns:repeat(6,minmax(0,1fr)); }
+.work-grid > .work { grid-column:span 2; }
+.work-grid > .work:nth-child(n+4) { grid-column:span 3; }
+@media (max-width:960px) { .work-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .work-grid > .work, .work-grid > .work:nth-child(n+4) { grid-column:auto; } .work-grid > .work:last-child { grid-column:1 / -1; } }
 @media (max-width:620px) { .work-grid { grid-template-columns:1fr; } }
+.skill-tags { display:flex; flex-wrap:wrap; gap:var(--space-2); }
 .note { display:flex; gap:var(--space-3); align-items:flex-start; padding:var(--space-4) var(--space-5); border-radius:var(--radius-l); background:var(--surface-sunken); margin-top:var(--space-5); }
 .note svg { width:20px; height:20px; flex:none; margin-top:2px; }
 
@@ -346,7 +350,7 @@ body{margin:0}
   <div class="wrap">
     <div class="section-head">
       <h2 class="heading-1">Selected work</h2>
-      <p class="body-l muted prose" style="max-width:44ch">The decisions behind the numbers. Each one started as a problem, not a feature request.</p>
+      <p class="body-l muted prose" style="max-width:44ch">Each one started as a problem, not a feature request.</p>
     </div>
     <div class="work-grid">
       <article class="work">
@@ -374,15 +378,6 @@ body{margin:0}
         <dl>
           <div><dt>Problem</dt><dd>Order value had flattened, and recommendations were guesswork.</dd></div>
           <div><dt>Result</dt><dd>$1.2M incremental, with ongoing A/B tests on the algorithm.</dd></div>
-        </dl>
-      </article>
-      <article class="work">
-        <p class="micro muted">Operating model</p>
-        <p class="stat">−36%</p>
-        <h3 class="heading-3">Faster by deciding earlier</h3>
-        <dl>
-          <div><dt>Problem</dt><dd>Work reached engineering before anyone agreed it was worth building.</dd></div>
-          <div><dt>Result</dt><dd>Time to market cut from about 70 days to under 45.</dd></div>
         </dl>
       </article>
       <article class="work">
@@ -443,7 +438,6 @@ body{margin:0}
         <p class="micro muted">I-D3-M operating model</p>
         <h2 class="heading-1" style="max-width:20ch">Nothing reaches engineering without clearing two gates.</h2>
       </div>
-      <p class="body-l muted" style="max-width:38ch">Intake, Discovery, Definition, Development, Measure. Product owns the outcome at the end.</p>
     </div>
     <div class="flow-scroll" role="region" aria-label="I-D3-M stages" tabindex="0">
       <ol class="flow">
@@ -478,7 +472,6 @@ body{margin:0}
         <p class="micro">Builder lab</p>
         <h2 class="heading-1" style="max-width:18ch">Things I built this year, by hand, with AI.</h2>
       </div>
-      <p class="body-l muted" style="max-width:40ch">Senior product leaders still have to build. This is the proof.</p>
     </div>
     <div class="lab">
       <div class="cc" role="figure" aria-label="Interactive replica of my Command Center with sample data">
@@ -549,7 +542,7 @@ body{margin:0}
         <p class="micro muted">Bowers design system</p>
         <h2 class="heading-1" style="max-width:18ch">Confident type, a neutral canvas, color with intent.</h2>
       </div>
-      <p class="body-l muted" style="max-width:40ch">Every page here runs on it, in light and dark, to WCAG 2.1 AA. Switch your system theme to see both.</p>
+      <p class="body-l muted" style="max-width:40ch">This site runs on it, in light and dark, to WCAG 2.1 AA.</p>
     </div>
     <div class="ds">
       <div class="ds-card ds-colors">
@@ -601,14 +594,11 @@ body{margin:0}
   <div class="wrap">
     <div class="section-head">
       <h2 class="heading-1">Resume</h2>
-      <p class="body-l muted" style="max-width:44ch">Digital Product &amp; Experience Executive. Product, UX design and research, AI-enabled transformation.</p>
     </div>
     <div class="cv">
       <aside class="cv-side">
-        <div><p class="micro muted" style="margin-bottom:var(--space-3)">Leadership &amp; strategy</p>
-          <ul><li>Product, UX design and research leadership</li><li>Product strategy and vision</li><li>AI-native product operating models</li><li>Org design, coaching and team leadership</li></ul></div>
-        <div><p class="micro muted" style="margin-bottom:var(--space-3)">Product &amp; platform</p>
-          <ul><li>Digital commerce and revenue growth</li><li>Design systems</li><li>Platform modernization</li><li>Experimentation and optimization</li></ul></div>
+        <div><p class="micro muted" style="margin-bottom:var(--space-3)">Strengths</p>
+          <div class="skill-tags"><span class="tag">Product, UX &amp; research leadership</span><span class="tag">Product strategy</span><span class="tag">AI operating models</span><span class="tag">Team building &amp; coaching</span><span class="tag">eCommerce growth</span><span class="tag">Design systems</span><span class="tag">Platform modernization</span><span class="tag">Experimentation</span></div></div>
         <div><p class="micro muted" style="margin-bottom:var(--space-3)">Credentials</p>
           <ul><li>Patents: media content discovery; media accessibility information</li><li>Certified Agile Leadership I</li><li>BA, Coe College</li><li>Panelist, eTail West 2024; speaker to 2,000+ at a national seller conference</li></ul></div>
       </aside>
@@ -621,11 +611,9 @@ body{margin:0}
               <div><h3 class="heading-3">Pampered Chef</h3><p class="body-s muted"><strong>Sr. Director, Global Digital Product Management</strong> · Apr 2026 – Oct 2026<br>Director, Digital Product Management · Jul 2021 – Apr 2026</p></div>
               <p>Led global digital product for customer and consultant experiences across a global eCommerce ecosystem, with a team of 12 across Product, UX Design and UX Research.</p>
               <ul>
-                <li>Built an AI-centered product operating model: outcome ownership, standard documentation, redefined roles.</li>
+                <li>Teams delivered <strong>$100M+</strong> incremental revenue over five years.</li>
+                <li>Built an AI-centered operating model that cut time to market from about 70 days to under 45.</li>
                 <li>Built a Claude-based design system from scratch and wired it into the development pipeline.</li>
-                <li>Teams delivered <strong>$100M+</strong> incremental revenue over five years; one launch alone delivered $7M+.</li>
-                <li>Cut time to market on major initiatives from about 70 days to under 45.</li>
-                <li>Oversaw the move from a mostly legacy platform to a modern headless stack.</li>
               </ul>
             </div>
           </article>
@@ -645,21 +633,14 @@ body{margin:0}
             <p class="data muted">Sep 2014 – May 2017</p>
             <div class="role-main">
               <div><h3 class="heading-3">Kapow</h3><p class="body-s muted"><strong>Partner, Product &amp; Product Marketing Director</strong> · Sep 2014 – May 2017</p></div>
-              <ul>
-                <li>Built the product team from scratch for a corporate events marketplace.</li>
-                <li>Shipped the first real-time corporate event booking platform, contributing to a 2015 funding round.</li>
-                <li>Held P&amp;L across Product and UX; presented strategy to the Board.</li>
-              </ul>
+              <p>Built the product team from scratch and shipped the first real-time corporate event booking platform, helping close a 2015 funding round.</p>
             </div>
           </article>
           <article class="role">
             <p class="data muted">Apr 2009 – Sep 2014</p>
             <div class="role-main">
               <div><h3 class="heading-3">Redbox Instant by Verizon · Redbox</h3><p class="body-s muted"><strong>Manager, Consumer Product Management (Web, Mobile, TV)</strong> · Jan 2012 – Sep 2014<br>Sr. Program Manager and Senior Analyst roles at Redbox · Apr 2009 – Jan 2012</p></div>
-              <ul>
-                <li>Launched and ran every consumer platform for the Redbox and Verizon streaming joint venture.</li>
-                <li>Redesigned sign-up, cutting sign-up time 15%; led the experience 2.0 reboot.</li>
-              </ul>
+              <p>Launched and ran every consumer platform (web, mobile, TV) for the Redbox and Verizon streaming joint venture.</p>
             </div>
           </article>
         </div>
