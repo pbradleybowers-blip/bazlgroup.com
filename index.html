@@ -135,6 +135,11 @@ a { color:inherit; }
   .hero-portrait .portrait { width:88px; flex:none; border-radius:var(--radius-m); }
   .hero-portrait .portrait-cap { flex-direction:column; gap:2px; padding-top:0; }
 }
+@media (max-width:640px) {
+  .hero { padding-block:var(--space-5) var(--space-7); }
+  .hero-grid { gap:var(--space-4); }
+  .hero-copy { gap:var(--space-4); }
+}
 .reveal { animation:rise var(--duration-reveal) var(--ease-out) both; }
 .reveal-2 { animation-delay:90ms; } .reveal-3 { animation-delay:180ms; }
 @keyframes rise { from { transform:translateY(14px); opacity:.001; } to { transform:none; opacity:1; } }
