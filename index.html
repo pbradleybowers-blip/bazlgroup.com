@@ -796,7 +796,7 @@ body{margin:0}
 
 // Ask about my work: answered by the bazl-ask Cloudflare Worker (Claude Haiku)
 (() => {
-  const API = '';  // set to the Worker URL once it is deployed
+  const API = 'https://bazl-ask.pbradleybowers.workers.dev/';
   const sec = document.getElementById('ask');
   if (!API || !window.fetch || !window.ReadableStream) return;
   sec.hidden = false;
