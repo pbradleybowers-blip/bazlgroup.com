@@ -3,6 +3,7 @@
 // builds the prompt server-side from the public knowledge file, and streams plain text back.
 // Reliability: timeouts on every call, retries with backoff on retryable errors,
 // and fallback from Haiku to Sonnet if Haiku keeps failing before any words are sent.
+// GET /health reports whether the API key works and whether the monthly spend limit was hit.
 
 const ALLOWED_ORIGINS = ['https://bazlgroup.com', 'https://www.bazlgroup.com'];
 const KB_URL = 'https://bazlgroup.com/knowledge.md';
@@ -111,6 +112,13 @@ async function openAnswer({ apiKey, system, messages, cfg }) {
         if (!res.ok || !res.body) {
           lastStatus = res.status;
           if (!RETRYABLE.has(res.status)) {
+            let detail = '';
+            try { detail = (await res.text()).slice(0, 2000); } catch {}
+            if (res.status === 400 && /usage limit/i.test(detail)) {
+              spendLimitHitAt = Date.now();
+              log('spend_limit_reached', { model });
+              return { error: 'unavailable' };
+            }
             log('failed', { model, attempt, status: res.status, retryable: false });
             return { error: 'upstream_error' };
           }
@@ -156,6 +164,40 @@ async function openAnswer({ apiKey, system, messages, cfg }) {
   }
   log('gave_up', { reason: 'all_models_failed', lastStatus });
   return { error: lastStatus === 429 ? 'rate_limited' : 'upstream_error' };
+}
+
+// Spend-limit awareness, for the /health check a scheduled task polls.
+let spendLimitHitAt = 0;
+let healthCache = { at: 0, body: null };
+const HEALTH_CACHE_MS = 15 * 60 * 1000;
+
+async function health(env) {
+  if (healthCache.body && Date.now() - healthCache.at < HEALTH_CACHE_MS) return healthCache.body;
+  let body;
+  if (!env.ANTHROPIC_API_KEY) body = { ok: false, reason: 'missing_key' };
+  else {
+    try {
+      // The smallest possible call: one word from Haiku. Costs a tiny fraction of a cent.
+      const res = await withTimeout(fetch(API_URL, {
+        method: 'POST',
+        headers: { 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+        body: JSON.stringify({ model: MODELS[0], max_tokens: 1, messages: [{ role: 'user', content: 'ping' }] })
+      }), 10000);
+      if (res.ok) body = { ok: true };
+      else {
+        let detail = '';
+        try { detail = (await res.text()).slice(0, 2000); } catch {}
+        if (res.status === 400 && /usage limit/i.test(detail)) { spendLimitHitAt = Date.now(); body = { ok: false, reason: 'spend_limit' }; }
+        else if (res.status === 401 || res.status === 403) body = { ok: false, reason: 'bad_key' };
+        else body = { ok: false, reason: 'api_' + res.status };
+      }
+    } catch { body = { ok: false, reason: 'unreachable' }; }
+  }
+  body.checkedAt = new Date().toISOString();
+  if (spendLimitHitAt) body.lastSpendLimitAt = new Date(spendLimitHitAt).toISOString();
+  healthCache = { at: Date.now(), body };
+  log('health', { ok: body.ok, reason: body.reason || null });
+  return body;
 }
 
 const hits = new Map();
@@ -206,6 +248,13 @@ function cleanMessages(raw) {
 
 export default {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    if (request.method === 'GET' && url.pathname === '/health') {
+      return new Response(JSON.stringify(await health(env)), {
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+      });
+    }
+
     const origin = request.headers.get('Origin') || '';
     const allowed = ALLOWED_ORIGINS.includes(origin);
     if (request.method === 'OPTIONS') {
@@ -236,7 +285,8 @@ export default {
     const system = [{ type: 'text', text: RULES + '\n\nBRAD KNOWLEDGE\n' + kb, cache_control: { type: 'ephemeral' } }];
     const opened = await openAnswer({ apiKey: env.ANTHROPIC_API_KEY, system, messages, cfg });
     if (opened.error) {
-      return reply({ error: opened.error }, opened.error === 'rate_limited' ? 429 : 502, headers);
+      const status = opened.error === 'rate_limited' ? 429 : opened.error === 'unavailable' ? 503 : 502;
+      return reply({ error: opened.error }, status, headers);
     }
 
     // Words are flowing. From here on there is no fallback: the visitor already sees text.

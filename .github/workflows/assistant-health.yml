@@ -1,0 +1,31 @@
+name: Assistant health check
+# Every 6 hours, ask the bazl-ask Worker whether the Anthropic key works and the
+# spend limit has not been hit. Publishes the result to bazlgroup.com/status.json
+# (only when it changes), which a Claude scheduled task reads to notify Brad.
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check health and publish changes
+        run: |
+          body=$(curl -sS -m 30 https://bazl-ask.pbradleybowers.workers.dev/health || echo '{"ok":false,"reason":"unreachable"}')
+          ok=$(echo "$body" | jq -r '.ok // false' 2>/dev/null || echo false)
+          reason=$(echo "$body" | jq -r '.reason // "none"' 2>/dev/null || echo bad_response)
+          new=$(jq -cn --argjson ok "$([ "$ok" = true ] && echo true || echo false)" --arg reason "$reason" '{ok: $ok, reason: $reason}')
+          old=$(jq -c '{ok, reason}' status.json 2>/dev/null || echo '{}')
+          echo "now: $new  before: $old"
+          if [ "$new" != "$old" ]; then
+            jq -n --argjson s "$new" --arg t "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '$s + {changedAt: $t}' > status.json
+            git config user.name "bazl-health-check"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add status.json
+            git commit -m "Assistant status: ${reason}"
+            git push
+          fi

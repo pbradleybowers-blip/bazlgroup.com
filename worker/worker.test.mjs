@@ -157,3 +157,24 @@ test('never logs the API key or the visitor question', async () => {
   assert.ok(!all.includes(KEY));
   assert.ok(!all.includes('global teams'));
 });
+
+const spendLimit = () => () => new Response(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'You have reached your specified API usage limits. You will regain access on 2026-11-01.' } }), { status: 400 });
+
+test('spend limit: visitors get the resting message, no retry, no fallback', async () => {
+  plan = [spendLimit()];
+  const r = await ask();
+  assert.equal(r.status, 503);
+  assert.deepEqual(JSON.parse(r.text), { error: 'unavailable' });
+  assert.deepEqual(calls, [HAIKU]);
+  assert.ok(logs.some(l => l.includes('spend_limit_reached')));
+});
+
+test('health check reports the spend limit', async () => {
+  plan = [spendLimit()];
+  const res = await worker.fetch(new Request('https://bazl-ask.example/health'), ENV);
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.equal(body.ok, false);
+  assert.equal(body.reason, 'spend_limit');
+  assert.ok(body.lastSpendLimitAt);
+});
