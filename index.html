@@ -280,6 +280,28 @@ a { color:inherit; }
 .copyline span.is-hidden { font:400 16px/1.3 var(--font-sans); opacity:.8; user-select:none; letter-spacing:.04em; }
 footer .wrap { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--space-3); align-items:center; padding-block:var(--space-6); }
 footer .brand { font-size:16px; }
+
+/* Ask about my work */
+.ask-card { background:var(--surface); border-radius:var(--radius-l); padding:var(--space-6); display:flex; flex-direction:column; gap:var(--space-5); }
+@media (max-width:640px) { .ask-card { padding:var(--space-5) var(--space-4); } }
+.ask-head { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:var(--space-3) var(--space-6); }
+.ask-head > * { min-width:0; }
+.ask-form { display:flex; align-items:center; gap:var(--space-2); padding:8px 8px 8px 20px; background:var(--canvas); border:1px solid var(--line-strong); border-radius:var(--radius-l); }
+.ask-form:focus-within { border-color:var(--ink); }
+.ask-input { flex:1; min-width:0; min-height:44px; border:0; background:transparent; color:var(--ink); font:400 17px/1.4 var(--font-sans); outline:none; }
+.ask-input::placeholder { color:var(--ink-muted); }
+.ask-suggest { display:flex; flex-wrap:wrap; gap:var(--space-2); }
+.ask-log { display:flex; flex-direction:column; gap:var(--space-5); }
+.ask-log:empty { display:none; }
+.ask-turn { display:flex; flex-direction:column; gap:var(--space-2); border-top:1px solid var(--line); padding-top:var(--space-4); }
+.ask-turn:first-child { border-top:0; padding-top:0; }
+.ask-q { font:500 16px/1.4 var(--font-sans); letter-spacing:-.01em; }
+.ask-a { white-space:pre-line; max-width:68ch; }
+.ask-a.is-pending { color:var(--ink-muted); }
+.ask-a.is-error { color:var(--ink-muted); font-style:italic; }
+.ask-foot { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--space-2) var(--space-4); }
+.ask-reset { background:none; border:0; padding:0; font:400 14px/1.45 var(--font-sans); color:var(--ink-muted); text-decoration:underline; text-underline-offset:.18em; cursor:pointer; }
+.vh { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 </style>
 <style>
 *,*::before,*::after{box-sizing:border-box}
@@ -341,6 +363,36 @@ body{margin:0}
       <div><span class="num">70 → 45</span><span class="body-s muted">Days to market on major initiatives, after a new operating model</span></div>
       <div><span class="num">12 · 50</span><span class="body-s muted">Product, UX and research org I ran; largest consulting team I led</span></div>
       <div><span class="num">20+</span><span class="body-s muted">Years across eCommerce, SaaS, direct selling, media and consulting</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Ask -->
+<section class="section" id="ask" style="padding-top:0" hidden>
+  <div class="wrap">
+    <div class="ask-card">
+      <div class="ask-head">
+        <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+          <p class="micro muted">Ask about my work</p>
+          <h2 class="heading-2">Short on time? Ask a question.</h2>
+        </div>
+        <p class="body-s muted" style="max-width:36ch">Answers come only from this site, my resume and my Product Paradigms. No confidential information is included.</p>
+      </div>
+      <div class="ask-log" id="ask-log" aria-live="polite"></div>
+      <form class="ask-form" id="ask-form">
+        <label class="vh" for="ask-input">Your question about Brad</label>
+        <input class="ask-input" id="ask-input" type="text" maxlength="300" autocomplete="off" placeholder="Has Brad led global teams?">
+        <button class="btn btn--primary" type="submit" id="ask-send">Ask</button>
+      </form>
+      <div class="ask-suggest" id="ask-suggest" role="group" aria-label="Suggested questions">
+        <button class="chip" type="button">What has Brad shipped that moved revenue?</button>
+        <button class="chip" type="button">How does he run a product team?</button>
+        <button class="chip" type="button">Is he hands-on with AI?</button>
+      </div>
+      <div class="ask-foot">
+        <p class="body-s muted">AI can make mistakes. Confirm anything important with Brad.</p>
+        <button class="ask-reset" type="button" id="ask-reset" hidden>Clear conversation</button>
+      </div>
     </div>
   </div>
 </section>
@@ -711,7 +763,7 @@ body{margin:0}
   });
 
   // Chips
-  document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')));
+  document.querySelectorAll('.comp-row .chip').forEach(c => c.addEventListener('click', () => c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') === 'true' ? 'false' : 'true')));
 
   // Email: assembled only on click, so scrapers reading the raw page never see it
   const toast = document.getElementById('toast'), email = document.getElementById('email'), btn = document.getElementById('copy');
@@ -740,6 +792,68 @@ body{margin:0}
     }), { rootMargin: '-45% 0px -50% 0px' });
     links.forEach(a => { const s = document.querySelector(a.getAttribute('href')); if (s) io.observe(s); });
   }
+})();
+
+// Ask about my work: answered by the bazl-ask Cloudflare Worker (Claude Haiku)
+(() => {
+  const API = '';  // set to the Worker URL once it is deployed
+  const sec = document.getElementById('ask');
+  if (!API || !window.fetch || !window.ReadableStream) return;
+  sec.hidden = false;
+  const log = document.getElementById('ask-log'), form = document.getElementById('ask-form');
+  const input = document.getElementById('ask-input'), send = document.getElementById('ask-send');
+  const reset = document.getElementById('ask-reset'), suggest = document.getElementById('ask-suggest');
+  let history = [], ctl = null;
+  const copyFor = code => ({
+    rate_limited: 'Too many questions at once. Try again in a minute.',
+    unavailable: 'The assistant is resting right now. Use Get in touch below to reach Brad.',
+    bad_request: 'That question couldn’t be sent. Try rephrasing it.'
+  })[code] || 'Something went wrong. Try again in a moment.';
+  const setBusy = busy => {
+    send.textContent = busy ? 'Stop' : 'Ask';
+    send.type = busy ? 'button' : 'submit';
+    input.disabled = busy;
+    suggest.querySelectorAll('button').forEach(b => b.disabled = busy);
+  };
+  async function ask(q) {
+    q = q.trim().slice(0, 300);
+    if (!q || ctl) return;
+    input.value = '';
+    const turn = document.createElement('div'); turn.className = 'ask-turn';
+    const qEl = document.createElement('p'); qEl.className = 'ask-q'; qEl.textContent = q;
+    const aEl = document.createElement('p'); aEl.className = 'ask-a is-pending'; aEl.textContent = 'Thinking…';
+    turn.append(qEl, aEl); log.append(turn); reset.hidden = false;
+    ctl = new AbortController(); setBusy(true);
+    let text = '';
+    try {
+      const res = await fetch(API, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal,
+        body: JSON.stringify({ messages: [...history.slice(-6), { role: 'user', content: q }] })
+      });
+      if (!res.ok || !res.body) {
+        let code = ''; try { code = (await res.json()).error; } catch (e) {}
+        throw { code };
+      }
+      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        text += value;
+        aEl.classList.remove('is-pending'); aEl.textContent = text;
+      }
+      if (!text.trim()) throw { code: '' };
+      history.push({ role: 'user', content: q }, { role: 'assistant', content: text });
+    } catch (e) {
+      aEl.classList.remove('is-pending');
+      if (e && e.name === 'AbortError') aEl.textContent = text ? text + ' (stopped)' : 'Stopped.';
+      else if (text) aEl.textContent = text + ' (interrupted)';
+      else { aEl.textContent = copyFor(e && e.code); aEl.classList.add('is-error'); }
+    } finally { ctl = null; setBusy(false); input.focus(); }
+  }
+  form.addEventListener('submit', ev => { ev.preventDefault(); ask(input.value); });
+  send.addEventListener('click', () => { if (ctl) ctl.abort(); });
+  suggest.addEventListener('click', ev => { const b = ev.target.closest('button'); if (b) ask(b.textContent); });
+  reset.addEventListener('click', () => { if (ctl) ctl.abort(); history = []; log.replaceChildren(); reset.hidden = true; input.focus(); });
 })();
 </script>
 </body>
