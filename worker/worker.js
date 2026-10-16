@@ -4,6 +4,8 @@
 // Reliability: timeouts on every call, retries with backoff on retryable errors,
 // and fallback from Haiku to Sonnet if Haiku keeps failing before any words are sent.
 // GET /health reports whether the API key works and whether the monthly spend limit was hit.
+// Access: visitors need an access code (X-Access-Code header). The Worker stores only a salted
+// SHA-256 fingerprint of it in the ACCESS_HASH secret, and stays locked if that secret is missing.
 
 const ALLOWED_ORIGINS = ['https://bazlgroup.com', 'https://www.bazlgroup.com'];
 const KB_URL = 'https://bazlgroup.com/knowledge.md';
@@ -200,6 +202,25 @@ async function health(env) {
   return body;
 }
 
+// Access code check. ACCESS_HASH looks like "sha256:<salt hex>:<hash hex>".
+const hexToBytes = hex => new Uint8Array((hex.match(/../g) || []).map(b => parseInt(b, 16)));
+async function codeMatches(code, stored) {
+  if (!stored || typeof code !== 'string' || !code || code.length > 200) return false;
+  const [alg, saltHex, hashHex] = String(stored).trim().split(':');
+  if (alg !== 'sha256' || !saltHex || !hashHex) return false;
+  const salt = hexToBytes(saltHex);
+  const pw = new TextEncoder().encode(code);
+  const buf = new Uint8Array(salt.length + pw.length);
+  buf.set(salt);
+  buf.set(pw, salt.length);
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', buf));
+  const want = hexToBytes(hashHex);
+  if (digest.length !== want.length) return false;
+  let diff = 0;
+  for (let i = 0; i < digest.length; i++) diff |= digest[i] ^ want[i]; // constant time
+  return diff === 0;
+}
+
 const hits = new Map();
 function overLimit(ip) {
   const now = Date.now();
@@ -222,7 +243,7 @@ async function knowledge() {
 const corsHeaders = origin => ({
   'Access-Control-Allow-Origin': origin,
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type, X-Access-Code',
   'Access-Control-Max-Age': '86400',
   'Vary': 'Origin'
 });
@@ -270,6 +291,14 @@ export default {
     } else if (overLimit(ip)) {
       return reply({ error: 'rate_limited' }, 429, headers);
     }
+
+    // Rate limiting above also slows down anyone guessing the access code.
+    const unlocked = await codeMatches(request.headers.get('X-Access-Code') || '', env.ACCESS_HASH);
+    if (url.pathname === '/unlock') {
+      if (!unlocked) log('unlock_failed', {});
+      return unlocked ? reply({ ok: true }, 200, headers) : reply({ error: 'locked' }, 401, headers);
+    }
+    if (!unlocked) return reply({ error: 'locked' }, 401, headers);
 
     if (!env.ANTHROPIC_API_KEY) return reply({ error: 'unavailable' }, 503, headers);
 

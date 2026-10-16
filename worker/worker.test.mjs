@@ -2,10 +2,17 @@
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from './worker.js';
+import { createHash } from 'node:crypto';
+
+// A test-only access code; the real one never appears in this repo.
+const TEST_CODE = 'test-code-123';
+const TEST_SALT = '00112233445566778899aabbccddeeff';
+const TEST_HASH = 'sha256:' + TEST_SALT + ':' + createHash('sha256').update(Buffer.concat([Buffer.from(TEST_SALT, 'hex'), Buffer.from(TEST_CODE)])).digest('hex');
 
 const KEY = 'test-key-not-real';
 const ENV = {
   ANTHROPIC_API_KEY: KEY,
+  ACCESS_HASH: TEST_HASH,
   RETRY_BASEBACKOFFMS: '1', RETRY_MAXBACKOFFMS: '50',
   RETRY_CONNECTTIMEOUTMS: '60', RETRY_FIRSTTOKENTIMEOUTMS: '60', RETRY_IDLETIMEOUTMS: '60'
 };
@@ -42,13 +49,15 @@ beforeEach(() => {
   console.log = (...a) => logs.push(a.join(' '));
 });
 
-async function ask() {
-  const req = new Request('https://bazl-ask.example/', {
+async function ask(code = TEST_CODE, path = '/', env = ENV) {
+  const h = { Origin: 'https://bazlgroup.com', 'Content-Type': 'application/json', 'CF-Connecting-IP': '10.0.0.' + (++ipCounter) };
+  if (code !== null) h['X-Access-Code'] = code;
+  const req = new Request('https://bazl-ask.example' + path, {
     method: 'POST',
-    headers: { Origin: 'https://bazlgroup.com', 'Content-Type': 'application/json', 'CF-Connecting-IP': '10.0.0.' + (++ipCounter) },
+    headers: h,
     body: JSON.stringify({ messages: [{ role: 'user', content: 'Has Brad led global teams?' }] })
   });
-  const res = await worker.fetch(req, ENV);
+  const res = await worker.fetch(req, env);
   return { status: res.status, text: await res.text() };
 }
 
@@ -177,4 +186,51 @@ test('health check reports the spend limit', async () => {
   assert.equal(body.ok, false);
   assert.equal(body.reason, 'spend_limit');
   assert.ok(body.lastSpendLimitAt);
+});
+
+test('access: no code is locked out and never reaches the API', async () => {
+  const r = await ask(null);
+  assert.equal(r.status, 401);
+  assert.deepEqual(JSON.parse(r.text), { error: 'locked' });
+  assert.deepEqual(calls, []);
+});
+
+test('access: a wrong code is locked out and never reaches the API', async () => {
+  const r = await ask('wrong-code');
+  assert.equal(r.status, 401);
+  assert.deepEqual(calls, []);
+});
+
+test('access: the right code gets an answer', async () => {
+  plan = [B.ok('Unlocked answer.')];
+  const r = await ask(TEST_CODE);
+  assert.equal(r.status, 200);
+  assert.equal(r.text, 'Unlocked answer.');
+});
+
+test('access: /unlock accepts the right code without calling the API', async () => {
+  const ok = await ask(TEST_CODE, '/unlock');
+  const bad = await ask('nope', '/unlock');
+  assert.equal(ok.status, 200);
+  assert.deepEqual(JSON.parse(ok.text), { ok: true });
+  assert.equal(bad.status, 401);
+  assert.deepEqual(calls, []);
+});
+
+test('access: stays locked if no fingerprint is configured', async () => {
+  const { ACCESS_HASH, ...noHash } = ENV;
+  const r = await ask(TEST_CODE, '/', noHash);
+  assert.equal(r.status, 401);
+  assert.deepEqual(calls, []);
+});
+
+test('access: wrong guesses still count toward the rate limit', async () => {
+  const h = { Origin: 'https://bazlgroup.com', 'Content-Type': 'application/json', 'CF-Connecting-IP': '10.9.9.9', 'X-Access-Code': 'guess' };
+  const statuses = [];
+  for (let i = 0; i < 10; i++) {
+    const res = await worker.fetch(new Request('https://bazl-ask.example/unlock', { method: 'POST', headers: h, body: '{}' }), ENV);
+    statuses.push(res.status);
+  }
+  assert.ok(statuses.slice(0, 8).every(s => s === 401));
+  assert.ok(statuses.slice(8).every(s => s === 429));
 });

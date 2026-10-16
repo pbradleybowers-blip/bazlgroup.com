@@ -305,6 +305,9 @@ footer .brand { font-size:16px; }
 .ask-input::placeholder { color:var(--ink-muted); }
 .ask-suggest { display:flex; flex-wrap:wrap; gap:var(--space-2); }
 .ask-log { display:flex; flex-direction:column; gap:var(--space-5); }
+.ask-open, .ask-lock { display:flex; flex-direction:column; gap:var(--space-4); }
+.ask-lock .ask-form { max-width:520px; }
+.ask-lock-err { min-height:1.45em; color:var(--danger); }
 .ask-log:empty { display:none; }
 .ask-turn { display:flex; flex-direction:column; gap:var(--space-2); border-top:1px solid var(--line); padding-top:var(--space-4); }
 .ask-turn:first-child { border-top:0; padding-top:0; }
@@ -391,6 +394,17 @@ body{margin:0}
         </div>
         <p class="body-s muted" style="max-width:36ch">Answers come only from this site, my resume and my Product Paradigms. No confidential information is included.</p>
       </div>
+      <form class="ask-lock" id="ask-lock">
+        <p>Recruiters and hiring managers I’m talking with get an access code. Enter yours to start asking.</p>
+        <div class="ask-form">
+          <label class="vh" for="ask-code">Access code</label>
+          <input class="ask-input" id="ask-code" type="password" maxlength="200" autocomplete="off" placeholder="Access code">
+          <button class="btn btn--primary" type="submit" id="ask-unlock">Unlock</button>
+        </div>
+        <p class="body-s ask-lock-err" id="ask-lock-err" role="status"></p>
+        <p class="body-s muted">No code? <a class="link" href="#contact">Get in touch</a> and I’ll send you one.</p>
+      </form>
+      <div class="ask-open" id="ask-open" hidden>
       <div class="ask-log" id="ask-log" aria-live="polite"></div>
       <form class="ask-form" id="ask-form">
         <label class="vh" for="ask-input">Your question about Brad</label>
@@ -401,6 +415,7 @@ body{margin:0}
         <button class="chip" type="button">What has Brad shipped that moved revenue?</button>
         <button class="chip" type="button">How does he run a product team?</button>
         <button class="chip" type="button">Is he hands-on with AI?</button>
+      </div>
       </div>
       <div class="ask-foot">
         <p class="body-s muted">AI can make mistakes. Confirm anything important with Brad.</p>
@@ -829,7 +844,31 @@ body{margin:0}
   const log = document.getElementById('ask-log'), form = document.getElementById('ask-form');
   const input = document.getElementById('ask-input'), send = document.getElementById('ask-send');
   const reset = document.getElementById('ask-reset'), suggest = document.getElementById('ask-suggest');
-  let history = [], ctl = null;
+  let history = [], ctl = null, accessCode = '';
+  const lockForm = document.getElementById('ask-lock'), openBox = document.getElementById('ask-open');
+  const codeInput = document.getElementById('ask-code'), unlockBtn = document.getElementById('ask-unlock');
+  const lockErr = document.getElementById('ask-lock-err');
+  const remember = c => { try { c ? sessionStorage.setItem('bazlAskCode', c) : sessionStorage.removeItem('bazlAskCode'); } catch (e) {} };
+  const showLocked = msg => { openBox.hidden = true; lockForm.hidden = false; lockErr.textContent = msg || ''; };
+  async function unlock(c, quiet) {
+    unlockBtn.disabled = true;
+    try {
+      const r = await fetch(API + 'unlock', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Access-Code': c }, body: '{}' });
+      if (r.ok) {
+        accessCode = c; remember(c);
+        lockForm.hidden = true; openBox.hidden = false; lockErr.textContent = '';
+        if (!quiet) input.focus();
+        return;
+      }
+      let err = ''; try { err = (await r.json()).error; } catch (e) {}
+      remember('');
+      if (!quiet) lockErr.textContent = err === 'rate_limited' ? 'Too many tries. Wait a minute and try again.' : 'That code didn’t work. Check it and try again.';
+    } catch (e) {
+      if (!quiet) lockErr.textContent = 'Couldn’t check the code right now. Try again in a moment.';
+    } finally { unlockBtn.disabled = false; }
+  }
+  lockForm.addEventListener('submit', ev => { ev.preventDefault(); const c = codeInput.value.trim(); if (c) unlock(c, false); });
+  try { const saved = sessionStorage.getItem('bazlAskCode'); if (saved) unlock(saved, true); } catch (e) {}
   const copyFor = code => ({
     rate_limited: 'Too many questions at once. Try again in a minute.',
     unavailable: 'The assistant is resting right now. Use Get in touch below to reach Brad.',
@@ -853,11 +892,12 @@ body{margin:0}
     let text = '';
     try {
       const res = await fetch(API, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal,
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Access-Code': accessCode }, signal: ctl.signal,
         body: JSON.stringify({ messages: [...history.slice(-6), { role: 'user', content: q }] })
       });
       if (!res.ok || !res.body) {
         let code = ''; try { code = (await res.json()).error; } catch (e) {}
+        if (code === 'locked') { turn.remove(); accessCode = ''; remember(''); showLocked('Your access code needs to be entered again.'); return; }
         throw { code };
       }
       const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
