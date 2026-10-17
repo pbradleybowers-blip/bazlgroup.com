@@ -201,6 +201,22 @@ a { color:inherit; }
 .gate .diamond { width:44px; height:44px; transform:rotate(45deg); background:var(--signal); border-radius:6px; }
 .gate .data { color:var(--signal-text); }
 .arrow { flex:none; width:18px; height:12px; color:var(--line-strong); }
+.trio { position:relative; min-width:820px; margin-top:var(--space-3); }
+.trio-bracket { margin-left:var(--trio-l,43%); width:var(--trio-w,40%); height:14px; border:2px solid var(--line-strong); border-top:0; border-radius:0 0 var(--radius-s) var(--radius-s); position:relative; }
+.trio-bracket::after { content:""; position:absolute; left:50%; top:100%; width:2px; height:14px; margin-left:-1px; background:var(--line-strong); }
+.trio-body { margin:14px 0 0 var(--trio-l,43%); width:var(--trio-w,40%); display:flex; flex-direction:column; align-items:center; gap:var(--space-3); text-align:center; }
+.trio-people { display:flex; align-items:flex-start; justify-content:center; gap:var(--space-2); }
+.trio-person { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:76px; }
+.trio-person b { width:44px; height:44px; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font:800 17px/1 var(--font-display); font-stretch:125%; background:var(--surface); }
+.trio-people svg { width:24px; height:12px; margin-top:16px; color:var(--ink-muted); flex:none; }
+.trio-body p { max-width:54ch; text-wrap:balance; }
+.trio-k { display:none; }
+@media (max-width:760px) {
+  .trio { min-width:0; margin-top:var(--space-4); background:var(--surface); border-radius:var(--radius-m); padding:var(--space-4); }
+  .trio-bracket { display:none; }
+  .trio-body { margin:0; width:auto; }
+  .trio-k { display:block; }
+}
 .model-notes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-5); margin-top:var(--space-6); }
 .model-notes > div { display:flex; flex-direction:column; gap:var(--space-2); border-top:1px solid var(--line); padding-top:var(--space-4); min-width:0; }
 @media (max-width:860px) { .model-notes { grid-template-columns:1fr; } }
@@ -376,6 +392,7 @@ body{margin:0}
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="bb" viewBox="0 0 120 96"><path d="M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z"/><path transform="translate(120 0) scale(-1 1)" d="M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z"/></symbol>
+  <symbol id="arrow2" viewBox="0 0 24 12"><path d="M5.5 1.5 1 6l4.5 4.5M1 6h22M18.5 1.5 23 6l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="arrow" viewBox="0 0 18 12"><path d="M0 6h15M11 1.5 16 6l-5 4.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
   <symbol id="chev" viewBox="0 0 20 20"><path d="m5 8 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
@@ -581,6 +598,20 @@ body{margin:0}
         <svg class="arrow" aria-hidden="true"><use href="#arrow"/></svg>
         <li class="stage stage--end">Measure</li>
       </ol>
+      <div class="trio" id="trio">
+        <div class="trio-bracket" aria-hidden="true"></div>
+        <div class="trio-body">
+          <p class="micro muted trio-k">Definition to Development</p>
+          <div class="trio-people" role="img" aria-label="Product, design and engineering iterate back and forth from Definition through Development">
+            <span class="trio-person"><b aria-hidden="true">P</b><span class="micro muted">Product</span></span>
+            <svg aria-hidden="true"><use href="#arrow2"/></svg>
+            <span class="trio-person"><b aria-hidden="true">D</b><span class="micro muted">Design</span></span>
+            <svg aria-hidden="true"><use href="#arrow2"/></svg>
+            <span class="trio-person"><b aria-hidden="true">E</b><span class="micro muted">Engineering</span></span>
+          </div>
+          <p class="body-s"><strong>The gate decides whether we build. The trio keeps refining how.</strong> Requirements and UX stay open until it ships.</p>
+        </div>
+      </div>
     </div>
     <div class="model-notes">
       <div><h3 class="heading-3">Briefs, not PRDs</h3><p class="muted">Initiative briefs, opportunity statements, prototypes and technical guardrails replace long requirement documents.</p></div>
@@ -817,7 +848,7 @@ body{margin:0}
     ["Outcomes, not features","Teams own outcomes, not feature lists. The roadmap names the outcome we are moving; features earn a place after we understand the problem.","Organized the portfolio around outcome pillars. Those teams delivered $100M+ in incremental revenue over five years."],
     ["Strategy is what we won’t do","A strategy that can’t say no is a wish list. Good strategy is a few bets, each with a named sacrifice and a real diagnosis.","Held further investment in a major platform until we knew where users needed value. Every other bet was scored on Impact, Effort and Confidence."],
     ["Complaints are evidence, not requirements","A request tells you where to look, not what to build. One “export button” can hide five different problems.","Turned scattered seller complaints into one measurable problem, the first 90 days, and lifted early productivity 5%. At Kapow, recurring questions became a knowledge base that cut support 40%."],
-    ["Prototypes are questions","A short brief, an opportunity statement and a prototype move faster than a long spec. Every prototype states the question it answers.","Replaced PRDs with initiative briefs, prototypes and technical guardrails across a whole product organization."],
+    ["Prototypes are questions","A short brief, an opportunity statement and a prototype move faster than a long spec. Every prototype states the question it answers.","Replaced PRDs with initiative briefs, prototypes and technical guardrails across a whole product organization. From Definition through Development, product, design and engineering keep refining requirements and UX as a trio."],
     ["Demos aren’t products","A polished prototype looks finished. Behind it sit edge cases, data, permissions, performance and, with AI, evals and cost.","Clearing “Build?” still means going through Definition. When speed matters more than polish, the work ships as a pilot with an explicit learning frame."],
     ["Invisible AI","The best AI disappears into the experience. Customers should notice the product knows what they need, not “the AI feature.”","Put AI under the surface of a long-term product vision: personalized inspiration for shoppers and time back for sellers."],
     ["Transformation is a people problem","Licenses don’t change how people decide or trust output. AI programs stall on ownership and culture, so I fix those first.","Led a 40+ person, multi-year, $10M digital transformation for an industrial manufacturer. Helped stand up an AI committee for customer and seller use cases."],
@@ -910,6 +941,14 @@ body{margin:0}
     c.addEventListener('toggle', () => { if (cur) requestAnimationFrame(() => place(cur)); }, true);
   };
   document.querySelectorAll('[data-bw-fluid]').forEach(fluid);
+
+  // Trio band: span the bracket from Definition to Development
+  const trio = document.getElementById('trio');
+  if (trio) {
+    const st = trio.parentElement.querySelectorAll('.stage');
+    const fit = () => { const b = trio.getBoundingClientRect(), a = st[2].getBoundingClientRect(), z = st[3].getBoundingClientRect(); if (!b.width) return; trio.style.setProperty('--trio-l', (a.left - b.left) + 'px'); trio.style.setProperty('--trio-w', (z.right - a.left) + 'px'); };
+    fit(); addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  }
 
   // Current section in nav
   const links = [...document.querySelectorAll('.nav-links a')];
