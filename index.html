@@ -209,13 +209,25 @@ a { color:inherit; }
 .trio-person { display:flex; flex-direction:column; align-items:center; gap:6px; min-width:76px; }
 .trio-person b { width:44px; height:44px; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font:800 17px/1 var(--font-display); font-stretch:125%; background:var(--surface); }
 .trio-people svg { width:24px; height:12px; margin-top:16px; color:var(--ink-muted); flex:none; }
-.trio-body p { max-width:54ch; text-wrap:balance; }
-.trio-k { display:none; }
+.trio-note { min-width:820px; }
+.trio-note p { margin:var(--space-3) 0 0 var(--trio-l,43%); width:var(--trio-w,40%); text-align:center; text-wrap:balance; }
+.trio-key { display:none; }
+/* Phones: the trio rides a rail beside Definition through Development */
 @media (max-width:760px) {
-  .trio { min-width:0; margin-top:var(--space-4); background:var(--surface); border-radius:var(--radius-m); padding:var(--space-4); }
-  .trio-bracket { display:none; }
-  .trio-body { margin:0; width:auto; }
-  .trio-k { display:block; }
+  .flow-scroll { position:relative; }
+  .flow { padding-right:60px; }
+  .trio { position:absolute; right:0; top:var(--trio-t,0); height:var(--trio-h,0); width:50px; min-width:0; margin:0; }
+  .trio-bracket { position:absolute; left:0; top:0; bottom:0; width:10px; height:auto; margin:0; border:2px solid var(--line-strong); border-left:0; border-radius:0 var(--radius-s) var(--radius-s) 0; }
+  .trio-bracket::after { left:100%; top:50%; width:8px; height:2px; margin:-1px 0 0; }
+  .trio-body { position:absolute; left:18px; right:0; top:0; bottom:0; margin:0; width:auto; justify-content:center; gap:0; }
+  .trio-people { flex-direction:column; align-items:center; gap:4px; }
+  .trio-person { min-width:0; }
+  .trio-person .micro { display:none; }
+  .trio-person b { width:32px; height:32px; font-size:13px; }
+  .trio-people svg { transform:rotate(90deg); margin:0; width:18px; height:10px; }
+  .trio-note { min-width:0; }
+  .trio-note p { margin:var(--space-4) 0 0; width:auto; text-align:left; }
+  .trio-key { display:inline; }
 }
 .model-notes { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-5); margin-top:var(--space-6); }
 .model-notes > div { display:flex; flex-direction:column; gap:var(--space-2); border-top:1px solid var(--line); padding-top:var(--space-4); min-width:0; }
@@ -601,7 +613,6 @@ body{margin:0}
       <div class="trio" id="trio">
         <div class="trio-bracket" aria-hidden="true"></div>
         <div class="trio-body">
-          <p class="micro muted trio-k">Definition to Development</p>
           <div class="trio-people" role="img" aria-label="Product, design and engineering iterate back and forth from Definition through Development">
             <span class="trio-person"><b aria-hidden="true">P</b><span class="micro muted">Product</span></span>
             <svg aria-hidden="true"><use href="#arrow2"/></svg>
@@ -609,9 +620,9 @@ body{margin:0}
             <svg aria-hidden="true"><use href="#arrow2"/></svg>
             <span class="trio-person"><b aria-hidden="true">E</b><span class="micro muted">Engineering</span></span>
           </div>
-          <p class="body-s"><strong>The gate decides whether we build. The trio keeps refining how.</strong> Requirements and UX stay open until it ships.</p>
         </div>
       </div>
+      <div class="trio-note"><p class="body-s"><strong>The gate decides whether we build. The trio keeps refining how.</strong> <span class="trio-key">Product (P), design (D) and engineering (E) iterate from Definition through Development. </span>Requirements and UX stay open until it ships.</p></div>
     </div>
     <div class="model-notes">
       <div><h3 class="heading-3">Briefs, not PRDs</h3><p class="muted">Initiative briefs, opportunity statements, prototypes and technical guardrails replace long requirement documents.</p></div>
@@ -945,8 +956,8 @@ body{margin:0}
   // Trio band: span the bracket from Definition to Development
   const trio = document.getElementById('trio');
   if (trio) {
-    const st = trio.parentElement.querySelectorAll('.stage');
-    const fit = () => { const b = trio.getBoundingClientRect(), a = st[2].getBoundingClientRect(), z = st[3].getBoundingClientRect(); if (!b.width) return; trio.style.setProperty('--trio-l', (a.left - b.left) + 'px'); trio.style.setProperty('--trio-w', (z.right - a.left) + 'px'); };
+    const host = trio.parentElement, st = host.querySelectorAll('.stage');
+    const fit = () => { const h = host.getBoundingClientRect(), a = st[2].getBoundingClientRect(), z = st[3].getBoundingClientRect(); if (!h.width) return; const v = (k, n) => host.style.setProperty(k, Math.round(n) + 'px'); v('--trio-l', a.left - h.left + host.scrollLeft); v('--trio-w', z.right - a.left); v('--trio-t', a.top - h.top + host.scrollTop); v('--trio-h', z.bottom - a.top); };
     fit(); addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
   }
 
