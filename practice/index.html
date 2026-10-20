@@ -240,6 +240,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       <h1 class="h1">Set up your interview</h1>
       <p class="lead">Tell us the role. Your panelist reads your resume and the job description before the call, like a real interviewer.</p>
     </div>
+    <p class="notice bad" id="setup-err-top" role="alert" hidden></p>
     <form id="setup-form" class="cols" novalidate>
       <section class="card col-main" aria-labelledby="role-h">
         <div class="row" style="justify-content:space-between; align-items:baseline">
@@ -702,8 +703,12 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
   const savedSilence = store.get('silence', '3'); $('f-silence').value = savedSilence;
   $('f-silence').addEventListener('change', () => store.set('silence', $('f-silence').value));
 
-  function showSetupErr(msg) { const e = $('setup-err'); e.textContent = msg; e.hidden = !msg; }
-  $('setup-form').addEventListener('input', e => { if (e.target.removeAttribute) e.target.removeAttribute('aria-invalid'); showSetupErr(''); });
+  function showSetupErr(msg, reveal) {
+    const e = $('setup-err'); e.textContent = msg; e.hidden = !msg;
+    const top = $('setup-err-top'); top.textContent = msg; top.hidden = !msg || !reveal;
+    if (msg && reveal) top.scrollIntoView({ block: 'center' });
+  }
+  $('setup-form').addEventListener('input', e => { if (e.target.removeAttribute) e.target.removeAttribute('aria-invalid'); $('setup-err').hidden = true; });
   $('levels').addEventListener('click', () => showSetupErr(''));
 
   const readB64 = file => new Promise((resolve, reject) => {
@@ -749,7 +754,8 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       showReady();
     } catch (x) {
       show('setup');
-      showSetupErr(errMsg(x));
+      if ((x.code === 'link_unreadable' || x.code === 'bad_link') && !jdAsText) $('jd-toggle').click();
+      showSetupErr(errMsg(x), true);
       if (x.code === 'locked') { store.set('code', ''); show('gate'); }
     }
   });
