@@ -42,7 +42,7 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
 /* Type */
-.h1 { margin:0; font-size:52px; line-height:1; font-weight:500; letter-spacing:-.035em; text-wrap:balance; }
+.h1 { margin:0; font-size:44px; line-height:1; font-weight:500; letter-spacing:-.035em; text-wrap:balance; }
 .h2 { margin:0; font-size:34px; line-height:1.08; font-weight:500; letter-spacing:-.025em; text-wrap:balance; }
 .h3 { margin:0; font-size:22px; line-height:1.2; font-weight:500; letter-spacing:-.012em; }
 .lead { margin:0; font-size:20px; line-height:1.45; font-weight:300; letter-spacing:-.01em; color:var(--ink-muted); max-width:62ch; }
@@ -63,14 +63,14 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .navlinks { display:flex; gap:24px; align-items:center; font-size:14px; font-weight:500; }
 .navlinks button { background:none; border:0; padding:8px 0; cursor:pointer; color:var(--ink-muted); }
 .navlinks button[aria-current="page"] { color:var(--ink); text-decoration:underline; text-underline-offset:6px; }
-.wrap { max-width:1280px; margin:0 auto; padding-block:64px 120px; display:flex; flex-direction:column; gap:40px;
+.wrap { max-width:1280px; margin:0 auto; padding-block:40px 64px; display:flex; flex-direction:column; gap:32px;
   padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
 @media (min-width:900px) { .wrap { padding-left:40px; padding-right:40px; } }
 .stack { display:flex; flex-direction:column; gap:16px; }
 .cols { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
 .col-main { flex:999 1 560px; min-width:0; }
 .col-side { flex:1 1 360px; min-width:0; display:flex; flex-direction:column; gap:24px; }
-.card { background:var(--surface); border-radius:var(--r-l); padding:40px; display:flex; flex-direction:column; gap:24px; }
+.card { background:var(--surface); border-radius:var(--r-l); padding:32px; display:flex; flex-direction:column; gap:20px; }
 @media (max-width:640px) { .card { padding:24px; } }
 .card.tight { padding:24px; gap:16px; }
 .grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
@@ -100,15 +100,18 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .seg { display:inline-flex; gap:4px; padding:4px; border-radius:var(--pill); background:var(--surface-sunken); align-self:flex-start; }
 .seg button { height:40px; padding:0 20px; border-radius:var(--pill); border:0; background:transparent; font-size:14px; font-weight:500; cursor:pointer; }
 .seg button[aria-pressed="true"] { background:var(--ink); color:var(--on-ink); }
+.actionbar { flex:1 1 100%; position:sticky; bottom:0; z-index:5; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;
+  background:var(--surface); border-radius:var(--r-l); padding:16px 16px 16px 24px; box-shadow:0 12px 32px -8px rgba(17,17,18,.18); margin-bottom:max(16px, env(safe-area-inset-bottom,0px)); }
+.actionbar .btn.primary { height:52px; }
 .ok { color:var(--success); font-size:14px; display:flex; gap:8px; align-items:center; }
 .drop { background:var(--surface-sunken); border:1px dashed var(--line-strong); border-radius:var(--r-m); padding:24px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; cursor:pointer; }
 .drop.has { border-style:solid; border-color:transparent; flex-direction:row; text-align:left; justify-content:space-between; flex-wrap:wrap; }
 .drop.over { border-color:var(--ink); }
-.persona { display:flex; gap:16px; align-items:center; padding:12px; border-radius:var(--r-m); border:2px solid transparent; cursor:pointer; }
+.persona { display:flex; gap:14px; align-items:center; padding:8px 12px; border-radius:var(--r-m); border:2px solid transparent; cursor:pointer; }
 .persona:hover { background:var(--surface-sunken); }
 .persona:has(input:checked) { border-color:var(--ink); }
 .persona input { accent-color:var(--ink); width:18px; height:18px; margin:0; flex:none; }
-.avatar { width:48px; height:48px; flex:none; border-radius:var(--pill); background:var(--surface-sunken); display:inline-flex; align-items:center; justify-content:center; font-weight:600; }
+.avatar { width:40px; height:40px; flex:none; border-radius:var(--pill); background:var(--surface-sunken); display:inline-flex; align-items:center; justify-content:center; font-weight:600; }
 .persona:has(input:checked) .avatar { background:var(--field-navy); color:var(--on-field); }
 .probe { background:var(--field-sage); color:#111112; border-radius:var(--r-l); padding:24px; display:flex; flex-direction:column; gap:12px; }
 .probe ul { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; }
@@ -138,19 +141,20 @@ button, input, select, textarea { font:inherit; color:inherit; }
 
 /* Interview room */
 .room { min-height:100vh; display:flex; flex-direction:column; background:#0e0e0f; color:var(--ink); }
-.room-top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; padding-block:16px;
+.room-top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; padding-block:12px;
   padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
 @media (min-width:900px) { .room-top { padding-left:40px; padding-right:40px; } }
 .clock { display:flex; align-items:center; gap:12px; }
 .bar { width:160px; height:4px; border-radius:var(--pill); background:var(--line); display:flex; overflow:hidden; }
 .bar i { display:block; background:var(--ink); border-radius:var(--pill); transition:width .5s linear; }
-.room-main { flex:1; display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:24px; padding-block:8px 40px;
+.room-main { flex:1; display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:24px; padding-block:0 24px;
   padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
 @media (min-width:900px) { .room-main { padding-left:40px; padding-right:40px; } }
-.stage { flex:999 1 560px; min-width:0; max-width:960px; display:flex; flex-direction:column; gap:20px; transition:opacity .26s var(--ease); }
+.stage { flex:999 1 560px; min-width:0; max-width:960px; display:flex; flex-direction:column; gap:14px; transition:opacity .26s var(--ease); }
 .stage.dim { opacity:.55; }
-.tile { position:relative; width:100%; aspect-ratio:16/9; border-radius:var(--r-l); background:var(--field-navy); overflow:hidden; outline:2px solid transparent; outline-offset:-2px; transition:outline-color .2s; }
+.tile { position:relative; width:min(100%, calc((100vh - 330px) * 16 / 9)); min-width:min(100%, 420px); align-self:center; aspect-ratio:16/9; border-radius:var(--r-l); background:var(--field-navy); overflow:hidden; outline:2px solid transparent; outline-offset:-2px; transition:outline-color .2s; }
 .tile.speaking { outline-color:var(--on-field); }
+.stage.typing .tile { width:min(100%, calc((100vh - 450px) * 16 / 9)); }
 .face { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
 .face span { width:min(260px, 45%); aspect-ratio:1; border-radius:var(--pill); background:#172341; color:var(--on-field); display:flex; align-items:center; justify-content:center;
   font-family:var(--font-display); font-stretch:125%; font-weight:800; font-size:clamp(40px, 7vw, 88px); letter-spacing:-.02em; transition:transform .3s var(--ease); }
@@ -159,16 +163,19 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .tag { position:absolute; padding:6px 14px; border-radius:var(--pill); background:rgba(0,0,0,.64); color:var(--on-field); font-size:13px; font-weight:500; }
 .tag.name { left:20px; bottom:20px; font-size:14px; display:flex; gap:8px; }
 .tag.state { left:20px; top:20px; }
+.paused-over { position:absolute; inset:0; background:rgba(0,0,0,.55); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; z-index:2;
+  color:var(--on-field); font-family:var(--font-display); font-stretch:125%; font-weight:800; font-size:32px; letter-spacing:-.015em; }
+.paused-over .btn { font-family:var(--font-sans); font-stretch:100%; letter-spacing:0; border-color:var(--on-field); color:var(--on-field); }
 .self { position:absolute; right:20px; bottom:20px; width:min(200px, 30%); aspect-ratio:200/124; border-radius:var(--r-m); background:var(--surface); border:2px solid transparent;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
 .self.live { border-color:var(--signal); }
 .self b { width:44px; height:44px; border-radius:var(--pill); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; font-weight:600; }
 .wave { display:flex; align-items:center; gap:3px; height:20px; }
 .wave i { width:3px; height:4px; border-radius:2px; background:var(--signal-text); transition:height .12s; }
-.caption { margin:0; font-size:22px; line-height:1.45; font-weight:300; letter-spacing:-.01em; }
+.caption { margin:0; font-size:20px; line-height:1.45; font-weight:300; letter-spacing:-.01em; }
 .caption b, .you b { font-weight:500; color:var(--ink-muted); margin-right:8px; }
 .you { margin:0; color:var(--ink-muted); min-height:1.55em; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-.dock { display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:8px; }
+.dock { display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; }
 .round { width:56px; height:56px; border-radius:var(--pill); border:1px solid var(--line-strong); background:transparent; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-weight:600; font-size:13px; }
 .round[aria-pressed="true"] { background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
 .round[aria-pressed="true"] svg { stroke:var(--on-ink); }
@@ -177,7 +184,7 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .hint { font-size:13px; color:var(--ink-muted); text-align:center; }
 .typebox { width:100%; display:flex; gap:8px; flex-wrap:wrap; }
 .typebox .textarea { flex:1 1 320px; min-height:96px; background:var(--surface); }
-.coach { flex:1 1 380px; min-width:0; max-width:460px; background:var(--surface); border-radius:var(--r-l); padding:32px; display:flex; flex-direction:column; gap:20px;
+.coach { flex:1 1 380px; min-width:0; max-width:460px; max-height:calc(100vh - 96px); overflow-y:auto; position:sticky; top:16px; background:var(--surface); border-radius:var(--r-l); padding:28px; display:flex; flex-direction:column; gap:16px;
   box-shadow:0 12px 32px -8px rgba(0,0,0,.6); animation:slide .26s var(--ease); }
 @keyframes slide { from { transform:translateX(24px); opacity:0; } }
 .coach h4 { margin:0 0 4px; font-size:14px; font-weight:600; }
@@ -269,6 +276,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
             <label for="f-role" class="label">Role title <span class="req">· Required</span></label>
             <input id="f-role" class="input" required placeholder="e.g. Director of Product Management" aria-describedby="h-role">
             <span id="h-role" class="help">As it appears on the posting.</span>
+            <span id="e-role" class="err" hidden></span>
           </div>
           <div class="field">
             <label for="f-company" class="label">Company <span class="req">· Optional</span></label>
@@ -287,6 +295,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
             <button type="button" class="chip" aria-pressed="false">CPO</button>
           </div>
           <span id="h-level" class="help">Sets the bar. A VP answer that stays at feature level gets flagged.</span>
+          <span id="e-level" class="err" hidden></span>
         </fieldset>
         <div class="field">
           <label for="f-industry" class="label">Industry <span class="req">· Optional</span></label>
@@ -301,6 +310,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
           </div>
           <textarea id="f-jdtext" class="textarea" hidden placeholder="Paste the full job description" aria-labelledby="l-jd" aria-describedby="h-jd" style="min-height:180px"></textarea>
           <span id="h-jd" class="help">The page with the full posting, such as careers.company.com/jobs/12345. If it needs a login, paste the text instead.</span>
+          <span id="e-jd" class="err" hidden></span>
         </div>
         <div class="field">
           <span class="label" id="l-resume">Resume <span class="req">· Required</span></span>
@@ -312,6 +322,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
           <input id="f-resume" type="file" accept="application/pdf,.pdf" class="vh" aria-labelledby="l-resume">
           <button type="button" class="btn sm" id="resume-toggle" style="align-self:flex-start">Paste resume text instead</button>
           <textarea id="f-resumetext" class="textarea" hidden placeholder="Paste your resume text" aria-labelledby="l-resume" style="min-height:180px"></textarea>
+          <span id="e-resume" class="err" hidden></span>
         </div>
         <div class="field">
           <label for="f-context" class="label">Other context <span class="req">· Optional</span></label>
@@ -358,14 +369,15 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
               <option value="0">Only when I press Done</option>
             </select>
           </div>
-          <div class="split" style="border-top:1px solid var(--line)"><span class="muted">Length</span><span class="mono">30 min · last 5 for your questions</span></div>
-          <div class="stack" style="gap:12px">
-            <button type="submit" class="btn primary" id="start">Start interview</button>
-            <p class="small muted" id="start-help" style="margin:0; text-align:center">Uses your microphone. Your browser transcribes your answers.</p>
-            <p class="err" id="setup-err" role="alert" hidden></p>
-          </div>
         </section>
       </aside>
+      <div class="actionbar">
+        <div class="stack" style="gap:2px; min-width:0; flex:1 1 280px">
+          <p class="err" id="setup-err" role="alert" hidden style="margin:0"></p>
+          <p class="small muted" id="start-help" style="margin:0">30 minutes, the last 5 for your questions. Uses your microphone.</p>
+        </div>
+        <button type="submit" class="btn primary" id="start">Start interview</button>
+      </div>
     </form>
   </main>
 </div>
@@ -394,7 +406,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     <div class="room-top"><span class="small muted" id="ready-role"></span></div>
     <main class="room-main" style="align-items:center">
       <div class="stage" style="max-width:720px; align-items:stretch">
-        <div class="tile" style="aspect-ratio:16/8"><div class="face"><span class="initials"></span></div><span class="tag name"><span class="pname" style="font-weight:600"></span><span class="ptitle muted"></span></span></div>
+        <div class="tile" style="aspect-ratio:16/8; width:min(100%, calc((100vh - 470px) * 2)); min-width:min(100%, 360px)"><div class="face"><span class="initials"></span></div><span class="tag name"><span class="pname" style="font-weight:600"></span><span class="ptitle muted"></span></span></div>
         <h1 class="h2"><span class="pfirst"></span> is ready for you</h1>
         <div class="probe" id="ready-gaps"><h2 class="h3">What a panel will probe</h2><p class="small" style="margin:0">Gaps between your resume and this posting. Expect them to come up.</p><ul></ul></div>
         <div class="row">
@@ -427,6 +439,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
           <div class="face" role="img" id="face-label"><span class="initials"></span></div>
           <span class="tag state" id="pstate">Joining</span>
           <span class="tag name"><span class="pname" style="font-weight:600"></span><span class="ptitle muted"></span></span>
+          <div class="paused-over" id="paused-over" hidden><span>Paused</span><button type="button" class="btn sm" id="resume-btn">Resume</button></div>
           <div class="self" id="self" aria-hidden="true"><b id="me-initials">You</b><span class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
         </div>
         <div class="stack" style="gap:8px" id="captions">
@@ -446,6 +459,10 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
             <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
             <span id="done-label">Please wait</span>
             <span class="mono" id="ans-time" style="opacity:.85"></span>
+          </button>
+          <button type="button" class="round" id="pause" aria-pressed="false" aria-label="Pause the interview" title="Pause the interview">
+            <svg id="pause-icon" aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg>
+            <svg id="play-icon" hidden aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 4v16l13-8z"/></svg>
           </button>
           <button type="button" class="round" id="cc" aria-pressed="true" aria-label="Captions">CC</button>
           <button type="button" class="round" id="type-toggle" aria-pressed="false" aria-label="Type instead of speaking" title="Type instead of speaking">
@@ -638,31 +655,42 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
   $('preview').addEventListener('click', () => speak(`Hi, I'm ${S.persona.name.split(' ')[0]}. Looking forward to our conversation.`));
 
   // Chrome stops long utterances after about 15 seconds, so speak sentence by sentence.
-  let speakToken = 0;
+  // Pausing stops after the current sentence is cut off; resuming repeats that sentence.
+  let speakToken = 0, speech = null;
   function speak(text) {
     return new Promise(resolve => {
       if (!synth || !text) { resolve(); return; }
-      synth.cancel();
-      const token = ++speakToken;
-      const parts = String(text).match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [text];
-      const v = currentVoice();
-      let i = 0;
-      const next = () => {
-        if (token !== speakToken) { resolve(); return; }
-        if (i >= parts.length) { resolve(); return; }
-        const u = new SpeechSynthesisUtterance(parts[i++].trim());
-        if (v) { u.voice = v; u.lang = v.lang; }
-        u.rate = 1; u.pitch = 1;
-        u.onend = next;
-        u.onerror = next;
-        synth.speak(u);
-      };
-      next();
-      // Safety net: never wait forever on a voice engine that stalls.
-      setTimeout(() => { if (token === speakToken) resolve(); }, 4000 + text.length * 90);
+      stopSpeaking();
+      const parts = (String(text).match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [text]).map(t => t.trim()).filter(Boolean);
+      speech = { parts, i: 0, resolve, voice: currentVoice(), safety: null };
+      if (!S.paused) runSpeech();
     });
   }
-  function stopSpeaking() { speakToken++; if (synth) synth.cancel(); }
+  function runSpeech() {
+    const sp = speech;
+    if (!sp || !synth) return;
+    const token = ++speakToken;
+    const done = () => { if (speech === sp) speech = null; clearTimeout(sp.safety); sp.resolve(); };
+    const next = () => {
+      if (token !== speakToken) return;
+      if (sp.i >= sp.parts.length) { done(); return; }
+      const u = new SpeechSynthesisUtterance(sp.parts[sp.i]);
+      if (sp.voice) { u.voice = sp.voice; u.lang = sp.voice.lang; }
+      u.rate = 1; u.pitch = 1;
+      u.onend = u.onerror = () => { if (token !== speakToken) return; sp.i++; next(); };
+      synth.speak(u);
+    };
+    // Safety net: never wait forever on a voice engine that stalls.
+    clearTimeout(sp.safety);
+    sp.safety = setTimeout(() => { if (token === speakToken) done(); }, 4000 + sp.parts.slice(sp.i).join(' ').length * 90);
+    next();
+  }
+  function pauseSpeech() { if (speech) { speakToken++; clearTimeout(speech.safety); synth.cancel(); } }
+  function stopSpeaking() {
+    const sp = speech; speech = null; speakToken++;
+    if (synth) synth.cancel();
+    if (sp) { clearTimeout(sp.safety); sp.resolve(); }
+  }
 
   // ---------- Setup form ----------
   const personasBox = $('personas');
@@ -711,6 +739,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) { showSetupErr('Resume must be a PDF, or paste the text instead.'); return; }
     if (file.size > 5 * 1024 * 1024) { showSetupErr(ERRORS.resume_too_large); return; }
     resumeFile = file;
+    fieldErr('resume', '');
     drop.classList.add('has');
     drop.innerHTML = `<span style="display:flex;gap:16px;align-items:center;min-width:0"><span class="mono" style="width:40px;height:48px;border-radius:8px;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;flex:none">PDF</span><span style="min-width:0;overflow-wrap:anywhere;font-weight:500">${esc(file.name)}</span></span><span class="btn sm">Replace</span>`;
   }
@@ -731,7 +760,9 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     if (msg && reveal) top.scrollIntoView({ block: 'center' });
   }
   $('setup-form').addEventListener('input', e => { if (e.target.removeAttribute) e.target.removeAttribute('aria-invalid'); $('setup-err').hidden = true; });
-  $('levels').addEventListener('click', () => showSetupErr(''));
+  $('levels').addEventListener('click', () => { showSetupErr(''); fieldErr('level', ''); });
+  function fieldErr(key, msg) { const e = $('e-' + key); if (!e) return; e.textContent = msg; e.hidden = !msg; }
+  $('setup-form').addEventListener('input', e => { const k = { 'f-role': 'role', 'f-jd': 'jd', 'f-jdtext': 'jd', 'f-resumetext': 'resume' }[e.target.id]; if (k) fieldErr(k, ''); });
 
   const readB64 = file => new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -750,11 +781,19 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     const jdText = jdAsText ? $('f-jdtext').value.trim() : '';
     const resumeText = resumeAsText ? $('f-resumetext').value.trim() : '';
     const missing = [];
-    if (!role) { missing.push('a role title'); $('f-role').setAttribute('aria-invalid', 'true'); }
-    if (!level) missing.push('a level');
-    if (!jdUrl && !jdText) { missing.push('the job description'); (jdAsText ? $('f-jdtext') : $('f-jd')).setAttribute('aria-invalid', 'true'); }
-    if (!(resumeAsText ? resumeText : resumeFile)) missing.push('your resume');
-    if (missing.length) { showSetupErr('Add ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + ' to start.'); return; }
+    const flag = (key, label, msg, el) => { missing.push({ label, el }); fieldErr(key, msg); if (el && el.setAttribute && key !== 'level') el.setAttribute('aria-invalid', 'true'); };
+    ['role', 'level', 'jd', 'resume'].forEach(k => fieldErr(k, ''));
+    if (!role) flag('role', 'a role title', 'Enter the role title from the posting.', $('f-role'));
+    if (!level) flag('level', 'a level', 'Choose the level you are interviewing for.', document.querySelector('#levels .chip'));
+    if (!jdUrl && !jdText) flag('jd', 'the job description', jdAsText ? 'Paste the full job description.' : 'Paste the link to the posting, or paste the text instead.', jdAsText ? $('f-jdtext') : $('f-jd'));
+    if (!(resumeAsText ? resumeText : resumeFile)) flag('resume', 'your resume', resumeAsText ? 'Paste your resume text.' : 'Add your resume as a PDF, or paste the text instead.', resumeAsText ? $('f-resumetext') : $('drop'));
+    if (missing.length) {
+      showSetupErr('Add ' + missing.map(m => m.label).join(', ').replace(/, ([^,]*)$/, ' and $1') + ' to start.');
+      const first = missing[0].el;
+      first.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      setTimeout(() => (first === $('drop') ? $('f-resume') : first).focus({ preventScroll: true }), 250);
+      return;
+    }
 
     S.setup = {
       role, level, company: $('f-company').value.trim(), industry: $('f-industry').value.trim(),
@@ -858,9 +897,11 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     $('clock').textContent = fmt(S.elapsed);
     $('clockbar').style.width = Math.min(100, S.elapsed / LENGTH * 100) + '%';
     $('paused').textContent = S.running || S.ended ? '' : ' · paused';
+    if (listening && S.paused) listenStart += now - (S.lastPauseTick || now);
+    S.lastPauseTick = now;
     if (listening) $('ans-time').textContent = short((now - listenStart) / 1000);
   }, 250);
-  const runClock = on => { S.lastTick = performance.now(); S.running = on; };
+  const runClock = on => { S.lastTick = performance.now(); S.wantClock = on; S.running = on && !S.paused; };
 
   // ---------- Speech recognition ----------
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -886,10 +927,18 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     runClock(true);
     if (S.typing || !SR) {
       $('typebox').hidden = false;
+      $('stage').classList.add('typing');
       hint(SR ? 'Type your answer, then press Send.' : 'This browser can\'t transcribe speech, so type your answers. Chrome or Edge add voice.');
       $('typed').focus();
       return;
     }
+    startRec();
+  }
+
+  function startRec() {
+    if (S.paused || !listening || S.typing || !SR) return;
+    const kind = S.listenKind;
+    $('self').classList.add('live');
     const secs = Number($('f-silence').value || 3);
     hint(secs ? `Ends on its own after ${secs} seconds of silence` : 'Press Done when you finish');
     rec = new SR();
@@ -919,7 +968,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       }
       if (ev.error === 'network') toast('Speech recognition lost its connection. Keep talking or type instead.');
     };
-    rec.onend = () => { if (listening && !S.typing) { try { rec.start(); } catch {} } };
+    rec.onend = () => { if (listening && !S.typing && !S.paused) { try { rec.start(); } catch {} } };
     try { rec.start(); } catch { /* already started */ }
   }
 
@@ -945,6 +994,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     listening = false;
     stopRec();
     $('typebox').hidden = true;
+    $('stage').classList.remove('typing');
     setDone(false, 'Please wait');
     hint('');
     onCandidateDone(text, S.listenKind);
@@ -966,6 +1016,35 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       if (keep && S.typing) $('typed').value = keep;
     }
   });
+  let unpauseWaiters = [];
+  const whenUnpaused = () => S.paused ? new Promise(r => unpauseWaiters.push(r)) : Promise.resolve();
+  function setPaused(on) {
+    if (S.ended || on === S.paused) return;
+    S.paused = on;
+    $('pause').setAttribute('aria-pressed', String(on));
+    $('pause').setAttribute('aria-label', on ? 'Resume the interview' : 'Pause the interview');
+    $('pause-icon').hidden = on; $('play-icon').hidden = !on;
+    $('paused-over').hidden = !on;
+    if (on) {
+      S.pausedState = $('pstate').textContent;
+      pauseSpeech();
+      if (listening) stopRec();
+      S.running = false;
+      setState('Paused');
+      $('done').disabled = true;
+      hint('Paused. The clock is stopped. Resume when you are ready.');
+    } else {
+      setState(S.pausedState || 'Listening');
+      runClock(S.wantClock);
+      if (speech) runSpeech();
+      if (listening) { $('done').disabled = false; if (S.typing || !SR) hint('Type your answer, then press Send.'); else startRec(); }
+      else hint('');
+      const w = unpauseWaiters; unpauseWaiters = []; w.forEach(r => r());
+    }
+  }
+  $('pause').addEventListener('click', () => setPaused(!S.paused));
+  $('resume-btn').addEventListener('click', () => setPaused(false));
+
   $('cc').addEventListener('click', () => {
     const on = $('cc').getAttribute('aria-pressed') !== 'true';
     $('cc').setAttribute('aria-pressed', String(on));
@@ -979,6 +1058,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
 
   // ---------- Interview flow ----------
   async function say(text, move) {
+    await whenUnpaused();
     S.history.push({ who: 'interviewer', text, kind: move || 'question' });
     S.lastQuestion = text;
     $('cap-them').innerHTML = '<b>' + esc(S.persona.name.split(' ')[0]) + '</b>' + esc(text);
@@ -993,7 +1073,8 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
 
   async function startInterview() {
     stopSpeaking();
-    S.history = []; S.notes = []; S.elapsed = 0; S.phase = 'core'; S.ended = false; S.hand = false; S.startedAt = new Date().toISOString();
+    S.history = []; S.notes = []; S.elapsed = 0; S.phase = 'core'; S.ended = false; S.hand = false; S.paused = false; S.startedAt = new Date().toISOString();
+    $('paused-over').hidden = true; $('pause').setAttribute('aria-pressed', 'false'); $('pause-icon').hidden = false; $('play-icon').hidden = true;
     $('hand').setAttribute('aria-pressed', 'false');
     const root = $('v-room');
     fillPersona(root);
@@ -1013,7 +1094,8 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     nextListen();
   }
 
-  function nextListen() {
+  async function nextListen() {
+    await whenUnpaused();
     if (S.ended) return;
     if (S.hand) {
       S.hand = false; $('hand').setAttribute('aria-pressed', 'false');
@@ -1134,6 +1216,8 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
 
   async function finish() {
     if (S.ended) return;
+    S.paused = false; $('paused-over').hidden = true;
+    const w = unpauseWaiters; unpauseWaiters = []; w.forEach(r => r());
     S.ended = true; listening = false;
     stopRec(); stopSpeaking(); runClock(false);
     $('end').textContent = 'End interview';
