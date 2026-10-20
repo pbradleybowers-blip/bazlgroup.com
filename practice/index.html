@@ -505,6 +505,8 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     network: 'Couldn\'t reach the interviewer. Check your connection and try again.'
   };
   const errText = code => ERRORS[code] || 'Something went wrong reaching the interviewer. Try again.';
+  // Known problems get a plain message; anything else also shows the technical reason, so it can be fixed.
+  const errMsg = x => ERRORS[x.code] ? ERRORS[x.code] : errMsg(x) + (x.detail ? ' Details: ' + x.detail : (x.code && x.code !== 'upstream_error' ? ' Details: ' + x.code : ''));
 
   // ---------- Small helpers ----------
   const $ = id => document.getElementById(id);
@@ -532,7 +534,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     } catch { const e = new Error('network'); e.code = 'network'; throw e; }
     let j = null;
     try { j = await res.json(); } catch { /* not JSON */ }
-    if (!res.ok) { const e = new Error((j && j.error) || 'upstream_error'); e.code = (j && j.error) || 'upstream_error'; throw e; }
+    if (!res.ok) { const e = new Error((j && j.error) || 'upstream_error'); e.code = (j && j.error) || (res.status ? 'http_' + res.status : 'upstream_error'); e.detail = (j && j.detail) || (j ? '' : 'status ' + res.status); throw e; }
     return j;
   }
 
@@ -563,7 +565,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     if (!code) { err.textContent = 'Enter your access code.'; err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); return; }
     S.code = code;
     try { await call('/unlock'); store.set('code', code); show('setup'); }
-    catch (x) { err.textContent = errText(x.code); err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); }
+    catch (x) { err.textContent = errMsg(x); err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); }
   });
 
   // ---------- Voices ----------
@@ -747,7 +749,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       showReady();
     } catch (x) {
       show('setup');
-      showSetupErr(errText(x.code));
+      showSetupErr(errMsg(x));
       if (x.code === 'locked') { store.set('code', ''); show('gate'); }
     }
   });
@@ -976,7 +978,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       out = await call('/turn', { setup: S.setup, brief: S.brief, history: S.history, event: ev, elapsedSec: Math.round(S.elapsed) });
     } catch (x) {
       setState('Waiting');
-      toast(errText(x.code), 'Try again', () => advance(event, opts));
+      toast(errMsg(x), 'Try again', () => advance(event, opts));
       return;
     }
     if (out.move === 'invite_questions') S.phase = 'questions';
@@ -997,7 +999,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       fb = await call('/coach', { setup: S.setup, brief: S.brief, history: S.history.slice(0, m.index), kind: m.kind, prompt: m.prompt, raw: m.raw });
     } catch (x) {
       $('coach-busy').hidden = true; $('coach-body').hidden = false;
-      $('coach-body').innerHTML = `<p class="err">${esc(errText(x.code))}</p><div class="row"><button class="btn inkfill" type="button" id="cb-retry">Try again</button><button class="btn" type="button" id="cb-skip">Skip feedback</button></div>`;
+      $('coach-body').innerHTML = `<p class="err">${esc(errMsg(x))}</p><div class="row"><button class="btn inkfill" type="button" id="cb-retry">Try again</button><button class="btn" type="button" id="cb-skip">Skip feedback</button></div>`;
       $('cb-retry').onclick = () => coachMoment(m);
       $('cb-skip').onclick = () => { closeCoach(); S.notes.push({ index: m.index, kind: m.kind, prompt: m.prompt, raw: m.raw }); m.kind === 'answer' ? advance('answer') : nextListen(); };
       return;
@@ -1072,7 +1074,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     try {
       d = await call('/debrief', { setup: S.setup, brief: S.brief, history: S.history, elapsedSec: Math.round(S.elapsed) });
     } catch (x) {
-      $('debrief').innerHTML = `<div class="stack"><h1 class="h2">The debrief didn't load</h1><p class="lead">${esc(errText(x.code))}</p><div class="row"><button class="btn primary" type="button" id="db-retry">Try again</button></div></div>`;
+      $('debrief').innerHTML = `<div class="stack"><h1 class="h2">The debrief didn't load</h1><p class="lead">${esc(errMsg(x))}</p><div class="row"><button class="btn primary" type="button" id="db-retry">Try again</button></div></div>`;
       $('db-retry').onclick = loadDebrief;
       return;
     }

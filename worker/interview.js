@@ -25,10 +25,11 @@ const RETRYABLE = new Set([429, 500, 502, 503, 504, 529]);
 
 const DEFAULTS = {
   attemptsPerModel: 2,
-  callTimeoutMs: 45000, // per API call; /prepare reads a PDF and needs the room
+  callTimeoutMs: 60000, // per API call; replies arrive whole, so this covers the full answer
+  prepareTimeoutMs: 150000, // /prepare reads a PDF and writes the longest reply
   baseBackoffMs: 500,
   maxBackoffMs: 4000,
-  totalBudgetMs: 90000
+  totalBudgetMs: 180000
 };
 
 // ---------------------------------------------------------------------------
@@ -92,6 +93,8 @@ function prepareSystem(setup) {
 - question_plan: 6 to 8 planned questions in order, each with a follow-up probe. Mix in at least one AI question at the right depth for the role. Leave room to adapt.
 - opening: what ${p.name} says first, aloud: a natural hello by the candidate's first name, one line of small talk, a one-line framing of the next 30 minutes with time for the candidate's questions at the end, then the first question. Under 90 words. ${SPOKEN}
 - jd_summary and candidate_summary: compact, for reference later.
+
+Keep the whole brief tight: short phrases, no more than about 600 words in total.
 
 ${QUESTION_BANK}`;
 }
@@ -283,10 +286,11 @@ let spendLimitHitAt = 0;
 // One forced tool call. Returns { input, model } or { error }.
 async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route }) {
   const started = Date.now();
-  let lastStatus = 0;
+  const timeoutMs = route === 'prepare' ? cfg.prepareTimeoutMs : cfg.callTimeoutMs;
+  let lastStatus = 0, lastReason = '';
   for (const model of MODELS) {
     for (let attempt = 1; attempt <= cfg.attemptsPerModel; attempt++) {
-      if (Date.now() - started > cfg.totalBudgetMs) return { error: lastStatus === 429 ? 'rate_limited' : 'upstream_error' };
+      if (Date.now() - started > cfg.totalBudgetMs) return { error: lastStatus === 429 ? 'rate_limited' : 'upstream_error', detail: lastReason || 'time_budget' };
       const ctl = new AbortController();
       let reason = null, wait = null;
       try {
@@ -298,10 +302,10 @@ async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route 
             model, max_tokens: maxTokens, system, messages,
             tools: [tool], tool_choice: { type: 'tool', name: tool.name }
           })
-        }), cfg.callTimeoutMs, () => ctl.abort());
+        }), timeoutMs, () => ctl.abort());
 
         if (res.ok) {
-          const data = await withTimeout(res.json(), cfg.callTimeoutMs, () => ctl.abort());
+          const data = await withTimeout(res.json(), timeoutMs, () => ctl.abort());
           const block = (data.content || []).find(c => c.type === 'tool_use' && c.name === tool.name);
           if (block && block.input && typeof block.input === 'object') {
             if (model !== MODELS[0] || attempt > 1) log('answered', { route, model, attempt });
@@ -318,8 +322,10 @@ async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route 
               log('spend_limit_reached', { route, model });
               return { error: 'spend_limit' };
             }
-            log('failed', { route, model, attempt, status: res.status });
-            return { error: res.status === 413 ? 'too_large' : 'upstream_error' };
+            let why = 'http_' + res.status;
+            try { const e = JSON.parse(detail).error; if (e) why += ': ' + String(e.type || '') + ' ' + String(e.message || '').slice(0, 240); } catch {}
+            log('failed', { route, model, attempt, status: res.status, why });
+            return { error: res.status === 413 ? 'too_large' : 'upstream_error', detail: why };
           }
           reason = 'http_' + res.status;
           wait = retryAfterMs(res);
@@ -328,6 +334,7 @@ async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route 
       } catch {
         reason = ctl.signal.aborted ? 'timeout' : 'network';
       }
+      lastReason = model + ' ' + reason;
       if (attempt === cfg.attemptsPerModel || (wait !== null && wait > cfg.maxBackoffMs)) {
         log('fallback', { route, from: model, attempt, reason });
         break;
@@ -337,8 +344,8 @@ async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route 
       await sleep(delay);
     }
   }
-  log('gave_up', { route, lastStatus });
-  return { error: lastStatus === 429 ? 'rate_limited' : 'upstream_error' };
+  log('gave_up', { route, lastStatus, lastReason });
+  return { error: lastStatus === 429 ? 'rate_limited' : 'upstream_error', detail: lastReason };
 }
 
 // ---------------------------------------------------------------------------
@@ -541,7 +548,7 @@ async function prepare(body, env, cfg) {
     apiKey: env.ANTHROPIC_API_KEY, cfg, route: 'prepare', maxTokens: 3000,
     system: prepareSystem(setup), messages: [{ role: 'user', content }], tool: TOOLS.brief
   });
-  if (out.error) return { status: statusFor(out.error), body: { error: out.error } };
+  if (out.error) return { status: statusFor(out.error), body: { error: out.error, detail: out.detail || '' } };
   const brief = cleanBrief(out.input);
   const opening = str(out.input.opening, 1200);
   if (!brief || !opening) return { status: 502, body: { error: 'upstream_error' } };
@@ -560,7 +567,7 @@ async function turn(body, env, cfg) {
     system: [{ type: 'text', text: interviewerSystem(setup, brief), cache_control: { type: 'ephemeral' } }],
     messages: [{ role: 'user', content: user }], tool: TOOLS.turn
   });
-  if (out.error) return { status: statusFor(out.error), body: { error: out.error } };
+  if (out.error) return { status: statusFor(out.error), body: { error: out.error, detail: out.detail || '' } };
   const say = str(out.input.say, 1500);
   if (!say) return { status: 502, body: { error: 'upstream_error' } };
   return { status: 200, body: { say, move: str(out.input.move, 30), topic: str(out.input.topic, 80), done: out.input.done === true || event === 'wrap' } };
@@ -591,7 +598,7 @@ ${kind === 'question'
     apiKey: env.ANTHROPIC_API_KEY, cfg, route: 'coach', maxTokens: 2500,
     system: coachSystem(setup), messages: [{ role: 'user', content: user }], tool: TOOLS.coach
   });
-  if (out.error) return { status: statusFor(out.error), body: { error: out.error } };
+  if (out.error) return { status: statusFor(out.error), body: { error: out.error, detail: out.detail || '' } };
   const i = out.input;
   return {
     status: 200,
@@ -619,7 +626,7 @@ async function debrief(body, env, cfg) {
     apiKey: env.ANTHROPIC_API_KEY, cfg, route: 'debrief', maxTokens: 3000,
     system: debriefSystem(setup, brief), messages: [{ role: 'user', content: user }], tool: TOOLS.debrief
   });
-  if (out.error) return { status: statusFor(out.error), body: { error: out.error } };
+  if (out.error) return { status: statusFor(out.error), body: { error: out.error, detail: out.detail || '' } };
   const i = out.input;
   const list = (v, n, max) => (Array.isArray(v) ? v.slice(0, n).map(x => str(x, max)).filter(Boolean) : []);
   return {
@@ -702,8 +709,13 @@ export default {
     } catch { return reply({ error: 'bad_request' }, 400, headers); }
     if (!body || typeof body !== 'object') return reply({ error: 'bad_request' }, 400, headers);
 
-    const result = await route(body, env, settings(env));
-    return reply(result.body, result.status, headers);
+    try {
+      const result = await route(body, env, settings(env));
+      return reply(result.body, result.status, headers);
+    } catch (e) {
+      log('crashed', { route: url.pathname, message: String(e && e.message || e).slice(0, 200) });
+      return reply({ error: 'upstream_error', detail: 'worker: ' + String(e && e.message || e).slice(0, 200) }, 500, headers);
+    }
   }
 };
 

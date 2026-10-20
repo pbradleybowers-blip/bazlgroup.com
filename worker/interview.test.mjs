@@ -249,3 +249,17 @@ test('the interviewer prompt carries the brief and the rules that matter', () =>
   assert.match(p, /Core questions run until about 24 minutes/);
   assert.match(p, /Pampered Chef platform/);
 });
+
+test('an API error comes back with its reason, so failures can be diagnosed', async () => {
+  plan.push(errReply(400, '{"type":"error","error":{"type":"invalid_request_error","message":"model: not found"}}'));
+  const r = await post('/turn', { setup: SETUP, brief: BRIEF, event: 'next', elapsedSec: 100, history: [] });
+  assert.equal(r.status, 502);
+  assert.match(r.json.detail, /http_400: invalid_request_error model: not found/);
+});
+
+test('timeouts are reported as such', async () => {
+  plan.push(() => new Promise(() => {}), () => new Promise(() => {}), () => new Promise(() => {}), () => new Promise(() => {}));
+  const r = await post('/turn', { setup: SETUP, brief: BRIEF, event: 'next', elapsedSec: 100, history: [] });
+  assert.equal(r.json.error, 'upstream_error');
+  assert.match(r.json.detail, /timeout/);
+});
