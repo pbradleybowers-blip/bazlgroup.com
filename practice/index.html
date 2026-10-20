@@ -1,0 +1,1164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Interview Practice · Brad Bowers</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,800&family=Geist:wght@300..600&family=Geist+Mono:wght@400..500&display=swap">
+<style>
+/* Bowers design system tokens. Setup and debrief are light; the interview room is always dark. */
+:root {
+  --canvas:#f4f4f2; --surface:#ffffff; --surface-sunken:#e9e9e6; --ink:#111112; --ink-muted:#5a5a60; --on-ink:#f4f4f2;
+  --line:#dcdcd8; --line-strong:#7c7c83; --signal:#13604b; --on-signal:#ffffff; --signal-text:#13604b;
+  --field-navy:#172341; --field-sage:#cfe2d5; --on-field:#f4f3ef;
+  --success:#0b5cad; --warning:#8f5300; --danger:#c0182f; --focus:#111112;
+  --font-display:"Archivo","Arial Black",system-ui,sans-serif;
+  --font-sans:"Geist","Helvetica Neue",Arial,system-ui,sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r-s:8px; --r-m:14px; --r-l:22px; --pill:999px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+.dark, :root .dark {
+  --canvas:#0e0e0f; --surface:#18181b; --surface-sunken:#222226; --ink:#f2f1ed; --ink-muted:#a3a3a9; --on-ink:#111112;
+  --line:#2c2c31; --line-strong:#6e6e76; --signal:#1b7a5e; --signal-text:#5cc9a4; --field-navy:#1f2f57;
+  --success:#6aa9ff; --warning:#f2b04a; --danger:#ff6b7d; --focus:#f2f1ed; color-scheme:dark;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; }
+body { background:var(--canvas); color:var(--ink); font:400 16px/1.55 var(--font-sans); -webkit-font-smoothing:antialiased; min-height:100vh; }
+body.is-dark { background:#0e0e0f; }
+[hidden] { display:none !important; }
+a { color:var(--signal-text); text-underline-offset:.18em; }
+button, input, select, textarea { font:inherit; color:inherit; }
+:focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
+.skip { position:absolute; left:-999px; top:8px; background:var(--surface); padding:8px 16px; border-radius:var(--pill); z-index:50; }
+.skip:focus { left:16px; }
+.muted { color:var(--ink-muted); }
+.mono { font-family:var(--font-mono); font-size:13px; font-variant-numeric:tabular-nums; }
+.vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* Type */
+.h1 { margin:0; font-size:52px; line-height:1; font-weight:500; letter-spacing:-.035em; text-wrap:balance; }
+.h2 { margin:0; font-size:34px; line-height:1.08; font-weight:500; letter-spacing:-.025em; text-wrap:balance; }
+.h3 { margin:0; font-size:22px; line-height:1.2; font-weight:500; letter-spacing:-.012em; }
+.lead { margin:0; font-size:20px; line-height:1.45; font-weight:300; letter-spacing:-.01em; color:var(--ink-muted); max-width:62ch; }
+.small { font-size:14px; line-height:1.45; }
+.label { font-size:14px; font-weight:500; }
+.req { font-weight:400; color:var(--ink-muted); }
+.display { font-family:var(--font-display); font-stretch:125%; font-weight:800; font-size:64px; line-height:.95; letter-spacing:-.015em; margin:0; }
+@media (max-width:640px) { .h1 { font-size:36px; } .h2 { font-size:28px; } .display { font-size:40px; } }
+
+/* Layout */
+.nav { height:64px; display:flex; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line);
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
+@media (min-width:900px) { .nav { padding-left:40px; padding-right:40px; } }
+.brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--ink); }
+.brand b { font-weight:600; letter-spacing:-.01em; }
+.brand i { width:1px; height:20px; background:var(--line); }
+@media (max-width:480px) { .brand i, .brand .small { display:none; } }
+.navlinks { display:flex; gap:24px; align-items:center; font-size:14px; font-weight:500; }
+.navlinks button { background:none; border:0; padding:8px 0; cursor:pointer; color:var(--ink-muted); }
+.navlinks button[aria-current="page"] { color:var(--ink); text-decoration:underline; text-underline-offset:6px; }
+.wrap { max-width:1280px; margin:0 auto; padding-block:64px 120px; display:flex; flex-direction:column; gap:40px;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
+@media (min-width:900px) { .wrap { padding-left:40px; padding-right:40px; } }
+.stack { display:flex; flex-direction:column; gap:16px; }
+.cols { display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start; }
+.col-main { flex:999 1 560px; min-width:0; }
+.col-side { flex:1 1 360px; min-width:0; display:flex; flex-direction:column; gap:24px; }
+.card { background:var(--surface); border-radius:var(--r-l); padding:40px; display:flex; flex-direction:column; gap:24px; }
+@media (max-width:640px) { .card { padding:24px; } }
+.card.tight { padding:24px; gap:16px; }
+.grid2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:24px; }
+@media (max-width:640px) { .grid2 { grid-template-columns:1fr; } }
+
+/* Controls */
+.field { display:flex; flex-direction:column; gap:8px; }
+.help { font-size:14px; line-height:1.45; color:var(--ink-muted); }
+.err { font-size:14px; line-height:1.45; color:var(--danger); }
+.input, .select, .textarea { width:100%; border:1px solid var(--line-strong); border-radius:var(--r-m); background:var(--surface); color:var(--ink); }
+.input, .select { height:48px; padding:0 16px; }
+.textarea { padding:12px 16px; resize:vertical; min-height:120px; line-height:1.55; }
+.input::placeholder, .textarea::placeholder { color:var(--ink-muted); opacity:1; }
+[aria-invalid="true"] { border-color:var(--danger); }
+.row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.row > .input, .row > .select { flex:1 1 220px; min-width:0; }
+.btn { height:48px; padding:0 20px; border-radius:var(--pill); border:1px solid var(--line-strong); background:transparent; font-weight:500; font-size:14px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; transition:background .16s var(--ease), opacity .16s var(--ease); }
+.btn:hover { background:var(--surface-sunken); }
+.btn.primary { background:var(--signal); color:var(--on-signal); border-color:var(--signal); font-size:16px; height:56px; padding:0 24px; }
+.btn.primary:hover { filter:brightness(1.1); }
+.btn.inkfill { background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
+.btn.sm { height:40px; padding:0 16px; }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.chip { height:36px; padding:0 16px; border-radius:var(--pill); border:1px solid var(--line-strong); background:transparent; font-size:14px; font-weight:500; cursor:pointer; }
+.chip[aria-pressed="true"] { background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
+.seg { display:inline-flex; gap:4px; padding:4px; border-radius:var(--pill); background:var(--surface-sunken); align-self:flex-start; }
+.seg button { height:40px; padding:0 20px; border-radius:var(--pill); border:0; background:transparent; font-size:14px; font-weight:500; cursor:pointer; }
+.seg button[aria-pressed="true"] { background:var(--ink); color:var(--on-ink); }
+.ok { color:var(--success); font-size:14px; display:flex; gap:8px; align-items:center; }
+.drop { background:var(--surface-sunken); border:1px dashed var(--line-strong); border-radius:var(--r-m); padding:24px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; cursor:pointer; }
+.drop.has { border-style:solid; border-color:transparent; flex-direction:row; text-align:left; justify-content:space-between; flex-wrap:wrap; }
+.drop.over { border-color:var(--ink); }
+.persona { display:flex; gap:16px; align-items:center; padding:12px; border-radius:var(--r-m); border:2px solid transparent; cursor:pointer; }
+.persona:hover { background:var(--surface-sunken); }
+.persona:has(input:checked) { border-color:var(--ink); }
+.persona input { accent-color:var(--ink); width:18px; height:18px; margin:0; flex:none; }
+.avatar { width:48px; height:48px; flex:none; border-radius:var(--pill); background:var(--surface-sunken); display:inline-flex; align-items:center; justify-content:center; font-weight:600; }
+.persona:has(input:checked) .avatar { background:var(--field-navy); color:var(--on-field); }
+.probe { background:var(--field-sage); color:#111112; border-radius:var(--r-l); padding:24px; display:flex; flex-direction:column; gap:12px; }
+.probe ul { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; }
+.empty { background:var(--surface-sunken); border-radius:var(--r-l); padding:24px; display:flex; flex-direction:column; gap:8px; }
+.notice { border-radius:var(--r-m); padding:12px 16px; background:var(--surface-sunken); font-size:14px; }
+.notice.bad { color:var(--danger); }
+.skel { display:flex; flex-direction:column; gap:12px; }
+.skel span { height:14px; border-radius:var(--r-s); background:var(--surface-sunken); animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity:.5; } }
+
+/* Interview room */
+.room { min-height:100vh; display:flex; flex-direction:column; background:#0e0e0f; color:var(--ink); }
+.room-top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; padding-block:16px;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
+@media (min-width:900px) { .room-top { padding-left:40px; padding-right:40px; } }
+.clock { display:flex; align-items:center; gap:12px; }
+.bar { width:160px; height:4px; border-radius:var(--pill); background:var(--line); display:flex; overflow:hidden; }
+.bar i { display:block; background:var(--ink); border-radius:var(--pill); transition:width .5s linear; }
+.room-main { flex:1; display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-start; gap:24px; padding-block:8px 40px;
+  padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px)); }
+@media (min-width:900px) { .room-main { padding-left:40px; padding-right:40px; } }
+.stage { flex:999 1 560px; min-width:0; max-width:960px; display:flex; flex-direction:column; gap:20px; transition:opacity .26s var(--ease); }
+.stage.dim { opacity:.55; }
+.tile { position:relative; width:100%; aspect-ratio:16/9; border-radius:var(--r-l); background:var(--field-navy); overflow:hidden; outline:2px solid transparent; outline-offset:-2px; transition:outline-color .2s; }
+.tile.speaking { outline-color:var(--on-field); }
+.face { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.face span { width:min(260px, 45%); aspect-ratio:1; border-radius:var(--pill); background:#172341; color:var(--on-field); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-stretch:125%; font-weight:800; font-size:clamp(40px, 7vw, 88px); letter-spacing:-.02em; transition:transform .3s var(--ease); }
+.tile.speaking .face span { animation:talk 1.1s ease-in-out infinite; }
+@keyframes talk { 50% { transform:scale(1.03); } }
+.tag { position:absolute; padding:6px 14px; border-radius:var(--pill); background:rgba(0,0,0,.64); color:var(--on-field); font-size:13px; font-weight:500; }
+.tag.name { left:20px; bottom:20px; font-size:14px; display:flex; gap:8px; }
+.tag.state { left:20px; top:20px; }
+.self { position:absolute; right:20px; bottom:20px; width:min(200px, 30%); aspect-ratio:200/124; border-radius:var(--r-m); background:var(--surface); border:2px solid transparent;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+.self.live { border-color:var(--signal); }
+.self b { width:44px; height:44px; border-radius:var(--pill); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; font-weight:600; }
+.wave { display:flex; align-items:center; gap:3px; height:20px; }
+.wave i { width:3px; height:4px; border-radius:2px; background:var(--signal-text); transition:height .12s; }
+.caption { margin:0; font-size:22px; line-height:1.45; font-weight:300; letter-spacing:-.01em; }
+.caption b, .you b { font-weight:500; color:var(--ink-muted); margin-right:8px; }
+.you { margin:0; color:var(--ink-muted); min-height:1.55em; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.dock { display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:8px; }
+.round { width:56px; height:56px; border-radius:var(--pill); border:1px solid var(--line-strong); background:transparent; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; font-weight:600; font-size:13px; }
+.round[aria-pressed="true"] { background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
+.round[aria-pressed="true"] svg { stroke:var(--on-ink); }
+.talk { height:64px; padding:0 28px; border-radius:var(--pill); border:0; background:var(--signal); color:#fff; font-weight:500; font-size:16px; display:inline-flex; align-items:center; gap:12px; cursor:pointer; }
+.talk:disabled { background:var(--surface-sunken); color:var(--ink-muted); cursor:default; }
+.hint { font-size:13px; color:var(--ink-muted); text-align:center; }
+.typebox { width:100%; display:flex; gap:8px; flex-wrap:wrap; }
+.typebox .textarea { flex:1 1 320px; min-height:96px; background:var(--surface); }
+.coach { flex:1 1 380px; min-width:0; max-width:460px; background:var(--surface); border-radius:var(--r-l); padding:32px; display:flex; flex-direction:column; gap:20px;
+  box-shadow:0 12px 32px -8px rgba(0,0,0,.6); animation:slide .26s var(--ease); }
+@keyframes slide { from { transform:translateX(24px); opacity:0; } }
+.coach h4 { margin:0 0 4px; font-size:14px; font-weight:600; }
+.coach p { margin:0; }
+.signal { display:flex; gap:4px; padding:4px; border-radius:var(--pill); background:var(--surface-sunken); }
+.signal span { flex:1; text-align:center; height:34px; line-height:34px; border-radius:var(--pill); font-size:13px; font-weight:500; color:var(--ink-muted); }
+.signal span.on { background:var(--ink); color:var(--on-ink); }
+.levelcheck { font-size:14px; line-height:1.45; color:var(--warning); }
+.split { display:flex; justify-content:space-between; gap:16px; font-size:14px; border-top:1px solid var(--line); padding-top:16px; flex-wrap:wrap; }
+.toast { position:fixed; left:50%; bottom:max(24px, env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--surface); color:var(--ink); border-radius:var(--r-m);
+  box-shadow:0 12px 32px -8px rgba(0,0,0,.4); padding:12px 16px; display:flex; gap:12px; align-items:center; z-index:40; max-width:calc(100% - 32px); }
+@media (prefers-reduced-motion:reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
+
+/* Debrief */
+.verdict { background:var(--field-navy); color:var(--on-field); border-radius:var(--r-l); padding:64px; display:flex; flex-direction:column; gap:24px; }
+@media (max-width:640px) { .verdict { padding:32px; } }
+.scale { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+.scale li { height:32px; padding:0 14px; border-radius:var(--pill); border:1px solid var(--on-field); display:inline-flex; align-items:center; font-size:13px; font-weight:500; }
+.scale li[aria-current] { background:var(--on-field); color:var(--field-navy); font-weight:600; }
+.verdict blockquote { margin:0; max-width:720px; font-size:20px; line-height:1.45; font-weight:300; }
+.verdict .btn { border-color:var(--on-field); color:var(--on-field); }
+.verdict .btn.light { background:var(--on-field); color:var(--field-navy); }
+.cards3 { margin:0; padding:0; list-style:none; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:24px; }
+.cards3 li { background:var(--surface); border-radius:var(--r-l); padding:24px; display:flex; flex-direction:column; gap:8px; }
+.list { margin:0; padding:0; list-style:none; }
+.list li { display:flex; justify-content:space-between; gap:16px; padding:12px 0; border-bottom:1px solid var(--line); }
+.list li:last-child { border-bottom:0; }
+.bullets { margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px; }
+.st-Strong { color:var(--success); } .st-Partial { color:var(--warning); } .st-Weak, .st-Missing { color:var(--danger); } .st-Not { color:var(--ink-muted); }
+.sig-Weakened { color:var(--danger); } .sig-Neutral { color:var(--ink-muted); } .sig-Strengthened { color:var(--success); }
+details.ans { border-bottom:1px solid var(--line); padding:16px 0; }
+details.ans:last-child { border-bottom:0; }
+details.ans summary { display:flex; flex-wrap:wrap; gap:16px; align-items:baseline; cursor:pointer; list-style:none; }
+details.ans summary::-webkit-details-marker { display:none; }
+.ans-body { display:flex; flex-wrap:wrap; gap:24px; padding:16px 0 8px; }
+.ans-body > * { flex:1 1 320px; min-width:0; }
+.note { background:var(--surface-sunken); border-radius:var(--r-m); padding:16px; font-size:14px; line-height:1.45; display:flex; flex-direction:column; gap:6px; }
+table.hist { width:100%; border-collapse:collapse; font-size:14px; }
+table.hist th, table.hist td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+table.hist th { font-weight:500; color:var(--ink-muted); }
+.tablebox { overflow-x:auto; }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- Access code -->
+<div id="v-gate" hidden>
+  <header class="nav"><span class="brand"><b>Brad Bowers</b><i></i><span class="small muted">Interview practice</span></span></header>
+  <main id="main" class="wrap" style="max-width:560px">
+    <div class="stack">
+      <h1 class="h1">Interview practice</h1>
+      <p class="lead">A 30-minute mock interview with a panelist who reads your resume first. Enter the access code you were given.</p>
+    </div>
+    <form id="gate-form" class="card" novalidate>
+      <div class="field">
+        <label for="code" class="label">Access code</label>
+        <input id="code" class="input" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="code-err">
+        <span id="code-err" class="err" hidden></span>
+      </div>
+      <button class="btn primary" type="submit">Continue</button>
+    </form>
+  </main>
+</div>
+
+<!-- Setup -->
+<div id="v-setup" hidden>
+  <header class="nav">
+    <span class="brand"><b>Brad Bowers</b><i></i><span class="small muted">Interview practice</span></span>
+    <nav class="navlinks" aria-label="Main">
+      <button type="button" data-go="setup" aria-current="page">Practice</button>
+      <button type="button" data-go="history">History</button>
+    </nav>
+  </header>
+  <main id="main-setup" class="wrap">
+    <div class="stack">
+      <h1 class="h1">Set up your interview</h1>
+      <p class="lead">Tell us the role. Your panelist reads your resume and the job description before the call, like a real interviewer.</p>
+    </div>
+    <form id="setup-form" class="cols" novalidate>
+      <section class="card col-main" aria-labelledby="role-h">
+        <div class="row" style="justify-content:space-between; align-items:baseline">
+          <h2 id="role-h" class="h3">The role</h2>
+          <span class="small muted">Fields marked Required are needed to start.</span>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="f-role" class="label">Role title <span class="req">· Required</span></label>
+            <input id="f-role" class="input" required placeholder="e.g. Director of Product Management" aria-describedby="h-role">
+            <span id="h-role" class="help">As it appears on the posting.</span>
+          </div>
+          <div class="field">
+            <label for="f-company" class="label">Company <span class="req">· Optional</span></label>
+            <input id="f-company" class="input" placeholder="e.g. Kraft Heinz" aria-describedby="h-company">
+            <span id="h-company" class="help">Lets your panelist reference the company's products and strategy.</span>
+          </div>
+        </div>
+        <fieldset class="field" style="border:0; margin:0; padding:0">
+          <legend class="label" style="padding:0; margin-bottom:8px">Level <span class="req">· Required</span></legend>
+          <div class="row" id="levels">
+            <button type="button" class="chip" aria-pressed="false">Senior PM</button>
+            <button type="button" class="chip" aria-pressed="false">Group PM</button>
+            <button type="button" class="chip" aria-pressed="false">Director</button>
+            <button type="button" class="chip" aria-pressed="false">Sr Director</button>
+            <button type="button" class="chip" aria-pressed="false">VP</button>
+            <button type="button" class="chip" aria-pressed="false">CPO</button>
+          </div>
+          <span id="h-level" class="help">Sets the bar. A VP answer that stays at feature level gets flagged.</span>
+        </fieldset>
+        <div class="field">
+          <label for="f-industry" class="label">Industry <span class="req">· Optional</span></label>
+          <input id="f-industry" class="input" placeholder="e.g. Consumer packaged goods, fintech, healthcare SaaS" aria-describedby="h-industry">
+          <span id="h-industry" class="help">Shapes the examples and follow-up questions. Leave it blank and we'll take it from the job description.</span>
+        </div>
+        <div class="field">
+          <label for="f-jd" class="label" id="l-jd">Job description <span class="req">· Required</span></label>
+          <div class="row" id="jd-link-row">
+            <input id="f-jd" class="input" inputmode="url" placeholder="Paste the link to the job posting" aria-describedby="h-jd">
+            <button type="button" class="btn" id="jd-toggle">Paste text instead</button>
+          </div>
+          <textarea id="f-jdtext" class="textarea" hidden placeholder="Paste the full job description" aria-labelledby="l-jd" aria-describedby="h-jd" style="min-height:180px"></textarea>
+          <span id="h-jd" class="help">The page with the full posting, such as careers.company.com/jobs/12345. If it needs a login, paste the text instead.</span>
+        </div>
+        <div class="field">
+          <span class="label" id="l-resume">Resume <span class="req">· Required</span></span>
+          <label id="drop" class="drop" for="f-resume">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>
+            <span>Drop your resume here, or <u>choose a file</u></span>
+            <span class="small muted">PDF, up to 5 MB. Your panelist picks roles and claims from it to ask about.</span>
+          </label>
+          <input id="f-resume" type="file" accept="application/pdf,.pdf" class="vh" aria-labelledby="l-resume">
+          <button type="button" class="btn sm" id="resume-toggle" style="align-self:flex-start">Paste resume text instead</button>
+          <textarea id="f-resumetext" class="textarea" hidden placeholder="Paste your resume text" aria-labelledby="l-resume" style="min-height:180px"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-context" class="label">Other context <span class="req">· Optional</span></label>
+          <textarea id="f-context" class="textarea" rows="4" aria-describedby="h-context" placeholder="e.g. Second round with the hiring manager. I'm confident on strategy, less so on technical AI questions. The recruiter said change management matters most."></textarea>
+          <span id="h-context" class="help">Anything that frames the interview: which round it is, who you're meeting, what the recruiter told you, or where you feel least ready.</span>
+        </div>
+      </section>
+
+      <aside class="col-side" aria-label="Panelist and mode">
+        <section class="card">
+          <div class="stack" style="gap:4px">
+            <h2 class="h3">Your panelist</h2>
+            <p class="small muted" style="margin:0">Each covers different ground. Titles adapt to the posting.</p>
+          </div>
+          <fieldset id="personas" style="border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:8px">
+            <legend class="vh">Choose a panelist</legend>
+          </fieldset>
+        </section>
+        <section class="card">
+          <div class="stack" style="gap:12px">
+            <h2 class="h3">Mode</h2>
+            <div class="seg" role="group" aria-label="Interview mode" id="modes">
+              <button type="button" aria-pressed="true" data-mode="coach">Coach</button>
+              <button type="button" aria-pressed="false" data-mode="realistic">Realistic</button>
+            </div>
+            <p class="small muted" id="mode-help" style="margin:0"></p>
+          </div>
+          <div class="field">
+            <label for="f-voice" class="label" id="voice-label">Voice</label>
+            <div class="row">
+              <select id="f-voice" class="select"></select>
+              <button type="button" class="btn" id="preview">
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 4v16l13-8z"/></svg>
+                Preview
+              </button>
+            </div>
+            <span class="help" id="voice-help">Picked for your browser. Change it anytime.</span>
+          </div>
+          <div class="field">
+            <label for="f-silence" class="label">End my answer after</label>
+            <select id="f-silence" class="select">
+              <option value="3">3 seconds of silence</option>
+              <option value="5">5 seconds of silence</option>
+              <option value="0">Only when I press Done</option>
+            </select>
+          </div>
+          <div class="split" style="border-top:1px solid var(--line)"><span class="muted">Length</span><span class="mono">30 min · last 5 for your questions</span></div>
+          <div class="stack" style="gap:12px">
+            <button type="submit" class="btn primary" id="start">Start interview</button>
+            <p class="small muted" id="start-help" style="margin:0; text-align:center">Uses your microphone. Your browser transcribes your answers.</p>
+            <p class="err" id="setup-err" role="alert" hidden></p>
+          </div>
+        </section>
+      </aside>
+    </form>
+  </main>
+</div>
+
+<!-- Preparing -->
+<div id="v-prep" hidden>
+  <header class="nav"><span class="brand"><b>Brad Bowers</b><i></i><span class="small muted">Interview practice</span></span></header>
+  <main class="wrap" style="max-width:720px">
+    <div class="stack" aria-busy="true">
+      <h1 class="h2" id="prep-title">Getting ready</h1>
+      <p class="lead" id="prep-text">Your panelist is reading your resume and the job posting. This takes about 20 seconds.</p>
+      <div class="skel" aria-hidden="true"><span style="width:60%"></span><span style="width:90%"></span><span style="width:75%"></span><span style="width:40%"></span></div>
+    </div>
+  </main>
+</div>
+
+<!-- Ready -->
+<div id="v-ready" hidden class="dark">
+  <div class="room">
+    <div class="room-top"><span class="small muted" id="ready-role"></span></div>
+    <main class="room-main" style="align-items:center">
+      <div class="stage" style="max-width:720px; align-items:stretch">
+        <div class="tile" style="aspect-ratio:16/8"><div class="face"><span class="initials"></span></div><span class="tag name"><span class="pname" style="font-weight:600"></span><span class="ptitle muted"></span></span></div>
+        <h1 class="h2"><span class="pfirst"></span> is ready for you</h1>
+        <div class="probe" id="ready-gaps"><h2 class="h3">What a panel will probe</h2><p class="small" style="margin:0">Gaps between your resume and this posting. Expect them to come up.</p><ul></ul></div>
+        <div class="row">
+          <button class="talk" id="join" type="button">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+            Join interview
+          </button>
+          <button class="btn" type="button" id="ready-back">Back to setup</button>
+        </div>
+        <p class="small muted" style="margin:0">Your browser will ask to use your microphone. Use headphones if you can, so the interviewer's voice doesn't feed back into the mic.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Interview room -->
+<div id="v-room" hidden class="dark">
+  <div class="room">
+    <header class="room-top">
+      <span class="small muted" id="room-role"></span>
+      <div class="clock"><span class="mono"><span id="clock">00:00</span> <span class="muted">/ 30:00<span id="paused"></span></span></span><span class="bar" aria-hidden="true"><i id="clockbar" style="width:0%"></i></span></div>
+      <div class="row" style="gap:16px">
+        <span class="small muted" id="room-mode"></span>
+        <button type="button" class="btn sm" id="end">End interview</button>
+      </div>
+    </header>
+    <main class="room-main">
+      <div class="stage" id="stage">
+        <div class="tile" id="tile">
+          <div class="face" role="img" id="face-label"><span class="initials"></span></div>
+          <span class="tag state" id="pstate">Joining</span>
+          <span class="tag name"><span class="pname" style="font-weight:600"></span><span class="ptitle muted"></span></span>
+          <div class="self" id="self" aria-hidden="true"><b id="me-initials">You</b><span class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+        </div>
+        <div class="stack" style="gap:8px" id="captions">
+          <p class="caption" id="cap-them" aria-live="polite"></p>
+          <p class="you" id="cap-you" aria-live="off"></p>
+        </div>
+        <div class="typebox" id="typebox" hidden>
+          <label for="typed" class="vh">Type your answer</label>
+          <textarea id="typed" class="textarea" placeholder="Type your answer, then press Send"></textarea>
+          <button type="button" class="btn inkfill" id="send-typed">Send</button>
+        </div>
+        <div class="dock">
+          <button type="button" class="round" id="hand" aria-pressed="false" aria-label="Raise hand to ask a question" title="Raise hand to ask a question">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v5M14 10V4a2 2 0 0 0-4 0v6M10 10.5V6a2 2 0 0 0-4 0v8a8 8 0 0 0 16 0v-3a2 2 0 0 0-4 0"/></svg>
+          </button>
+          <button type="button" class="talk" id="done" disabled>
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+            <span id="done-label">Please wait</span>
+            <span class="mono" id="ans-time" style="opacity:.85"></span>
+          </button>
+          <button type="button" class="round" id="cc" aria-pressed="true" aria-label="Captions">CC</button>
+          <button type="button" class="round" id="type-toggle" aria-pressed="false" aria-label="Type instead of speaking" title="Type instead of speaking">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>
+          </button>
+        </div>
+        <p class="hint" id="hint"></p>
+        <div class="row" style="justify-content:center" id="noqs-row" hidden><button type="button" class="btn sm" id="noqs">I have no more questions</button></div>
+      </div>
+
+      <aside class="coach" id="coach" hidden aria-labelledby="coach-h" aria-live="polite">
+        <div class="stack" style="gap:4px">
+          <span class="small muted" id="coach-sub"></span>
+          <h2 id="coach-h" class="h3">Coach</h2>
+        </div>
+        <div id="coach-busy" class="skel" aria-busy="true"><span style="height:40px; border-radius:999px"></span><span style="width:40%"></span><span style="width:92%"></span><span style="width:78%"></span><span style="width:86%"></span><p class="small muted" style="margin:0">Adding punctuation and checking your answer against the panelist's focus areas.</p></div>
+        <div id="coach-body" class="stack" style="gap:20px" hidden></div>
+      </aside>
+    </main>
+  </div>
+</div>
+
+<!-- Debrief -->
+<div id="v-debrief" hidden>
+  <header class="nav">
+    <span class="brand"><b>Brad Bowers</b><i></i><span class="small muted">Interview practice</span></span>
+    <nav class="navlinks" aria-label="Main">
+      <button type="button" data-go="setup">Practice</button>
+      <button type="button" data-go="history" aria-current="page">History</button>
+    </nav>
+  </header>
+  <main class="wrap" id="debrief" style="gap:64px"></main>
+</div>
+
+<!-- History -->
+<div id="v-history" hidden>
+  <header class="nav">
+    <span class="brand"><b>Brad Bowers</b><i></i><span class="small muted">Interview practice</span></span>
+    <nav class="navlinks" aria-label="Main">
+      <button type="button" data-go="setup">Practice</button>
+      <button type="button" data-go="history" aria-current="page">History</button>
+    </nav>
+  </header>
+  <main class="wrap" id="history"></main>
+</div>
+
+<div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" class="btn sm" id="toast-act" hidden></button></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Config ----------
+  const API = (() => {
+    const p = new URLSearchParams(location.search).get('api');
+    return p && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(p) ? p : 'https://bazl-interview.pbradleybowers.workers.dev';
+  })();
+  const LENGTH = 30 * 60, QUESTIONS_AT = 24 * 60, WRAP_AT = 29 * 60;
+  const PERSONAS = [
+    { id: 'hiring_manager', name: 'Elena Marsh', initials: 'EM', type: 'Hiring manager', focus: 'Fit, scope, track record', voice: 'f' },
+    { id: 'technical', name: 'Tom Weller', initials: 'TW', type: 'Technical lead', focus: 'Technical and AI judgment, tradeoffs', voice: 'm' },
+    { id: 'partner', name: 'Nadia Brooks', initials: 'NB', type: 'Partner lead', focus: 'Customer insight, collaboration, adoption', voice: 'f' },
+    { id: 'executive', name: 'Karen Liu', initials: 'KL', type: 'Executive', focus: 'Vision, business outcomes, influence', voice: 'f' },
+    { id: 'peer', name: 'Sam Okafor', initials: 'SO', type: 'Peer leader', focus: 'Prioritization, operating model, metrics', voice: 'm' }
+  ];
+  const MODE_HELP = {
+    coach: 'Feedback after every answer, and you can re-answer. The clock pauses while you read it.',
+    realistic: 'No feedback until the end, and the clock keeps running. Full debrief afterwards.'
+  };
+  const ERRORS = {
+    locked: 'That access code didn\'t work. Check it and try again.',
+    link_unreadable: 'We couldn\'t read that job link. Paste the job description text instead.',
+    bad_link: 'That doesn\'t look like a web link. Paste the job description text instead.',
+    missing_job: 'The job description is too short. Paste the full posting.',
+    missing_resume: 'Add your resume as a PDF or paste its text.',
+    resume_too_large: 'That resume is over 5 MB. Save a smaller PDF or paste the text.',
+    too_large: 'That file is too large. Save a smaller PDF or paste the text.',
+    rate_limited: 'Too many requests at once. Wait a minute, then try again.',
+    spend_limit: 'Practice is paused for now. Let Brad know.',
+    unavailable: 'Practice is unavailable right now. Try again later.',
+    network: 'Couldn\'t reach the interviewer. Check your connection and try again.'
+  };
+  const errText = code => ERRORS[code] || 'Something went wrong reaching the interviewer. Try again.';
+
+  // ---------- Small helpers ----------
+  const $ = id => document.getElementById(id);
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('bi_' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('bi_' + k, JSON.stringify(v)); } catch { /* storage blocked */ } }
+  };
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = secs => { const s = Math.max(0, Math.floor(secs)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const short = secs => { const s = Math.max(0, Math.floor(secs)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+  function toast(text, actionLabel, action) {
+    $('toast-text').textContent = text;
+    const b = $('toast-act');
+    if (actionLabel) { b.hidden = false; b.textContent = actionLabel; b.onclick = () => { $('toast').hidden = true; action(); }; }
+    else b.hidden = true;
+    $('toast').hidden = false;
+    if (!actionLabel) setTimeout(() => { $('toast').hidden = true; }, 5000);
+  }
+
+  async function call(path, body) {
+    let res;
+    try {
+      res = await fetch(API + path, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Access-Code': S.code || '' }, body: JSON.stringify(body || {}) });
+    } catch { const e = new Error('network'); e.code = 'network'; throw e; }
+    let j = null;
+    try { j = await res.json(); } catch { /* not JSON */ }
+    if (!res.ok) { const e = new Error((j && j.error) || 'upstream_error'); e.code = (j && j.error) || 'upstream_error'; throw e; }
+    return j;
+  }
+
+  // ---------- State ----------
+  const S = {
+    code: store.get('code', ''), setup: null, brief: null, history: [], persona: PERSONAS[0],
+    elapsed: 0, running: false, lastTick: 0, phase: 'core', busy: false, hand: false,
+    listenKind: 'answer', lastQuestion: '', notes: [], ended: false, typing: false, startedAt: null
+  };
+
+  const VIEWS = ['gate', 'setup', 'prep', 'ready', 'room', 'debrief', 'history'];
+  function show(name) {
+    VIEWS.forEach(v => { $('v-' + v).hidden = v !== name; });
+    $('toast').hidden = true;
+    document.body.classList.toggle('is-dark', name === 'room' || name === 'ready');
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.go === 'history') renderHistory(); else show('setup');
+  }));
+
+  // ---------- Access code ----------
+  $('gate-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = $('code').value.trim();
+    const err = $('code-err');
+    err.hidden = true; $('code').removeAttribute('aria-invalid');
+    if (!code) { err.textContent = 'Enter your access code.'; err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); return; }
+    S.code = code;
+    try { await call('/unlock'); store.set('code', code); show('setup'); }
+    catch (x) { err.textContent = errText(x.code); err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); }
+  });
+
+  // ---------- Voices ----------
+  const synth = window.speechSynthesis;
+  const GOOD = /google|natural|neural|premium|enhanced|online/i;
+  const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|kathy|grandma|grandpa|eddy|flo|reed|rocko|sandy|shelley/i;
+  const MALE = /male|guy|andrew|brian|christopher|eric|davis|tony|roger|steffan|ryan|thomas|evan|nathan|aaron|daniel|alex|oliver|arthur/i;
+  let voices = [];
+  function loadVoices() {
+    if (!synth) return;
+    const all = synth.getVoices().filter(v => /^en(-|_|$)/i.test(v.lang) && !NOVELTY.test(v.name));
+    const good = all.filter(v => GOOD.test(v.name));
+    voices = (good.length ? good : all).sort((a, b) => (GOOD.test(b.name) - GOOD.test(a.name)) || a.name.localeCompare(b.name));
+    fillVoiceSelect();
+  }
+  function defaultVoice(persona) {
+    const want = persona.voice === 'm' ? 'm' : 'f';
+    const isMale = v => MALE.test(v.name) && !/female/i.test(v.name);
+    const pref = want === 'm'
+      ? [/google uk english male/i, /natural/i, /premium|enhanced/i]
+      : [/google uk english female/i, /google us english/i, /natural/i, /premium|enhanced/i];
+    for (const re of pref) {
+      const v = voices.find(x => re.test(x.name) && (want === 'm' ? isMale(x) || /male/i.test(x.name) : !isMale(x)));
+      if (v) return v;
+    }
+    return voices.find(v => (want === 'm') === isMale(v)) || voices[0] || null;
+  }
+  function fillVoiceSelect() {
+    const sel = $('f-voice');
+    const saved = store.get('voice_' + S.persona.id, '');
+    sel.innerHTML = '';
+    if (!voices.length) {
+      const o = document.createElement('option'); o.textContent = 'No voices found'; sel.appendChild(o);
+      $('voice-help').textContent = 'Your browser has no speaking voices. Captions will show what the interviewer says.';
+      return;
+    }
+    voices.forEach(v => { const o = document.createElement('option'); o.value = v.name; o.textContent = v.name.replace(/\s*\(.*\)\s*$/, ''); sel.appendChild(o); });
+    const pick = voices.find(v => v.name === saved) || defaultVoice(S.persona);
+    if (pick) sel.value = pick.name;
+    $('voice-help').textContent = /chrome|edg/i.test(navigator.userAgent) ? 'Picked for your browser. Change it anytime.' : 'Voices sound best in Chrome or Edge.';
+  }
+  const currentVoice = () => voices.find(v => v.name === $('f-voice').value) || defaultVoice(S.persona);
+  if (synth) { loadVoices(); if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices; }
+  $('f-voice').addEventListener('change', () => store.set('voice_' + S.persona.id, $('f-voice').value));
+  $('preview').addEventListener('click', () => speak(`Hi, I'm ${S.persona.name.split(' ')[0]}. Looking forward to our conversation.`));
+
+  // Chrome stops long utterances after about 15 seconds, so speak sentence by sentence.
+  let speakToken = 0;
+  function speak(text) {
+    return new Promise(resolve => {
+      if (!synth || !text) { resolve(); return; }
+      synth.cancel();
+      const token = ++speakToken;
+      const parts = String(text).match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [text];
+      const v = currentVoice();
+      let i = 0;
+      const next = () => {
+        if (token !== speakToken) { resolve(); return; }
+        if (i >= parts.length) { resolve(); return; }
+        const u = new SpeechSynthesisUtterance(parts[i++].trim());
+        if (v) { u.voice = v; u.lang = v.lang; }
+        u.rate = 1; u.pitch = 1;
+        u.onend = next;
+        u.onerror = next;
+        synth.speak(u);
+      };
+      next();
+      // Safety net: never wait forever on a voice engine that stalls.
+      setTimeout(() => { if (token === speakToken) resolve(); }, 4000 + text.length * 90);
+    });
+  }
+  function stopSpeaking() { speakToken++; if (synth) synth.cancel(); }
+
+  // ---------- Setup form ----------
+  const personasBox = $('personas');
+  PERSONAS.forEach((p, i) => {
+    const l = document.createElement('label');
+    l.className = 'persona';
+    l.innerHTML = `<input type="radio" name="persona" value="${p.id}" ${i === 0 ? 'checked' : ''}><span class="avatar" aria-hidden="true">${p.initials}</span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500">${esc(p.name)}</span><span class="small muted"><b style="font-weight:500;color:var(--ink)">${esc(p.type)}</b> · ${esc(p.focus)}</span></span>`;
+    personasBox.appendChild(l);
+  });
+  personasBox.addEventListener('change', e => {
+    S.persona = PERSONAS.find(p => p.id === e.target.value) || PERSONAS[0];
+    $('voice-label').textContent = S.persona.name.split(' ')[0] + "'s voice";
+    $('start').textContent = 'Start interview with ' + S.persona.name.split(' ')[0];
+    fillVoiceSelect();
+  });
+  $('voice-label').textContent = "Elena's voice";
+  $('start').textContent = 'Start interview with Elena';
+
+  document.querySelectorAll('#levels .chip').forEach(c => c.addEventListener('click', () => {
+    document.querySelectorAll('#levels .chip').forEach(x => x.setAttribute('aria-pressed', 'false'));
+    c.setAttribute('aria-pressed', 'true');
+  }));
+  let mode = 'coach';
+  document.querySelectorAll('#modes button').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode;
+    document.querySelectorAll('#modes button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    $('mode-help').textContent = MODE_HELP[mode];
+  }));
+  $('mode-help').textContent = MODE_HELP.coach;
+
+  let jdAsText = false, resumeAsText = false, resumeFile = null;
+  $('jd-toggle').addEventListener('click', () => {
+    jdAsText = !jdAsText;
+    $('f-jdtext').hidden = !jdAsText; $('f-jd').hidden = jdAsText;
+    $('jd-toggle').textContent = jdAsText ? 'Use a link instead' : 'Paste text instead';
+    (jdAsText ? $('f-jdtext') : $('f-jd')).focus();
+  });
+  $('resume-toggle').addEventListener('click', () => {
+    resumeAsText = !resumeAsText;
+    $('f-resumetext').hidden = !resumeAsText; $('drop').hidden = resumeAsText;
+    $('resume-toggle').textContent = resumeAsText ? 'Upload a PDF instead' : 'Paste resume text instead';
+  });
+  function setResume(file) {
+    const drop = $('drop');
+    if (!file) return;
+    if (!/pdf$/i.test(file.type) && !/\.pdf$/i.test(file.name)) { showSetupErr('Resume must be a PDF, or paste the text instead.'); return; }
+    if (file.size > 5 * 1024 * 1024) { showSetupErr(ERRORS.resume_too_large); return; }
+    resumeFile = file;
+    drop.classList.add('has');
+    drop.innerHTML = `<span style="display:flex;gap:16px;align-items:center;min-width:0"><span class="mono" style="width:40px;height:48px;border-radius:8px;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;flex:none">PDF</span><span style="min-width:0;overflow-wrap:anywhere;font-weight:500">${esc(file.name)}</span></span><span class="btn sm">Replace</span>`;
+    store.set('resume_name', file.name);
+  }
+  $('f-resume').addEventListener('change', e => setResume(e.target.files[0]));
+  ['dragover', 'dragenter'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('over'); }));
+  $('drop').addEventListener('drop', e => setResume(e.dataTransfer.files[0]));
+
+  // Remember what was typed last time (this browser only). The resume file itself is never stored.
+  const draft = store.get('draft', {});
+  ['role', 'company', 'industry', 'jd', 'context'].forEach(k => { if (draft[k]) $('f-' + k).value = draft[k]; });
+  if (draft.level) document.querySelectorAll('#levels .chip').forEach(c => c.setAttribute('aria-pressed', String(c.textContent === draft.level)));
+  const savedSilence = store.get('silence', '3'); $('f-silence').value = savedSilence;
+  $('f-silence').addEventListener('change', () => store.set('silence', $('f-silence').value));
+
+  function showSetupErr(msg) { const e = $('setup-err'); e.textContent = msg; e.hidden = !msg; }
+  $('setup-form').addEventListener('input', e => { if (e.target.removeAttribute) e.target.removeAttribute('aria-invalid'); showSetupErr(''); });
+  $('levels').addEventListener('click', () => showSetupErr(''));
+
+  const readB64 = file => new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result).split(',')[1] || '');
+    r.onerror = () => reject(new Error('read'));
+    r.readAsDataURL(file);
+  });
+
+  $('setup-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    showSetupErr('');
+    document.querySelectorAll('#setup-form [aria-invalid]').forEach(x => x.removeAttribute('aria-invalid'));
+    const level = (document.querySelector('#levels .chip[aria-pressed="true"]') || {}).textContent || '';
+    const role = $('f-role').value.trim();
+    const jdUrl = jdAsText ? '' : $('f-jd').value.trim();
+    const jdText = jdAsText ? $('f-jdtext').value.trim() : '';
+    const resumeText = resumeAsText ? $('f-resumetext').value.trim() : '';
+    const missing = [];
+    if (!role) { missing.push('a role title'); $('f-role').setAttribute('aria-invalid', 'true'); }
+    if (!level) missing.push('a level');
+    if (!jdUrl && !jdText) { missing.push('the job description'); (jdAsText ? $('f-jdtext') : $('f-jd')).setAttribute('aria-invalid', 'true'); }
+    if (!(resumeAsText ? resumeText : resumeFile)) missing.push('your resume');
+    if (missing.length) { showSetupErr('Add ' + missing.join(', ').replace(/, ([^,]*)$/, ' and $1') + ' to start.'); return; }
+
+    S.setup = {
+      role, level, company: $('f-company').value.trim(), industry: $('f-industry').value.trim(),
+      context: $('f-context').value.trim(), panelist: S.persona.id, mode
+    };
+    store.set('draft', { role, level, company: S.setup.company, industry: S.setup.industry, jd: jdUrl, context: S.setup.context });
+
+    const body = { setup: S.setup, jdUrl, jdText };
+    try {
+      body.resume = resumeAsText ? { text: resumeText } : { pdfBase64: await readB64(resumeFile) };
+    } catch { showSetupErr('Couldn\'t read that file. Try another PDF or paste the text.'); return; }
+
+    $('prep-title').textContent = S.persona.name.split(' ')[0] + ' is getting ready';
+    $('prep-text').textContent = 'Reading your resume and the job posting. This takes about 20 seconds.';
+    show('prep');
+    try {
+      const out = await call('/prepare', body);
+      S.brief = out.brief; S.opening = out.opening;
+      showReady();
+    } catch (x) {
+      show('setup');
+      showSetupErr(errText(x.code));
+      if (x.code === 'locked') { store.set('code', ''); show('gate'); }
+    }
+  });
+
+  // ---------- Ready ----------
+  function fillPersona(root) {
+    root.querySelectorAll('.initials').forEach(n => { n.textContent = S.persona.initials; });
+    root.querySelectorAll('.pname').forEach(n => { n.textContent = S.persona.name; });
+    root.querySelectorAll('.ptitle').forEach(n => { n.textContent = S.brief.panelist_title || S.persona.type; });
+    root.querySelectorAll('.pfirst').forEach(n => { n.textContent = S.persona.name.split(' ')[0]; });
+  }
+  function roleLine() { return [S.setup.company, S.setup.role].filter(Boolean).join(' · '); }
+  function showReady() {
+    const root = $('v-ready');
+    fillPersona(root);
+    $('ready-role').textContent = roleLine();
+    const ul = root.querySelector('#ready-gaps ul');
+    ul.innerHTML = (S.brief.gaps || []).map(g => `<li>${esc(g)}</li>`).join('');
+    $('ready-gaps').hidden = !(S.brief.gaps || []).length;
+    show('ready');
+    $('join').focus();
+  }
+  $('ready-back').addEventListener('click', () => show('setup'));
+  $('join').addEventListener('click', startInterview);
+
+  // ---------- Clock ----------
+  setInterval(() => {
+    const now = performance.now();
+    if (S.running) S.elapsed += (now - S.lastTick) / 1000;
+    S.lastTick = now;
+    $('clock').textContent = fmt(S.elapsed);
+    $('clockbar').style.width = Math.min(100, S.elapsed / LENGTH * 100) + '%';
+    $('paused').textContent = S.running || S.ended ? '' : ' · paused';
+    if (listening) $('ans-time').textContent = short((now - listenStart) / 1000);
+  }, 250);
+  const runClock = on => { S.lastTick = performance.now(); S.running = on; };
+
+  // ---------- Speech recognition ----------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, listening = false, listenStart = 0, finalText = '', silenceTimer = null, heard = false, onHeard = null;
+
+  function setState(text) { $('pstate').textContent = text; }
+  function setDone(enabled, label) { $('done').disabled = !enabled; $('done-label').textContent = label; if (!enabled) $('ans-time').textContent = ''; }
+  function hint(text) { $('hint').textContent = text || ''; }
+  function setWave(level) {
+    document.querySelectorAll('#wave i').forEach((b, i) => { b.style.height = level ? (4 + Math.round(Math.random() * 16 * level)) + 'px' : '4px'; });
+  }
+
+  function listen(kind) {
+    S.listenKind = kind;
+    finalText = ''; heard = false;
+    $('cap-you').innerHTML = '';
+    $('typed').value = '';
+    const asking = kind !== 'answer';
+    setState(asking ? 'Waiting for your question' : 'Listening');
+    setDone(true, asking ? 'Done asking' : 'Done answering');
+    listening = true; listenStart = performance.now();
+    $('self').classList.add('live');
+    runClock(true);
+    if (S.typing || !SR) {
+      $('typebox').hidden = false;
+      hint(SR ? 'Type your answer, then press Send.' : 'This browser can\'t transcribe speech, so type your answers. Chrome or Edge add voice.');
+      $('typed').focus();
+      return;
+    }
+    const secs = Number(store.get('silence', '3'));
+    hint(secs ? `Ends on its own after ${secs} seconds of silence` : 'Press Done when you finish');
+    rec = new SR();
+    rec.lang = 'en-US'; rec.continuous = true; rec.interimResults = true;
+    rec.onresult = ev => {
+      let interim = '';
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const t = ev.results[i][0].transcript;
+        if (ev.results[i].isFinal) finalText += (finalText ? ' ' : '') + t.trim();
+        else interim += t;
+      }
+      heard = true;
+      showYou(finalText + (interim ? ' ' + interim : ''));
+      setWave(1);
+      clearTimeout(silenceTimer);
+      if (secs) silenceTimer = setTimeout(() => finishListening(), secs * 1000);
+      setTimeout(() => setWave(0), 300);
+    };
+    rec.onerror = ev => {
+      if (ev.error === 'no-speech' || ev.error === 'aborted') return;
+      if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') {
+        S.typing = true; $('type-toggle').setAttribute('aria-pressed', 'true');
+        try { rec.onend = null; rec.stop(); } catch {}
+        toast('The microphone is blocked, so type your answers. Allow the mic in the address bar to speak instead.');
+        listen(kind);
+        return;
+      }
+      if (ev.error === 'network') toast('Speech recognition lost its connection. Keep talking or type instead.');
+    };
+    rec.onend = () => { if (listening && !S.typing) { try { rec.start(); } catch {} } };
+    try { rec.start(); } catch { /* already started */ }
+  }
+
+  function showYou(text) {
+    const t = text.trim();
+    $('cap-you').innerHTML = t ? '<b>You</b>' + esc(t) : '';
+  }
+
+  function stopRec() {
+    clearTimeout(silenceTimer);
+    if (rec) { try { rec.onend = null; rec.stop(); } catch {} rec = null; }
+    $('self').classList.remove('live'); setWave(0);
+  }
+
+  function finishListening(typedText) {
+    if (!listening) return;
+    const text = (typedText !== undefined ? typedText : finalText).trim();
+    if (!text) {
+      if (typedText !== undefined) return;
+      toast("We didn't catch anything. Try again, or type your answer.");
+      return;
+    }
+    listening = false;
+    stopRec();
+    $('typebox').hidden = true;
+    setDone(false, 'Please wait');
+    hint('');
+    onCandidateDone(text, S.listenKind);
+  }
+  $('done').addEventListener('click', () => {
+    if (S.typing || !SR) finishListening($('typed').value);
+    else if (!finalText.trim()) toast("We didn't catch anything yet. Keep talking, or type instead.");
+    else finishListening();
+  });
+  $('send-typed').addEventListener('click', () => finishListening($('typed').value));
+  $('typed').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) finishListening($('typed').value); });
+  $('type-toggle').addEventListener('click', () => {
+    S.typing = !S.typing;
+    $('type-toggle').setAttribute('aria-pressed', String(S.typing));
+    if (listening) {
+      const keep = finalText;
+      stopRec(); listening = false;
+      listen(S.listenKind);
+      if (keep && S.typing) $('typed').value = keep;
+    }
+  });
+  $('cc').addEventListener('click', () => {
+    const on = $('cc').getAttribute('aria-pressed') !== 'true';
+    $('cc').setAttribute('aria-pressed', String(on));
+    $('captions').hidden = !on;
+  });
+  $('hand').addEventListener('click', () => {
+    S.hand = !S.hand;
+    $('hand').setAttribute('aria-pressed', String(S.hand));
+    if (S.hand) toast(S.persona.name.split(' ')[0] + ' will take your question at the next pause.');
+  });
+
+  // ---------- Interview flow ----------
+  async function say(text, move) {
+    S.history.push({ who: 'interviewer', text, kind: move || 'question' });
+    S.lastQuestion = text;
+    $('cap-them').innerHTML = '<b>' + esc(S.persona.name.split(' ')[0]) + '</b>' + esc(text);
+    $('cap-you').innerHTML = '';
+    $('tile').classList.add('speaking');
+    setState('Speaking');
+    setDone(false, 'Please wait');
+    runClock(true);
+    await speak(text);
+    $('tile').classList.remove('speaking');
+  }
+
+  async function startInterview() {
+    stopSpeaking();
+    S.history = []; S.notes = []; S.elapsed = 0; S.phase = 'core'; S.ended = false; S.hand = false; S.startedAt = new Date().toISOString();
+    $('hand').setAttribute('aria-pressed', 'false');
+    const root = $('v-room');
+    fillPersona(root);
+    $('face-label').setAttribute('aria-label', S.persona.name);
+    $('room-role').textContent = roleLine();
+    $('room-mode').textContent = S.setup.mode === 'coach' ? 'Coach mode' : 'Realistic mode';
+    $('me-initials').textContent = (S.brief.candidate_first_name || 'You').slice(0, 1).toUpperCase() || 'Y';
+    $('coach').hidden = true; $('stage').classList.remove('dim');
+    $('noqs-row').hidden = true;
+    show('room');
+    // Ask for the microphone now, while the click still counts, so the prompt doesn't interrupt the first answer.
+    if (SR && !S.typing && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try { const st = await navigator.mediaDevices.getUserMedia({ audio: true }); st.getTracks().forEach(t => t.stop()); }
+      catch { S.typing = true; $('type-toggle').setAttribute('aria-pressed', 'true'); toast('The microphone is blocked, so type your answers. Allow it in the address bar to speak instead.'); }
+    }
+    await say(S.opening, 'question');
+    nextListen();
+  }
+
+  function nextListen() {
+    if (S.ended) return;
+    if (S.hand) {
+      S.hand = false; $('hand').setAttribute('aria-pressed', 'false');
+      listen('question');
+      return;
+    }
+    listen(S.phase === 'questions' ? 'qa' : 'answer');
+    $('noqs-row').hidden = S.phase !== 'questions';
+  }
+
+  async function onCandidateDone(text, kind) {
+    S.history.push({ who: 'candidate', text, kind: kind === 'answer' ? 'answer' : 'question' });
+    const index = S.history.length - 1;
+    const prompt = S.lastQuestion;
+    if (kind === 'answer') {
+      if (S.setup.mode === 'coach') { runClock(false); await coachMoment({ kind: 'answer', raw: text, prompt, index }); }
+      else { S.notes.push({ index, kind: 'answer', prompt, raw: text }); await advance('answer'); }
+      return;
+    }
+    // A question the candidate asked: the interviewer answers first, then the Coach weighs in.
+    await advance(kind === 'question' ? 'hand' : 'candidate_question', { skipListen: S.setup.mode === 'coach' });
+    if (S.ended) return;
+    if (S.setup.mode === 'coach') { runClock(false); await coachMoment({ kind: 'question', raw: text, prompt, index }); }
+    else S.notes.push({ index, kind: 'question', prompt, raw: text });
+  }
+
+  async function advance(event, opts) {
+    opts = opts || {};
+    if (S.ended) return;
+    let ev = event;
+    if (S.elapsed >= WRAP_AT) ev = 'wrap';
+    else if (S.phase === 'core' && S.elapsed >= QUESTIONS_AT && (event === 'answer' || event === 'next')) { ev = 'time_for_questions'; S.phase = 'questions'; }
+    setState('Thinking');
+    runClock(false);
+    let out;
+    try {
+      out = await call('/turn', { setup: S.setup, brief: S.brief, history: S.history, event: ev, elapsedSec: Math.round(S.elapsed) });
+    } catch (x) {
+      setState('Waiting');
+      toast(errText(x.code), 'Try again', () => advance(event, opts));
+      return;
+    }
+    if (out.move === 'invite_questions') S.phase = 'questions';
+    await say(out.say, out.move);
+    if (out.done || ev === 'wrap') { finish(); return; }
+    if (!opts.skipListen) nextListen();
+  }
+
+  async function coachMoment(m) {
+    const panel = $('coach');
+    $('stage').classList.add('dim');
+    setState('Waiting');
+    panel.hidden = false;
+    $('coach-busy').hidden = false; $('coach-body').hidden = true;
+    $('coach-sub').textContent = m.kind === 'answer' ? 'Answer complete' : 'Your question';
+    let fb;
+    try {
+      fb = await call('/coach', { setup: S.setup, brief: S.brief, history: S.history.slice(0, m.index), kind: m.kind, prompt: m.prompt, raw: m.raw });
+    } catch (x) {
+      $('coach-busy').hidden = true; $('coach-body').hidden = false;
+      $('coach-body').innerHTML = `<p class="err">${esc(errText(x.code))}</p><div class="row"><button class="btn inkfill" type="button" id="cb-retry">Try again</button><button class="btn" type="button" id="cb-skip">Skip feedback</button></div>`;
+      $('cb-retry').onclick = () => coachMoment(m);
+      $('cb-skip').onclick = () => { closeCoach(); S.notes.push({ index: m.index, kind: m.kind, prompt: m.prompt, raw: m.raw }); m.kind === 'answer' ? advance('answer') : nextListen(); };
+      return;
+    }
+    S.notes = S.notes.filter(n => n.index !== m.index);
+    S.notes.push({ index: m.index, kind: m.kind, prompt: m.prompt, raw: m.raw, fb });
+    S.history[m.index].text = fb.cleaned || m.raw; // the cleaned version reads better to the interviewer too
+    $('coach-busy').hidden = true;
+    const body = $('coach-body');
+    body.hidden = false;
+    const sig = ['Weakened', 'Neutral', 'Strengthened'].map(s => `<span class="${s === fb.signal ? 'on' : ''}">${s}</span>`).join('');
+    if (m.kind === 'answer') {
+      body.innerHTML = `
+        <div class="signal" role="img" aria-label="Signal: ${esc(fb.signal)}">${sig}</div>
+        ${fb.landed ? `<div><h4>What landed</h4><p>${esc(fb.landed)}</p></div>` : ''}
+        ${fb.fix ? `<div><h4>What to fix</h4><p>${esc(fb.fix)}</p></div>` : ''}
+        ${fb.tryThis ? `<div><h4>Try this</h4><p>${esc(fb.tryThis)}</p></div>` : ''}
+        ${fb.levelCheck ? `<p class="levelcheck"><b>Level check:</b> ${esc(fb.levelCheck)}</p>` : ''}
+        <details><summary class="small" style="cursor:pointer;color:var(--signal-text);font-weight:500">Read your answer</summary><p class="small" style="margin-top:8px;white-space:pre-line">${esc(fb.cleaned)}</p></details>
+        <div class="split"><span class="muted">${esc(S.persona.name.split(' ')[0])}'s read so far</span><b>${esc(fb.readSoFar)}</b></div>
+        <div class="row"><button class="btn primary" type="button" id="cb-retry" style="flex:1 1 140px;height:52px">Re-answer</button><button class="btn inkfill" type="button" id="cb-next" style="flex:1 1 140px;height:52px;font-size:16px">Next question</button></div>`;
+      $('cb-retry').onclick = () => {
+        closeCoach();
+        S.history.splice(m.index, 1);
+        S.notes = S.notes.filter(n => n.index !== m.index);
+        $('cap-them').innerHTML = '<b>' + esc(S.persona.name.split(' ')[0]) + '</b>' + esc(m.prompt);
+        listen('answer');
+      };
+      $('cb-next').onclick = () => { closeCoach(); advance('answer'); };
+      $('cb-next').focus();
+    } else {
+      body.innerHTML = `
+        ${fb.questionRating ? `<p style="font-weight:600" class="${fb.questionRating === 'Strong' ? 'sig-Strengthened' : fb.questionRating === 'Weak' ? 'sig-Weakened' : ''}">${esc(fb.questionRating)} question</p>` : ''}
+        ${fb.landed ? `<div><h4>Why</h4><p>${esc(fb.landed)}</p></div>` : ''}
+        ${fb.fix ? `<div><h4>What to fix</h4><p>${esc(fb.fix)}</p></div>` : ''}
+        ${fb.sharper ? `<div><h4>Sharper</h4><p>${esc(fb.sharper)}</p></div>` : ''}
+        <div class="row"><button class="btn inkfill" type="button" id="cb-cont" style="flex:1;height:52px;font-size:16px">Continue</button></div>`;
+      $('cb-cont').onclick = () => { closeCoach(); nextListen(); };
+      $('cb-cont').focus();
+    }
+  }
+  function closeCoach() { $('coach').hidden = true; $('stage').classList.remove('dim'); runClock(true); }
+
+  // End: two clicks, so a stray click doesn't throw away the session.
+  let endArmed = 0;
+  $('end').addEventListener('click', () => {
+    if (Date.now() - endArmed < 4000) { finish(); return; }
+    endArmed = Date.now();
+    $('end').textContent = 'Click again to end';
+    setTimeout(() => { $('end').textContent = 'End interview'; }, 4000);
+  });
+  $('noqs').addEventListener('click', () => {
+    if (!listening) return;
+    listening = false; stopRec(); $('typebox').hidden = true;
+    advance('wrap');
+  });
+
+  async function finish() {
+    if (S.ended) return;
+    S.ended = true; listening = false;
+    stopRec(); stopSpeaking(); runClock(false);
+    $('end').textContent = 'End interview';
+    const answers = S.history.filter(h => h.who === 'candidate');
+    if (!answers.length) { toast('No answers yet, so there\'s nothing to debrief.'); show('setup'); return; }
+    show('debrief');
+    $('debrief').innerHTML = `<div class="stack" aria-busy="true"><h1 class="h2">${esc(S.persona.name.split(' ')[0])} is writing up the debrief</h1><p class="lead">Usually 15 to 30 seconds.</p><div class="skel"><span style="width:60%"></span><span style="width:90%"></span><span style="width:75%"></span></div></div>`;
+    await loadDebrief();
+  }
+
+  async function loadDebrief() {
+    let d;
+    try {
+      d = await call('/debrief', { setup: S.setup, brief: S.brief, history: S.history, elapsedSec: Math.round(S.elapsed) });
+    } catch (x) {
+      $('debrief').innerHTML = `<div class="stack"><h1 class="h2">The debrief didn't load</h1><p class="lead">${esc(errText(x.code))}</p><div class="row"><button class="btn primary" type="button" id="db-retry">Try again</button></div></div>`;
+      $('db-retry').onclick = loadDebrief;
+      return;
+    }
+    const session = {
+      id: Date.now(), at: S.startedAt, role: S.setup.role, company: S.setup.company, level: S.setup.level,
+      persona: S.persona.name, personaType: S.persona.type, mode: S.setup.mode, elapsed: Math.round(S.elapsed),
+      verdict: d.verdict, pattern: d.pattern
+    };
+    const all = store.get('sessions', []);
+    all.unshift(session);
+    store.set('sessions', all.slice(0, 50));
+    renderDebrief(d, session);
+  }
+
+  // ---------- Debrief ----------
+  const VERDICTS = ['Strong No', 'No', 'Maybe', 'Yes', 'Strong Yes'];
+  function renderDebrief(d, session) {
+    const first = S.persona.name.split(' ')[0];
+    const date = new Date(session.at || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const answers = S.history.map((h, i) => ({ ...h, i })).filter(h => h.who === 'candidate');
+    let ai = -1;
+    const rows = answers.map((h, n) => {
+      const note = S.notes.find(x => x.index === h.i);
+      const fb = note && note.fb;
+      const isQ = h.kind === 'question';
+      const per = !isQ ? d.perAnswer[++ai] : null;
+      const signal = (fb && !isQ && fb.signal) || (per && per.signal) || '';
+      const prompt = note ? note.prompt : '';
+      const reply = isQ ? (S.history.slice(h.i + 1).find(x => x.who === 'interviewer') || {}).text : '';
+      const title = isQ ? 'You asked: ' + h.text : (prompt || 'Answer');
+      const body = isQ ? (reply ? first + ': ' + reply : '') : h.text;
+      const tips = fb ? (isQ ? [fb.questionRating && fb.questionRating + ' question', fb.sharper && 'Sharper: ' + fb.sharper] : [fb.fix, fb.tryThis]) : (per ? [per.note] : []);
+      return `<details class="ans" ${n === 0 ? 'open' : ''}>
+        <summary><span class="mono muted" style="width:32px">${isQ ? 'Q' : 'A' + (ai + 1)}</span>
+          <span style="flex:1 1 320px;min-width:0;font-weight:500">${esc(title)}</span>
+          ${signal ? `<span class="small sig-${esc(signal)}" style="font-weight:500">${esc(signal)}</span>` : ''}</summary>
+        <div class="ans-body">
+          ${body ? `<p class="muted" style="margin:0;white-space:pre-line;max-width:65ch">${esc(body)}</p>` : ''}
+          ${tips.filter(Boolean).length ? `<div class="note"><b>Coach</b>${tips.filter(Boolean).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
+        </div></details>`;
+    }).join('');
+    const past = store.get('sessions', []).filter(s => s.id !== session.id && s.role === session.role);
+    const trend = past.length
+      ? `<p style="margin:0">Your verdicts for this role, oldest first: ${[...past].reverse().concat(session).map(s => `<b>${esc(s.verdict)}</b>`).join(' → ')}.</p>`
+      : `<p style="margin:0">This is your first session for this role. After your next one, you'll see your verdict trend here.</p>`;
+    $('debrief').innerHTML = `
+      <section class="verdict" aria-labelledby="verdict-h">
+        <span class="small">Debrief · ${esc(S.persona.name)}, ${esc(S.persona.type.toLowerCase())}${S.setup.company ? ' · ' + esc(S.setup.company) : ''} · ${esc(date)} · ${S.setup.mode === 'coach' ? 'Coach mode' : 'Realistic mode'} · ${esc(short(session.elapsed))}</span>
+        <div class="stack" style="gap:8px"><span class="small" style="font-weight:500">${esc(first)}'s verdict</span><h1 id="verdict-h" class="display">${esc(d.verdict)}</h1></div>
+        <ol class="scale" aria-label="Verdict scale">${VERDICTS.map(v => `<li ${v === d.verdict ? 'aria-current="true"' : ''}>${v}</li>`).join('')}</ol>
+        <blockquote>"${esc(d.rationale)}"</blockquote>
+        <div class="row"><button class="btn light" type="button" id="again" style="height:52px;font-size:16px">Practice again with ${esc(first)}</button><button class="btn" type="button" id="other" style="height:52px;font-size:16px">Choose another panelist</button></div>
+      </section>
+      ${d.practice.length ? `<section class="stack" style="gap:24px" aria-labelledby="pr-h"><h2 id="pr-h" class="h2">Practice ${d.practice.length === 3 ? 'these three' : 'these'} before your next session</h2>
+        <ol class="cards3">${d.practice.map((p, i) => `<li><span class="mono muted">${['Most important', 'Second', 'Third'][i] || ''}</span><h3 class="h3">${esc(p.title)}</h3><p class="muted" style="margin:0">${esc(p.detail)}</p></li>`).join('')}</ol></section>` : ''}
+      <section class="cols" aria-label="Signals, strengths and concerns">
+        <div class="card tight col-side"><h2 class="h3">What ${esc(first)} needed to hear</h2><ul class="list">${d.signals.map(s => `<li><span>${esc(s.area)}</span><span class="small st-${esc(s.status.split(' ')[0])}" style="font-weight:500">${esc(s.status)}</span></li>`).join('')}</ul></div>
+        <div class="card tight col-side"><h2 class="h3">Strongest moments</h2><ul class="bullets">${d.strongest.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+        <div class="card tight col-side"><h2 class="h3">Biggest concerns</h2><ul class="bullets">${d.concerns.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>
+      </section>
+      <section class="stack" style="gap:24px" aria-labelledby="ab-h">
+        <div class="row" style="justify-content:space-between;align-items:baseline"><h2 id="ab-h" class="h2">Answer by answer</h2>${d.pattern ? `<span class="small muted">Pattern: ${esc(d.pattern)}</span>` : ''}</div>
+        <div class="card" style="padding:8px 24px;gap:0">${rows}</div>
+      </section>
+      <section class="probe" aria-labelledby="pg-h"><h2 id="pg-h" class="h3">Your progress</h2>${trend}<p class="small" style="margin:0">Sessions are saved in this browser only.</p></section>`;
+    $('again').onclick = () => { S.persona = PERSONAS.find(p => p.id === S.setup.panelist) || S.persona; showReady(); };
+    $('other').onclick = () => show('setup');
+  }
+
+  function renderHistory() {
+    const all = store.get('sessions', []);
+    $('history').innerHTML = `
+      <div class="stack"><h1 class="h1">History</h1><p class="lead">Every session you've finished in this browser, newest first.</p></div>
+      ${all.length ? `<div class="card" style="padding:24px"><div class="tablebox"><table class="hist"><thead><tr><th>Date</th><th>Role</th><th>Panelist</th><th>Mode</th><th>Length</th><th>Verdict</th><th>Pattern</th></tr></thead><tbody>
+        ${all.map(s => `<tr><td class="mono">${esc(new Date(s.at || s.id).toLocaleDateString())}</td><td>${esc([s.company, s.role].filter(Boolean).join(' · '))}</td><td>${esc(s.persona)}</td><td>${s.mode === 'coach' ? 'Coach' : 'Realistic'}</td><td class="mono">${esc(short(s.elapsed || 0))}</td><td style="font-weight:600">${esc(s.verdict)}</td><td class="small muted">${esc(s.pattern || '')}</td></tr>`).join('')}
+      </tbody></table></div></div>`
+      : `<div class="empty"><h2 class="h3">No sessions yet</h2><p class="muted" style="margin:0">Finish an interview and its verdict shows up here.</p><button class="btn inkfill" type="button" data-go2="setup" style="align-self:flex-start">Set up an interview</button></div>`}`;
+    const b = document.querySelector('[data-go2]');
+    if (b) b.onclick = () => show('setup');
+    show('history');
+  }
+
+  // ---------- Start ----------
+  if (S.code) show('setup'); else show('gate');
+  window.addEventListener('beforeunload', e => { if (!S.ended && S.history.length && !$('v-room').hidden) { e.preventDefault(); e.returnValue = ''; } });
+})();
+</script>
+</body>
+</html>
