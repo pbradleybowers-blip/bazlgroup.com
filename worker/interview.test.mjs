@@ -76,7 +76,9 @@ test('prepare with pasted text returns a brief and an opening, forcing the brief
   assert.equal(r.status, 200);
   assert.equal(r.json.opening, 'Hi Brad, thanks for making the time.');
   assert.deepEqual(r.json.brief.gaps, ['No food science background']);
-  assert.equal(calls[0].tool_choice.name, 'interview_brief');
+  assert.equal(calls[0].tool_choice.type, 'auto');
+  assert.equal(calls[0].tools[0].name, 'interview_brief');
+  assert.match(calls[0].system, /calling the interview_brief tool/);
   assert.equal(calls[0].model, 'claude-sonnet-5-5');
   assert.match(calls[0].messages[0].content.at(-1).text, /JOB DESCRIPTION/);
 });
@@ -262,4 +264,11 @@ test('timeouts are reported as such', async () => {
   const r = await post('/turn', { setup: SETUP, brief: BRIEF, event: 'next', elapsedSec: 100, history: [] });
   assert.equal(r.json.error, 'upstream_error');
   assert.match(r.json.detail, /timeout/);
+});
+
+test('JSON written as text instead of a tool call is still accepted', async () => {
+  plan.push(() => new Response(JSON.stringify({ content: [{ type: 'text', text: 'Here: {"say":"Okay, next one.","move":"question","topic":"x","done":false}' }], stop_reason: 'end_turn' }), { status: 200 }));
+  const r = await post('/turn', { setup: SETUP, brief: BRIEF, event: 'next', elapsedSec: 100, history: [] });
+  assert.equal(r.status, 200);
+  assert.equal(r.json.say, 'Okay, next one.');
 });

@@ -283,6 +283,19 @@ function withTimeout(promise, ms, onTimeout) {
 
 let spendLimitHitAt = 0;
 
+const toolRule = name => `\n\nAlways reply by calling the ${name} tool exactly once, with every required field. Do not reply in plain text.`;
+function withToolRule(system, name) {
+  if (typeof system === 'string') return system + toolRule(name);
+  return [...system, { type: 'text', text: toolRule(name).trim() }];
+}
+// If a model writes the JSON as text instead of calling the tool, accept it.
+function jsonFromText(content) {
+  const text = (content || []).filter(c => c.type === 'text').map(c => c.text).join('');
+  const start = text.indexOf('{'), end = text.lastIndexOf('}');
+  if (start < 0 || end <= start) return null;
+  try { return { input: JSON.parse(text.slice(start, end + 1)) }; } catch { return null; }
+}
+
 // One forced tool call. Returns { input, model } or { error }.
 async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route }) {
   const started = Date.now();
@@ -299,14 +312,15 @@ async function callTool({ apiKey, system, messages, tool, maxTokens, cfg, route 
           signal: ctl.signal,
           headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
           body: JSON.stringify({
-            model, max_tokens: maxTokens, system, messages,
-            tools: [tool], tool_choice: { type: 'tool', name: tool.name }
+            model, max_tokens: maxTokens, messages, tools: [tool],
+            // Current models refuse a forced tool choice, so ask for it in the prompt and check the reply.
+            system: withToolRule(system, tool.name), tool_choice: { type: 'auto' }
           })
         }), timeoutMs, () => ctl.abort());
 
         if (res.ok) {
           const data = await withTimeout(res.json(), timeoutMs, () => ctl.abort());
-          const block = (data.content || []).find(c => c.type === 'tool_use' && c.name === tool.name);
+          const block = (data.content || []).find(c => c.type === 'tool_use' && c.name === tool.name) || jsonFromText(data.content);
           if (block && block.input && typeof block.input === 'object') {
             if (model !== MODELS[0] || attempt > 1) log('answered', { route, model, attempt });
             return { input: block.input, model };
