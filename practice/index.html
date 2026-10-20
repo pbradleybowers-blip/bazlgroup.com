@@ -119,6 +119,23 @@ button, input, select, textarea { font:inherit; color:inherit; }
 .skel span { height:14px; border-radius:var(--r-s); background:var(--surface-sunken); animation:pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity:.5; } }
 
+/* Getting ready */
+.prep { gap:28px; }
+.prep-face { position:relative; width:72px; height:72px; flex:none; border-radius:var(--pill); background:var(--field-navy); color:var(--on-field);
+  display:flex; align-items:center; justify-content:center; font-weight:600; font-size:22px; }
+.prep-face::after { content:""; position:absolute; inset:-6px; border-radius:var(--pill); border:2px solid var(--field-navy); opacity:0; animation:ring 1.8s var(--ease) infinite; }
+@keyframes ring { 0% { transform:scale(.9); opacity:.6; } 100% { transform:scale(1.25); opacity:0; } }
+.prep-bar { height:4px; border-radius:var(--pill); background:var(--surface-sunken); overflow:hidden; }
+.prep-bar i { display:block; height:100%; width:0; background:var(--signal); border-radius:var(--pill); transition:width .6s var(--ease); }
+.steps { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px; }
+.steps li { display:flex; align-items:center; gap:12px; color:var(--ink-muted); transition:color .26s var(--ease); }
+.steps li .dot { width:22px; height:22px; flex:none; border-radius:var(--pill); border:1.5px solid var(--line-strong); display:inline-flex; align-items:center; justify-content:center; }
+.steps li.active { color:var(--ink); font-weight:500; }
+.steps li.active .dot { border-color:var(--signal); border-right-color:transparent; animation:spin .9s linear infinite; }
+.steps li.done .dot { background:var(--signal); border-color:var(--signal); }
+.steps li.done .dot::after { content:""; width:6px; height:10px; border:solid var(--on-signal); border-width:0 2px 2px 0; transform:translateY(-1px) rotate(45deg); }
+@keyframes spin { to { transform:rotate(360deg); } }
+
 /* Interview room */
 .room { min-height:100vh; display:flex; flex-direction:column; background:#0e0e0f; color:var(--ink); }
 .room-top { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; padding-block:16px;
@@ -241,7 +258,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       <p class="lead">Tell us the role. Your panelist reads your resume and the job description before the call, like a real interviewer.</p>
     </div>
     <p class="notice bad" id="setup-err-top" role="alert" hidden></p>
-    <form id="setup-form" class="cols" novalidate>
+    <form id="setup-form" class="cols" novalidate autocomplete="off">
       <section class="card col-main" aria-labelledby="role-h">
         <div class="row" style="justify-content:space-between; align-items:baseline">
           <h2 id="role-h" class="h3">The role</h2>
@@ -356,12 +373,18 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
 <!-- Preparing -->
 <div id="v-prep" hidden>
   <header class="nav"><span class="brand"><b>Brad Bowers</b><i></i><span class="small muted">Interview practice</span></span></header>
-  <main class="wrap" style="max-width:720px">
-    <div class="stack" aria-busy="true">
-      <h1 class="h2" id="prep-title">Getting ready</h1>
-      <p class="lead" id="prep-text">Your panelist is reading your resume and the job posting. This takes about 20 seconds.</p>
-      <div class="skel" aria-hidden="true"><span style="width:60%"></span><span style="width:90%"></span><span style="width:75%"></span><span style="width:40%"></span></div>
-    </div>
+  <main class="wrap" style="max-width:640px">
+    <section class="card prep" aria-busy="true" aria-labelledby="prep-title">
+      <div class="row" style="gap:20px; flex-wrap:nowrap">
+        <span class="prep-face" aria-hidden="true"><span id="prep-initials">EM</span></span>
+        <div class="stack" style="gap:4px; min-width:0">
+          <h1 class="h3" id="prep-title">Elena is getting ready</h1>
+          <p class="small muted" style="margin:0" id="prep-text">Usually about 20 seconds</p>
+        </div>
+      </div>
+      <div class="prep-bar" aria-hidden="true"><i id="prep-bar"></i></div>
+      <ol class="steps" id="prep-steps" aria-live="polite"></ol>
+    </section>
   </main>
 </div>
 
@@ -596,7 +619,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
   }
   function fillVoiceSelect() {
     const sel = $('f-voice');
-    const saved = store.get('voice_' + S.persona.id, '');
+    const saved = voicePicks[S.persona.id] || '';
     sel.innerHTML = '';
     if (!voices.length) {
       const o = document.createElement('option'); o.textContent = 'No voices found'; sel.appendChild(o);
@@ -609,8 +632,9 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     $('voice-help').textContent = /chrome|edg/i.test(navigator.userAgent) ? 'Picked for your browser. Change it anytime.' : 'Voices sound best in Chrome or Edge.';
   }
   const currentVoice = () => voices.find(v => v.name === $('f-voice').value) || defaultVoice(S.persona);
+  const voicePicks = {}; // this page only
   if (synth) { loadVoices(); if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices; }
-  $('f-voice').addEventListener('change', () => store.set('voice_' + S.persona.id, $('f-voice').value));
+  $('f-voice').addEventListener('change', () => { voicePicks[S.persona.id] = $('f-voice').value; });
   $('preview').addEventListener('click', () => speak(`Hi, I'm ${S.persona.name.split(' ')[0]}. Looking forward to our conversation.`));
 
   // Chrome stops long utterances after about 15 seconds, so speak sentence by sentence.
@@ -689,19 +713,17 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     resumeFile = file;
     drop.classList.add('has');
     drop.innerHTML = `<span style="display:flex;gap:16px;align-items:center;min-width:0"><span class="mono" style="width:40px;height:48px;border-radius:8px;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;flex:none">PDF</span><span style="min-width:0;overflow-wrap:anywhere;font-weight:500">${esc(file.name)}</span></span><span class="btn sm">Replace</span>`;
-    store.set('resume_name', file.name);
   }
   $('f-resume').addEventListener('change', e => setResume(e.target.files[0]));
   ['dragover', 'dragenter'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); }));
   ['dragleave', 'drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('over'); }));
   $('drop').addEventListener('drop', e => setResume(e.dataTransfer.files[0]));
 
-  // Remember what was typed last time (this browser only). The resume file itself is never stored.
-  const draft = store.get('draft', {});
-  ['role', 'company', 'industry', 'jd', 'context'].forEach(k => { if (draft[k]) $('f-' + k).value = draft[k]; });
-  if (draft.level) document.querySelectorAll('#levels .chip').forEach(c => c.setAttribute('aria-pressed', String(c.textContent === draft.level)));
-  const savedSilence = store.get('silence', '3'); $('f-silence').value = savedSilence;
-  $('f-silence').addEventListener('change', () => store.set('silence', $('f-silence').value));
+  // Setup lives only as long as this page: a refresh or a later visit starts blank.
+  // Clear anything an older version of this page saved, and anything the browser restores on reload.
+  try { ['draft', 'silence', 'resume_name'].forEach(k => localStorage.removeItem('bi_' + k)); PERSONAS.forEach(p => localStorage.removeItem('bi_voice_' + p.id)); } catch {}
+  $('setup-form').reset();
+  window.addEventListener('pageshow', e => { if (e.persisted) location.reload(); });
 
   function showSetupErr(msg, reveal) {
     const e = $('setup-err'); e.textContent = msg; e.hidden = !msg;
@@ -738,27 +760,74 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       role, level, company: $('f-company').value.trim(), industry: $('f-industry').value.trim(),
       context: $('f-context').value.trim(), panelist: S.persona.id, mode
     };
-    store.set('draft', { role, level, company: S.setup.company, industry: S.setup.industry, jd: jdUrl, context: S.setup.context });
 
     const body = { setup: S.setup, jdUrl, jdText };
     try {
       body.resume = resumeAsText ? { text: resumeText } : { pdfBase64: await readB64(resumeFile) };
     } catch { showSetupErr('Couldn\'t read that file. Try another PDF or paste the text.'); return; }
 
-    $('prep-title').textContent = S.persona.name.split(' ')[0] + ' is getting ready';
-    $('prep-text').textContent = 'Reading your resume and the job posting. This takes about 20 seconds.';
-    show('prep');
+    const prep = startPrep(jdUrl);
     try {
       const out = await call('/prepare', body);
       S.brief = out.brief; S.opening = out.opening;
+      await prep.finish();
       showReady();
     } catch (x) {
+      prep.stop();
       show('setup');
       if ((x.code === 'link_unreadable' || x.code === 'bad_link') && !jdAsText) $('jd-toggle').click();
       showSetupErr(errMsg(x), true);
       if (x.code === 'locked') { store.set('code', ''); show('gate'); }
     }
   });
+
+  // ---------- Getting ready ----------
+  // The real work is one call, so the steps advance on a timer and the last one waits for the answer.
+  function startPrep(fromLink) {
+    const first = S.persona.name.split(' ')[0];
+    const where = S.setup.company ? `the ${S.setup.company} job description` : 'the job description';
+    const steps = [
+      [fromLink ? 'Opening the job posting' : 'Reading ' + where, 2.5],
+      ['Reading your resume', 3.5],
+      [fromLink ? 'Reviewing ' + where : 'Comparing your experience with the role', 3],
+      ['Finding the gaps a panel will probe', 3],
+      [`Choosing questions for a ${S.setup.level} interview`, 3],
+      [`Planning how ${first} opens the conversation`, 0]
+    ];
+    $('prep-title').textContent = first + ' is getting ready';
+    $('prep-initials').textContent = S.persona.initials;
+    $('prep-text').textContent = 'Usually about 20 seconds';
+    const list = $('prep-steps');
+    list.innerHTML = steps.map(st => `<li><span class="dot" aria-hidden="true"></span><span>${esc(st[0])}</span></li>`).join('');
+    const items = [...list.children];
+    let i = 0, timer = null, stopped = false;
+    const t0 = performance.now();
+    const mark = () => items.forEach((li, n) => { li.className = n < i ? 'done' : n === i ? 'active' : ''; });
+    const bar = setInterval(() => {
+      const secs = (performance.now() - t0) / 1000;
+      $('prep-bar').style.width = Math.min(92, 92 * (1 - Math.exp(-secs / 9))) + '%';
+      if (secs > 30) $('prep-text').textContent = 'Taking a little longer than usual';
+    }, 300);
+    const advance = () => {
+      if (stopped) return;
+      mark();
+      const wait = steps[i][1];
+      if (wait && i < steps.length - 1) timer = setTimeout(() => { i++; advance(); }, wait * 1000);
+    };
+    show('prep');
+    advance();
+    const stop = () => { stopped = true; clearTimeout(timer); clearInterval(bar); };
+    return {
+      stop,
+      finish() {
+        stop();
+        i = steps.length; mark();
+        $('prep-bar').style.width = '100%';
+        $('prep-text').textContent = 'Ready';
+        return new Promise(r => setTimeout(r, 600));
+      }
+    };
+  }
 
   // ---------- Ready ----------
   function fillPersona(root) {
@@ -821,7 +890,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       $('typed').focus();
       return;
     }
-    const secs = Number(store.get('silence', '3'));
+    const secs = Number($('f-silence').value || 3);
     hint(secs ? `Ends on its own after ${secs} seconds of silence` : 'Press Done when you finish');
     rec = new SR();
     rec.lang = 'en-US'; rec.continuous = true; rec.interimResults = true;
