@@ -149,7 +149,7 @@ ${QUESTION_BANK}`;
 }
 
 function coachSystem(setup) {
-  return `You are a blunt, expert interview coach for senior product leaders. You review one moment of a mock interview and tell the candidate plainly what worked and what to change. No sugar-coating, no filler, no flattery.
+  return `You are a direct, expert interview coach for senior product leaders. You review one moment of a mock interview and tell the candidate plainly what worked and what to change. No sugar-coating, no filler, no flattery, and no nitpicking either: your job is to help them get better, not to find fault.
 
 The candidate's words were transcribed by a free browser speech engine: no punctuation and occasional mishears. Never penalize transcription errors.
 
@@ -161,6 +161,11 @@ Then give feedback against the interviewer's focus areas and the level (${(setup
 - level_check only when the answer reads below or above the target level; otherwise leave it empty.
 - Each field under 40 words. Plain text, no markdown, no em dashes.
 - read_so_far is the hiring verdict this interviewer would give if the interview ended now, based on everything so far.
+
+Calibration:
+- Judge against what a solid candidate at this level would say in a real interview, not against a perfect answer. Strengthened means the answer would help them with this interviewer; it does not mean flawless. Neutral means it holds up but leaves a clear gap. Weakened means it would hurt them.
+- If there is nothing important to fix, say so in fix in a few words and keep try_this to a small polish. Never invent a problem to fill a field.
+- try_this is a better version of the candidate's answer that they could say out loud exactly as written: three to five spoken sentences, built only from facts they actually gave. Never invent numbers, names, events or results they did not mention, and never use placeholders, blanks or notes to self. If a number or fact is missing, ask for it in fix instead. An answer that follows your try_this should earn Strengthened, apart from any missing fact you asked for in fix.
 
 When the moment is a question the CANDIDATE asked the interviewer, judge the question itself: is it insightful, generic, or answerable from the company website? Give a sharper version.
 
@@ -633,6 +638,24 @@ async function turn(body, env, cfg) {
   return { status: 200, body: { say, move: str(out.input.move, 30), topic: str(out.input.topic, 80), done: out.input.done === true || event === 'wrap' } };
 }
 
+// On a re-answer, the coach sees the first try and its own feedback, so it judges progress
+// instead of starting over and finding new faults.
+function cleanPrevious(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const p = {
+    answer: str(raw.answer, 6000),
+    signal: ['Strengthened', 'Neutral', 'Weakened'].includes(raw.signal) ? raw.signal : '',
+    fix: str(raw.fix, 600),
+    tryThis: str(raw.tryThis, 1200)
+  };
+  return p.answer ? p : null;
+}
+const retryBlock = p => `THIS IS THE CANDIDATE'S SECOND TRY AT THIS QUESTION
+Their first try: ${p.answer}
+Your feedback on it: signal ${p.signal || 'not given'}. What to fix: ${p.fix || '(none)'} Try this: ${p.tryThis || '(none)'}
+Be consistent with that feedback and don't move the goalposts. Judge whether they fixed what you asked for. If they did, or they used your try_this, say so in landed and move the signal up: Strengthened if it now holds up at this level. Raise a new problem only if it is important, and say that it is new. If they ignored the feedback or got worse, say so plainly.
+`;
+
 async function coach(body, env, cfg) {
   const setup = cleanSetup(body.setup);
   const brief = cleanBrief(body.brief);
@@ -642,6 +665,7 @@ async function coach(body, env, cfg) {
   if (!raw) return { status: 400, body: { error: 'bad_request' } };
   const history = cleanHistory(body.history);
   const prompt = str(body.prompt, 1500);
+  const prev = kind === 'answer' ? cleanPrevious(body.previous) : null;
   const user = `INTERVIEWER: ${panelistFor(setup).name}, ${brief.panelist_title}
 Focus areas: ${brief.focus_areas.join('; ')}
 Known gaps: ${brief.gaps.join('; ')}
@@ -653,7 +677,7 @@ ${transcript(history) || '(nothing earlier)'}
 THE MOMENT TO REVIEW
 ${kind === 'question'
     ? `The candidate asked the interviewer this question${prompt ? ' (context: ' + prompt + ')' : ''}:\n${raw}\nJudge the question. Set signal to Neutral unless the question clearly helps or hurts. Set question_rating and sharper.`
-    : `Interviewer asked: ${prompt || '(see transcript)'}\nCandidate answered (raw speech transcript):\n${raw}\nJudge the answer. Set question_rating to n/a and sharper to an empty string.`}`;
+    : `Interviewer asked: ${prompt || '(see transcript)'}\n${prev ? retryBlock(prev) + '\n' : ''}Candidate answered${prev ? ' (second try)' : ''} (raw speech transcript):\n${raw}\nJudge the answer. Set question_rating to n/a and sharper to an empty string.`}`;
   const out = await callTool({
     apiKey: env.ANTHROPIC_API_KEY, cfg, route: 'coach', maxTokens: 2500,
     system: coachSystem(setup), messages: [{ role: 'user', content: user }], tool: TOOLS.coach
@@ -931,4 +955,4 @@ export default {
 };
 
 // Exposed for tests.
-export const _internals = { interviewerSystem, coachSystem, prepareSystem, debriefSystem, cleanHistory, cleanSummary, safeUrl, whoIs, centralDay, nextCentralMidnight, TOOLS };
+export const _internals = { interviewerSystem, coachSystem, prepareSystem, debriefSystem, cleanHistory, cleanSummary, cleanPrevious, safeUrl, whoIs, centralDay, nextCentralMidnight, TOOLS };

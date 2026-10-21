@@ -558,3 +558,38 @@ test('make-code.mjs prints a code whose fingerprint unlocks, and refuses bad ids
     assert.throws(() => execFileSync(process.execPath, [script, bad], { stdio: 'pipe' }));
   }
 });
+
+test('a re-answer shows the coach the first try and its own feedback', async () => {
+  plan.push(toolReply('coach_feedback', { cleaned: 'Better.', signal: 'Strengthened', landed: 'You added the number.', fix: 'Nothing major.', try_this: '', level_check: '', question_rating: 'n/a', sharper: '', read_so_far: 'Yes' }));
+  const r = await post('/coach', {
+    setup: SETUP, brief: BRIEF, kind: 'answer', prompt: 'Why this role?', raw: 'second try text', history: [],
+    previous: { answer: 'first try text', signal: 'Weakened', fix: 'No number.', tryThis: 'Lead with the 8 percent lift.' }
+  });
+  assert.equal(r.status, 200);
+  const u = calls[0].messages[0].content;
+  assert.match(u, /SECOND TRY/);
+  assert.match(u, /Their first try: first try text/);
+  assert.match(u, /signal Weakened\. What to fix: No number\. Try this: Lead with the 8 percent lift\./);
+  assert.match(u, /don't move the goalposts/);
+  assert.match(u, /Candidate answered \(second try\)/);
+});
+
+test('a first answer, or a candidate question, gets no second-try block', async () => {
+  const fb = { cleaned: 'x', signal: 'Neutral', landed: '', fix: '', try_this: '', level_check: '', question_rating: 'n/a', sharper: '', read_so_far: 'Maybe' };
+  plan.push(toolReply('coach_feedback', fb), toolReply('coach_feedback', { ...fb, question_rating: 'Fair' }));
+  await post('/coach', { setup: SETUP, brief: BRIEF, kind: 'answer', prompt: 'Q', raw: 'a', history: [] });
+  await post('/coach', { setup: SETUP, brief: BRIEF, kind: 'question', raw: 'q', history: [], previous: { answer: 'old' } });
+  assert.doesNotMatch(calls[0].messages[0].content, /SECOND TRY/);
+  assert.doesNotMatch(calls[1].messages[0].content, /SECOND TRY/);
+  assert.equal(_internals.cleanPrevious({ signal: 'Neutral' }), null);
+  assert.equal(_internals.cleanPrevious({ answer: 'a', signal: 'Great', tryThis: 'x'.repeat(5000) }).tryThis.length, 1200);
+});
+
+test('the coach prompt asks for fair scoring and a usable try_this', () => {
+  const p = _internals.coachSystem(SETUP);
+  assert.match(p, /not against a perfect answer/);
+  assert.match(p, /Never invent a problem to fill a field/);
+  assert.match(p, /built only from facts they actually gave/);
+  assert.match(p, /never use placeholders/);
+  assert.doesNotMatch(p, /blunt/);
+});

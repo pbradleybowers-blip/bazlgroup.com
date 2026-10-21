@@ -1224,7 +1224,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
 
   async function startInterview() {
     stopSpeaking();
-    S.history = []; S.notes = []; S.elapsed = 0; S.phase = 'core'; S.ended = false; S.hand = false; S.paused = false; S.startedAt = new Date().toISOString();
+    S.history = []; S.notes = []; S.retry = null; S.elapsed = 0; S.phase = 'core'; S.ended = false; S.hand = false; S.paused = false; S.startedAt = new Date().toISOString();
     $('paused-over').hidden = true; $('pause').setAttribute('aria-pressed', 'false'); $('pause-icon').hidden = false; $('play-icon').hidden = true;
     $('hand').setAttribute('aria-pressed', 'false');
     const root = $('v-room');
@@ -1262,7 +1262,11 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     const index = S.history.length - 1;
     const prompt = S.lastQuestion;
     if (kind === 'answer') {
-      if (S.setup.mode === 'coach') { runClock(false); await coachMoment({ kind: 'answer', raw: text, prompt, index }); }
+      if (S.setup.mode === 'coach') {
+        runClock(false);
+        const previous = S.retry; S.retry = null;
+        await coachMoment({ kind: 'answer', raw: text, prompt, index, previous });
+      }
       else { S.notes.push({ index, kind: 'answer', prompt, raw: text }); await advance('answer'); }
       return;
     }
@@ -1304,7 +1308,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     $('coach-sub').textContent = m.kind === 'answer' ? 'Answer complete' : 'Your question';
     let fb;
     try {
-      fb = await call('/coach', { setup: S.setup, brief: S.brief, history: S.history.slice(0, m.index), kind: m.kind, prompt: m.prompt, raw: m.raw });
+      fb = await call('/coach', { setup: S.setup, brief: S.brief, history: S.history.slice(0, m.index), kind: m.kind, prompt: m.prompt, raw: m.raw, previous: m.previous || undefined });
     } catch (x) {
       $('coach-busy').hidden = true; $('coach-body').hidden = false;
       $('coach-body').innerHTML = `<p class="err">${esc(errMsg(x))}</p><div class="row"><button class="btn inkfill" type="button" id="cb-retry">Try again</button><button class="btn" type="button" id="cb-skip">Skip feedback</button></div>`;
@@ -1330,13 +1334,15 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
         <div class="split"><span class="muted">${esc(S.persona.name.split(' ')[0])}'s read so far</span><b>${esc(fb.readSoFar)}</b></div>
         <div class="row"><button class="btn primary" type="button" id="cb-retry" style="flex:1 1 140px;height:52px">Re-answer</button><button class="btn inkfill" type="button" id="cb-next" style="flex:1 1 140px;height:52px;font-size:16px">Next question</button></div>`;
       $('cb-retry').onclick = () => {
+        // Tell the coach about this try and its own advice, so the next one is judged on progress.
+        S.retry = { answer: fb.cleaned || m.raw, signal: fb.signal, fix: fb.fix, tryThis: fb.tryThis };
         closeCoach();
         S.history.splice(m.index, 1);
         S.notes = S.notes.filter(n => n.index !== m.index);
         $('cap-them').innerHTML = '<b>' + esc(S.persona.name.split(' ')[0]) + '</b>' + esc(m.prompt);
         listen('answer');
       };
-      $('cb-next').onclick = () => { closeCoach(); advance('answer'); };
+      $('cb-next').onclick = () => { S.retry = null; closeCoach(); advance('answer'); };
       $('cb-next').focus();
     } else {
       body.innerHTML = `

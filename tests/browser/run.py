@@ -111,6 +111,18 @@ with sync_playwright() as p:
     page.click('#join'); answer(page, 'coach')
     ok('coach buttons on screen', in_view(page, '#cb-next'))
     page.screenshot(path=SHOTS + '03-coach.png')
+    # Re-answer: the coach is told about the first try and its own advice.
+    coach_bodies = []
+    page.on('request', lambda r: r.url.endswith('/coach') and r.method == 'POST' and coach_bodies.append(json.loads(r.post_data)))
+    page.click('#cb-retry')
+    page.wait_for_selector('#typebox:not([hidden])'); page.fill('#typed', 'second try with the number'); page.click('#send-typed')
+    page.wait_for_selector('#cb-next', timeout=10000)
+    prev = (coach_bodies[-1] if coach_bodies else {}).get('previous') or {}
+    ok('re-answer sends the first try and the coach feedback', prev.get('answer') and prev.get('signal') == 'Neutral' and prev.get('tryThis') == 'Lead with the result.')
+    ok('re-answer replaces the first try in the transcript', page.evaluate("document.getElementById('cap-them').textContent").startswith('Elena'))
+    page.click('#cb-next'); page.wait_for_selector('#typebox:not([hidden])', timeout=10000)
+    page.fill('#typed', 'answer to the next question'); page.click('#send-typed'); page.wait_for_selector('#cb-next', timeout=10000)
+    ok('a new question starts fresh, with no second-try context', not (coach_bodies[-1].get('previous') if coach_bodies else True))
     end_interview(page)
     ok('debrief says the summary is saved under the code', 'saved under your access code' in page.inner_text('#debrief'))
     store = kv()
