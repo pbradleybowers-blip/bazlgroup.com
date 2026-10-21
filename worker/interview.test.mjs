@@ -433,3 +433,128 @@ test('unlock tells the page when the daily count resets', async () => {
   assert.ok(at > Date.now() && at <= Date.now() + 25 * 3600000);
   assert.equal(_internals.centralDay(new Date(at - 1000)), _internals.centralDay());
 });
+
+// ---------------------------------------------------------------------------
+// Coverage added after review: limit edge cases, history limits, failures, the code generator
+
+const PREP = { setup: SETUP, jdText: JD, resume: { text: RESUME } };
+
+test('a second prepare while the first is still waiting on the model is held to the limit', async () => {
+  const env = kvEnv({ SESSIONS_PER_DAY: '1' });
+  let finish;
+  plan.push(() => new Promise(r => { finish = () => r(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' })()); }));
+  const first = post('/prepare', PREP, { env, code: T1 });
+  await new Promise(r => setTimeout(r, 20)); // first one is now waiting on the model
+  const second = await post('/prepare', PREP, { env, code: T1 });
+  assert.equal(second.status, 429);
+  assert.equal(second.json.error, 'daily_limit');
+  finish();
+  assert.equal((await first).status, 200);
+  assert.equal(calls.length, 1);
+});
+
+test('a prepare that fails before the model (bad job link, missing resume) gives its slot back', async () => {
+  const env = kvEnv({ SESSIONS_PER_DAY: '1' });
+  assert.equal((await post('/prepare', { setup: SETUP, jdUrl: 'https://jobs.example.com/missing', resume: { text: RESUME } }, { env, code: T1 })).json.error, 'link_unreadable');
+  assert.equal((await post('/prepare', { setup: SETUP, jdText: JD, resume: {} }, { env, code: T1 })).json.error, 'missing_resume');
+  assert.equal((await post('/unlock', {}, { env, code: T1 })).json.usedToday, 0);
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  assert.equal((await post('/prepare', PREP, { env, code: T1 })).status, 200);
+});
+
+test('at the limit, a job link is never fetched', async () => {
+  const env = kvEnv({ SESSIONS_PER_DAY: '1' });
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  await post('/prepare', PREP, { env, code: T1 });
+  let fetched = false;
+  pages['https://jobs.example.com/watch'] = 'x'; const orig = globalThis.fetch;
+  globalThis.fetch = async (u, i) => { if (String(u).includes('jobs.example.com/watch')) fetched = true; return orig(u, i); };
+  const r = await post('/prepare', { setup: SETUP, jdUrl: 'https://jobs.example.com/watch', resume: { text: RESUME } }, { env, code: T1 });
+  assert.equal(r.json.error, 'daily_limit');
+  assert.equal(fetched, false);
+});
+
+test('the day counter expires on its own after two days', async () => {
+  const env = kvEnv();
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  await post('/prepare', PREP, { env, code: T1 });
+  const e = env.HISTORY.m.get(`n:tester1:${_internals.centralDay()}`);
+  assert.equal(e.value, '1');
+  assert.equal(e.ttl, 172800);
+});
+
+test('if KV fails, interviews still go ahead (the limit fails open) and nothing crashes', async () => {
+  const env = kvEnv();
+  env.HISTORY.get = async () => { throw new Error('kv down'); };
+  env.HISTORY.getWithMetadata = async () => { throw new Error('kv down'); };
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  assert.equal((await post('/prepare', PREP, { env, code: T1 })).status, 200);
+  const env2 = kvEnv();
+  env2.HISTORY.put = async () => { throw new Error('kv down'); };
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  assert.equal((await post('/prepare', PREP, { env: env2, code: T1 })).status, 200);
+});
+
+test('Brad gets no daily limit fields; testers do', async () => {
+  const env = kvEnv();
+  const b = (await post('/unlock', {}, { env })).json;
+  assert.equal(b.perDay, undefined); assert.equal(b.usedToday, undefined); assert.equal(b.resetAt, undefined);
+  assert.equal(typeof (await post('/unlock', {}, { env, code: T1 })).json.resetAt, 'string');
+});
+
+test('history keeps the newest 100 sessions and takes at most 50 per batch', async () => {
+  const env = kvEnv();
+  const mk = i => ({ ...SUMMARY, id: 1000 + i, at: new Date(Date.UTC(2026, 0, 1) + i * 60000).toISOString() });
+  const r1 = await post('/history/save', { sessions: Array.from({ length: 60 }, (_, i) => mk(i)) }, { env, code: T1 });
+  assert.equal(r1.json.sessions.length, 50);
+  await post('/history/save', { sessions: Array.from({ length: 50 }, (_, i) => mk(60 + i)) }, { env, code: T1 });
+  await post('/history/save', { sessions: Array.from({ length: 20 }, (_, i) => mk(110 + i)) }, { env, code: T1 });
+  const all = (await post('/history/list', {}, { env, code: T1 })).json.sessions;
+  assert.equal(all.length, 100);
+  assert.equal(all[0].id, 1129);
+  assert.ok(all.every((s, i) => i === 0 || all[i - 1].at >= s.at), 'newest first');
+});
+
+test('summaries without a usable id get unique ids, and duplicates in one batch count once', async () => {
+  const { cleanSummary } = _internals;
+  const a = cleanSummary({ ...SUMMARY, id: null }), b = cleanSummary({ ...SUMMARY, id: '' }), c = cleanSummary({ ...SUMMARY, id: -5 });
+  assert.ok(a.id > 0 && b.id > 0 && c.id > 0);
+  assert.equal(new Set([a.id, b.id, c.id]).size, 3);
+  const env = kvEnv();
+  const r = await post('/history/save', { sessions: [SUMMARY, { ...SUMMARY }, { ...SUMMARY, id: null }, { ...SUMMARY, id: null }] }, { env, code: T1 });
+  assert.equal(r.json.sessions.length, 3);
+  assert.equal((await post('/admin/usage', {}, { env })).json.people.find(p => p.id === 'tester1').finished, 3);
+});
+
+test('history routes refuse bodies over 200 KB before reading them', async () => {
+  const r = await post('/history/save', { summary: SUMMARY, pad: 'x'.repeat(300_000) }, { env: kvEnv(), code: T1 });
+  assert.equal(r.status, 413);
+});
+
+test('admin usage needs HISTORY, and flags people whose code was removed', async () => {
+  assert.equal((await post('/admin/usage', {}, { env: { ...ENV, ACCESS_CODES } })).status, 501);
+  const env = kvEnv();
+  await env.HISTORY.put('u:gone', '', { metadata: { started: 4, finished: 2, last: '2026-09-01' } });
+  const gone = (await post('/admin/usage', {}, { env })).json.people.find(p => p.id === 'gone');
+  assert.deepEqual([gone.active, gone.started, gone.name], [false, 4, 'gone']);
+});
+
+test('ACCESS_CODES cannot add another "brad" in any case, or ids with odd characters', async () => {
+  const codes = JSON.stringify({ Brad: fingerprint('x-y-1', 'aa'.repeat(16)), BRAD: fingerprint('x-y-2', 'aa'.repeat(16)), 'a b': fingerprint('x-y-3', 'aa'.repeat(16)) });
+  for (const c of ['x-y-1', 'x-y-2', 'x-y-3']) assert.equal(await _internals.whoIs(c, { ACCESS_CODES: codes }), null);
+});
+
+test('make-code.mjs prints a code whose fingerprint unlocks, and refuses bad ids', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const script = new URL('../scripts/make-code.mjs', import.meta.url).pathname;
+  const out = execFileSync(process.execPath, [script, 'tester9', 'Jo Smith'], { encoding: 'utf8' });
+  const code = out.match(/Code:\s+(\S+)/)[1];
+  assert.match(code, /^[a-z]+-[a-z]+-\d{3}$/);
+  const entry = JSON.parse('{' + out.match(/^\s+("tester9": .*)$/m)[1] + '}');
+  assert.deepEqual(await _internals.whoIs(code, { ACCESS_CODES: JSON.stringify(entry) }), { id: 'tester9', name: 'Jo Smith', admin: false });
+  const two = new Set(Array.from({ length: 3 }, () => execFileSync(process.execPath, [script, 'x'], { encoding: 'utf8' }).match(/Code:\s+(\S+)/)[1]));
+  assert.equal(two.size, 3, 'codes are random');
+  for (const bad of ['brad', 'Brad', 'has space', '']) {
+    assert.throws(() => execFileSync(process.execPath, [script, bad], { stdio: 'pipe' }));
+  }
+});

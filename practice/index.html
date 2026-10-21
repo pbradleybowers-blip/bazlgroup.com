@@ -570,15 +570,15 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     <div><h3>What is saved</h3>
       <ul>
         <li>A short summary of each finished session, saved under your access code so your history follows you to any device: the date, role, company, level, panelist, mode, length, verdict and the recurring pattern from the debrief. Nothing else.</li>
-        <li>How many interviews your code has started and the date it was last used. This keeps the daily limit working. Brad can see these counts, never what anyone said.</li>
-        <li>You can delete your history at any time from the History page.</li>
+        <li>How many interviews your code has started and finished, and the date it was last used. This keeps the daily limit working. Brad can see these counts, never what anyone said.</li>
+        <li>You can delete your history at any time from the History page. That removes your session summaries; the counts stay.</li>
       </ul></div>
     <div><h3>Your voice</h3>
       <p>Turning your speech into text is done by your browser, not this site. Chrome sends your voice to Google's speech service to turn it into text, and other browsers may use their own service. If you'd rather not, press the keyboard button in the interview room and type your answers instead. The interviewer's voice also comes from your browser, and some of Chrome's voices are made on Google's servers.</p></div>
     <div><h3>How Anthropic handles it</h3>
       <p>Anthropic's published policy says that, by default, it does not use inputs or outputs from its commercial products, including the API this site uses, to train its models. It says it deletes API inputs and outputs within 30 days, and may keep them longer when needed to enforce its usage policy or comply with the law. Read it yourself: <a href="https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-training" target="_blank" rel="noopener">training</a> and <a href="https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-data" target="_blank" rel="noopener">how long data is kept</a>.</p></div>
     <div><h3>Your access code</h3>
-      <p>Your code is how the site knows your history is yours, so keep it to yourself. This browser remembers it so you don't have to type it each time. On a shared computer, choose "Use a different code" at the bottom of the page to forget it.</p></div>
+      <p>Your code is how the site knows your history is yours, so keep it to yourself. This browser remembers it so you don't have to type it each time. On a shared computer, choose "Use a different code" to make this browser forget it, along with any history saved only in this browser.</p></div>
     <p class="small muted">Questions? <a href="https://bazlgroup.com/#contact">Get in touch with Brad</a>.</p>
   </div>
 </dialog>
@@ -691,12 +691,13 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     return (short ? 'More at midnight Central' : 'Resets at midnight Central time') + yours + ', in ' + untilText(at - Date.now()) + '.';
   }
   const left = () => { const w = S.who; return w && w.perDay ? Math.max(0, w.perDay - (w.usedToday || 0)) : null; };
-  let refreshing = false;
+  let refreshing = false, lastRefresh = 0;
   function renderWho() {
     const w = S.who;
     // A new day may have started while the page was open: ask again.
-    if (w && w.resetAt && Date.now() >= Date.parse(w.resetAt) && !refreshing) {
-      refreshing = true;
+    // At most once a minute, so a failing or slow server is never asked over and over.
+    if (w && w.resetAt && Date.now() >= Date.parse(w.resetAt) && !refreshing && Date.now() - lastRefresh > 60000) {
+      refreshing = true; lastRefresh = Date.now();
       call('/unlock').then(x => { S.who = x; }).catch(() => {}).finally(() => { refreshing = false; renderWho(); });
     }
     const n = left();
@@ -707,7 +708,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
       box.classList.toggle('out', n === 0);
       const limit = n === null
         ? (w.admin ? `<div><span class="k">Interviews today</span><span class="big">No daily limit for you</span></div>` : '')
-        : `<span class="meter" aria-hidden="true">${Array.from({ length: w.perDay }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>
+        : `<span class="meter" aria-hidden="true" ${w.perDay > 10 ? 'hidden' : ''}>${Array.from({ length: w.perDay }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>
            <div><span class="big">${n ? `${n} of ${w.perDay} interviews left today` : `No interviews left today`}</span><span class="k">${esc(resetText(w.resetAt))}</span></div>`;
       box.innerHTML = `<div class="acct-who"><span class="acct-avatar" aria-hidden="true">${esc(name.slice(0, 1).toUpperCase())}</span><div><span class="k">Signed in as</span><b>${esc(name)}</b></div></div>
         ${limit ? `<div class="acct-left" role="status">${limit}</div>` : ''}
@@ -737,7 +738,8 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
   });
   function signOut() {
     S.code = ''; S.who = null; store.set('code', '');
-    try { localStorage.removeItem('bi_code'); } catch {}
+    // Forget anything this browser kept for this person, so the next person on a shared computer can't see or claim it.
+    try { localStorage.removeItem('bi_code'); localStorage.removeItem('bi_sessions'); } catch {}
     show('gate');
   }
   document.addEventListener('click', e => { if (e.target.closest('.signout')) signOut(); });
@@ -1477,7 +1479,13 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
         <div class="card" style="padding:8px 24px;gap:0">${rows}</div>
       </section>
       <section class="probe" aria-labelledby="pg-h"><h2 id="pg-h" class="h3">Your progress</h2>${trend}<p class="small" style="margin:0">${saved && saved.where === 'server' ? 'This summary is saved under your access code, so it follows you to any device. The transcript is not saved. <button type="button" class="linkbtn" data-privacy>Your privacy</button>' : 'Sessions are saved in this browser only.'}</p></section>`;
-    $('again').onclick = () => { S.persona = PERSONAS.find(p => p.id === S.setup.panelist) || S.persona; showReady(); };
+    // A new practice run gets a fresh brief, which also counts it toward today's interviews.
+    if (left() === 0) { $('again').disabled = true; $('again').textContent = 'No interviews left today'; }
+    $('again').onclick = () => {
+      if (left() === 0) return;
+      show('setup');
+      $('setup-form').requestSubmit();
+    };
     $('other').onclick = () => show('setup');
   }
 

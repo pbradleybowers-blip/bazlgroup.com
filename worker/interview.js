@@ -533,7 +533,7 @@ function accessCodes(env) {
     id: String(id).slice(0, 60),
     hash: typeof v === 'string' ? v : v && typeof v.hash === 'string' ? v.hash : '',
     name: v && typeof v === 'object' && typeof v.name === 'string' ? v.name.slice(0, 60) : ''
-  })).filter(p => p.id && p.id !== 'brad' && p.hash);
+  })).filter(p => /^[a-z0-9][a-z0-9_-]{0,59}$/i.test(p.id) && p.id.toLowerCase() !== 'brad' && p.hash);
 }
 async function whoIs(code, env) {
   if (!code) return null;
@@ -571,8 +571,20 @@ const statusFor = err => ({ rate_limited: 429, spend_limit: 503, too_large: 413 
 async function prepare(body, env, cfg, who) {
   const setup = cleanSetup(body.setup);
   if (!setup) return { status: 400, body: { error: 'missing_setup' } };
-  if (who) { const limited = await checkDailyLimit(env, who); if (limited) return limited; }
+  const slot = who ? await reserveSession(env, who) : noRelease;
+  if (slot.limited) return slot.limited;
+  let result;
+  try {
+    result = await prepareBrief(body, env, cfg, setup);
+  } finally {
+    // Only a finished brief uses up one of today's interviews.
+    if (!result || result.status !== 200) await slot.release();
+  }
+  if (who) await countStart(env, who);
+  return result;
+}
 
+async function prepareBrief(body, env, cfg, setup) {
   let jd = str(body.jdText, 20000);
   if (!jd && body.jdUrl) {
     const got = await fetchJob(str(body.jdUrl, 2000));
@@ -600,7 +612,6 @@ async function prepare(body, env, cfg, who) {
   const brief = cleanBrief(out.input);
   const opening = str(out.input.opening, 1200);
   if (!brief || !opening) return { status: 502, body: { error: 'upstream_error' } };
-  if (who) await countStart(env, who);
   return { status: 200, body: { brief, opening } };
 }
 
@@ -724,7 +735,7 @@ function cleanSummary(raw) {
   const at = str(raw.at, 40);
   const when = Date.parse(at);
   const s = {
-    id: Number.isFinite(Number(raw.id)) ? Math.floor(Number(raw.id)) : Date.now(),
+    id: Number.isSafeInteger(raw.id) && raw.id > 0 ? raw.id : Date.now() * 1000 + Math.floor(Math.random() * 1000),
     at: Number.isNaN(when) ? new Date().toISOString() : new Date(when).toISOString(),
     role: str(raw.role, 160),
     company: str(raw.company, 120),
@@ -758,23 +769,40 @@ async function bumpUsage(kv, id, field, by = 1) {
 async function startedToday(env, who) {
   return Number(await env.HISTORY.get(`n:${who.id}:${today()}`)) || 0;
 }
-// Called before /prepare spends anything. Returns an error result, or null to go ahead.
-async function checkDailyLimit(env, who) {
-  if (!env.HISTORY || who.admin) return null;
+// Holds one of today's interviews before /prepare spends anything, so two quick requests (a double
+// click, a second tab) can't both get through while the first is still waiting on the model.
+// Returns { limited } when none are left, otherwise { release } to give the slot back if prepare fails.
+// KV has no atomic increment, so two requests landing in the same instant can still both pass; that
+// window is milliseconds, not the seconds a model call takes. If KV itself fails, the interview goes ahead.
+const noRelease = { release: async () => {} };
+async function reserveSession(env, who) {
+  if (!env.HISTORY || who.admin) return noRelease;
   const limit = perDay(env);
-  if (await startedToday(env, who) >= limit) {
-    log('daily_limit', { person: who.id });
-    return { status: 429, body: { error: 'daily_limit', limit, resetAt: nextCentralMidnight() } };
+  const key = `n:${who.id}:${today()}`;
+  try {
+    const used = Number(await env.HISTORY.get(key)) || 0;
+    if (used >= limit) {
+      log('daily_limit', { person: who.id });
+      return { limited: { status: 429, body: { error: 'daily_limit', limit, resetAt: nextCentralMidnight() } } };
+    }
+    await env.HISTORY.put(key, String(used + 1), { expirationTtl: 172800 });
+  } catch (e) {
+    log('count_failed', { message: String(e && e.message || e).slice(0, 120) });
+    return noRelease;
   }
-  return null;
+  return {
+    release: async () => {
+      try {
+        const n = Number(await env.HISTORY.get(key)) || 0;
+        await env.HISTORY.put(key, String(Math.max(0, n - 1)), { expirationTtl: 172800 });
+      } catch (e) { log('count_failed', { message: String(e && e.message || e).slice(0, 120) }); }
+    }
+  };
 }
 async function countStart(env, who) {
   if (!env.HISTORY) return;
-  try {
-    const key = `n:${who.id}:${today()}`;
-    await env.HISTORY.put(key, String(await startedToday(env, who) + 1), { expirationTtl: 172800 });
-    await bumpUsage(env.HISTORY, who.id, 'started');
-  } catch (e) { log('count_failed', { message: String(e && e.message || e).slice(0, 120) }); }
+  try { await bumpUsage(env.HISTORY, who.id, 'started'); }
+  catch (e) { log('count_failed', { message: String(e && e.message || e).slice(0, 120) }); }
 }
 
 async function historySave(body, env, cfg, who) {
@@ -782,7 +810,7 @@ async function historySave(body, env, cfg, who) {
   if (!incoming.length) return { status: 400, body: { error: 'bad_request' } };
   const all = await readJson(env.HISTORY, 'h:' + who.id, []);
   const have = new Set(all.map(s => s.id));
-  const fresh = incoming.filter(s => !have.has(s.id));
+  const fresh = incoming.filter(s => !have.has(s.id) && have.add(s.id));
   const merged = fresh.concat(all).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, MAX_SAVED);
   await env.HISTORY.put('h:' + who.id, JSON.stringify(merged));
   if (fresh.length) await bumpUsage(env.HISTORY, who.id, 'finished', fresh.length);
@@ -881,18 +909,18 @@ export default {
     if (kvRoute && !env.HISTORY) return reply({ error: 'no_server_history' }, 501, headers);
     if (!kvRoute && !env.ANTHROPIC_API_KEY) return reply({ error: 'unavailable' }, 503, headers);
 
+    const maxBody = kvRoute ? 200_000 : MAX_BODY; // history routes only ever carry short summaries
     const len = Number(request.headers.get('Content-Length') || 0);
-    if (len > MAX_BODY) return reply({ error: 'too_large' }, 413, headers);
+    if (len > maxBody) return reply({ error: 'too_large' }, 413, headers);
     let body;
     try {
       const text = await request.text();
-      if (text.length > MAX_BODY) return reply({ error: 'too_large' }, 413, headers);
+      if (text.length > maxBody) return reply({ error: 'too_large' }, 413, headers);
       body = JSON.parse(text);
     } catch { return reply({ error: 'bad_request' }, 400, headers); }
     if (!body || typeof body !== 'object') return reply({ error: 'bad_request' }, 400, headers);
 
     try {
-      if (kvRoute && (Number(request.headers.get('Content-Length') || 0) > 200_000)) return reply({ error: 'too_large' }, 413, headers);
       const result = await route(body, env, settings(env), who);
       return reply(result.body, result.status, headers);
     } catch (e) {

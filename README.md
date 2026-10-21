@@ -13,5 +13,8 @@ Worker secrets and settings:
 - `ACCESS_CODES`: personal codes for everyone else, a JSON object of person id to fingerprint (or to `{"hash": ..., "name": ...}`). Make one with `node scripts/make-code.mjs tester4 "Display name"`. Never commit real codes or this value.
 - `SESSIONS_PER_DAY` (optional, default 3): interviews each person can start per day. The count resets at midnight US Central time. Brad is exempt.
 - KV binding `HISTORY` (namespace `bazl-interview-history`): stores only session summaries per person (date, role, company, level, panelist, mode, length, verdict, pattern) and usage counts. Never resumes, job descriptions or transcripts. Without it, history stays in the browser and there is no daily limit.
-Tests: `node --test worker/interview.test.mjs worker/worker.test.mjs`.
+Tests:
+- Worker: `node --test worker/interview.test.mjs worker/worker.test.mjs`.
+- Page: `bash tests/browser/run.sh` runs the page in headless Chromium against the real Worker code with a fake model and in-memory KV (needs python playwright). It covers sign-in, the account bar, the daily limit, history, the admin table, the privacy panel, the browser-only fallback and failure paths.
+- Live site, read-only, no model calls: `LIVE_CODE=<tester code> python3 tests/browser/live_check.py`.
 To try the page locally against a local Worker: `practice/?api=http://localhost:8787`.
