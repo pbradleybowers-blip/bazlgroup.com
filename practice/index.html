@@ -228,6 +228,25 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
 .tablebox { overflow-x:auto; }
 .danger-btn { color:var(--danger); border-color:var(--danger); }
 
+/* Who is signed in, and interviews left today */
+.acct-wrap { padding-block:24px 0 !important; gap:0 !important; }
+.acct-wrap + .wrap { padding-top:24px; }
+.acct { background:var(--surface); border-radius:var(--r-l); padding:16px 16px 16px 20px; display:flex; flex-wrap:wrap; align-items:center; gap:16px 32px; border:1px solid var(--line); }
+.acct-who { display:flex; align-items:center; gap:12px; min-width:0; }
+.acct-avatar { width:40px; height:40px; flex:none; border-radius:var(--pill); background:var(--field-navy); color:var(--on-field); display:inline-flex; align-items:center; justify-content:center; font-weight:600; }
+.acct-who .k, .acct-left .k { display:block; font-size:13px; line-height:1.3; color:var(--ink-muted); }
+.acct-who b { display:block; font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.3; overflow-wrap:anywhere; }
+.acct-left { display:flex; align-items:center; gap:16px; flex:1 1 360px; min-width:0; padding-left:32px; border-left:1px solid var(--line); }
+@media (max-width:720px) { .acct-left { padding-left:0; border-left:0; flex-basis:100%; } }
+.acct-left .big { display:block; font-size:18px; font-weight:600; letter-spacing:-.01em; line-height:1.3; }
+.meter { display:flex; gap:4px; flex:none; }
+.meter i { width:22px; height:22px; border-radius:var(--pill); border:2px solid var(--signal); }
+.meter i.on { background:var(--signal); }
+.acct.out .meter i { border-color:var(--line-strong); }
+.acct.out .acct-left .big { color:var(--warning); }
+.acct .signout { margin-left:auto; }
+.acct .signout.btn { text-decoration:none; }
+
 /* Footer and privacy */
 .foot { max-width:1280px; margin:0 auto; display:flex; flex-wrap:wrap; gap:8px 24px; align-items:center; justify-content:space-between; border-top:1px solid var(--line); font-size:14px; color:var(--ink-muted);
   padding:20px max(16px, env(safe-area-inset-right,0px)) max(24px, env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px)); }
@@ -268,7 +287,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
       <p class="privacy-note" style="margin:0"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Your code is personal. It keeps your practice history together, so please don't share it. This site doesn't save your resume or your answers. <button type="button" class="linkbtn" data-privacy>How your information is handled</button></span></p>
     </form>
   </main>
-  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 <!-- Setup -->
@@ -280,6 +299,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
       <button type="button" data-go="history">History</button>
     </nav>
   </header>
+  <div class="wrap acct-wrap"><section class="acct" data-acct aria-label="Your account" hidden></section></div>
   <main id="main-setup" class="wrap">
     <div class="stack">
       <h1 class="h1">Set up your interview</h1>
@@ -402,7 +422,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
       </div>
     </form>
   </main>
-  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 <!-- Preparing -->
@@ -518,7 +538,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     </nav>
   </header>
   <main class="wrap" id="debrief" style="gap:64px"></main>
-  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 <!-- History -->
@@ -530,8 +550,9 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
       <button type="button" data-go="history" aria-current="page">History</button>
     </nav>
   </header>
+  <div class="wrap acct-wrap"><section class="acct" data-acct aria-label="Your account" hidden></section></div>
   <main class="wrap" id="history"></main>
-  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 
@@ -606,9 +627,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
   };
   function dailyLimitText(d) {
     const n = d.limit || (S.who && S.who.perDay) || 3;
-    const at = d.resetAt ? new Date(d.resetAt) : null;
-    const when = at && !isNaN(at) ? ' More open up at ' + at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + (at.toDateString() === new Date().toDateString() ? ' today.' : ' tomorrow.') : ' Come back tomorrow.';
-    return `You've used all ${n} of today's practice interviews.` + when;
+    return `You've used all ${n} of today's practice interviews. ` + resetText(d.resetAt || (S.who && S.who.resetAt), true);
   }
 
   // ---------- Small helpers ----------
@@ -656,14 +675,51 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     window.scrollTo(0, 0);
     renderWho();
   }
+  // ---------- Who is signed in, and interviews left today ----------
+  const CENTRAL = 'America/Chicago';
+  const inCentral = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === CENTRAL; } catch { return false; } })();
+  function untilText(ms) {
+    const mins = Math.max(1, Math.round(ms / 60000));
+    if (mins < 60) return mins + ' min';
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h + ' hr' + (m ? ' ' + m + ' min' : '');
+  }
+  function resetText(resetAt, short) {
+    const at = new Date(resetAt);
+    if (!resetAt || isNaN(at)) return 'Resets at midnight Central time.';
+    const yours = inCentral ? '' : ` (${at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} your time)`;
+    return (short ? 'More at midnight Central' : 'Resets at midnight Central time') + yours + ', in ' + untilText(at - Date.now()) + '.';
+  }
+  const left = () => { const w = S.who; return w && w.perDay ? Math.max(0, w.perDay - (w.usedToday || 0)) : null; };
+  let refreshing = false;
   function renderWho() {
     const w = S.who;
-    document.querySelectorAll('.who-line').forEach(n => { n.hidden = !w; n.textContent = w ? 'Signed in as ' + (w.name || w.id) : ''; });
-    document.querySelectorAll('.signout').forEach(n => { n.hidden = !S.code; });
-    const left = w && w.perDay ? Math.max(0, w.perDay - (w.usedToday || 0)) : null;
-    $('start-help').textContent = '30 minutes, the last 5 for your questions. Uses your microphone.' +
-      (left === null ? '' : left ? ` ${left} of ${w.perDay} interviews left today.` : ` You've used today's ${w.perDay} interviews.`);
+    // A new day may have started while the page was open: ask again.
+    if (w && w.resetAt && Date.now() >= Date.parse(w.resetAt) && !refreshing) {
+      refreshing = true;
+      call('/unlock').then(x => { S.who = x; }).catch(() => {}).finally(() => { refreshing = false; renderWho(); });
+    }
+    const n = left();
+    document.querySelectorAll('[data-acct]').forEach(box => {
+      box.hidden = !w;
+      if (!w) { box.innerHTML = ''; return; }
+      const name = w.name || w.id;
+      box.classList.toggle('out', n === 0);
+      const limit = n === null
+        ? (w.admin ? `<div><span class="k">Interviews today</span><span class="big">No daily limit for you</span></div>` : '')
+        : `<span class="meter" aria-hidden="true">${Array.from({ length: w.perDay }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>
+           <div><span class="big">${n ? `${n} of ${w.perDay} interviews left today` : `No interviews left today`}</span><span class="k">${esc(resetText(w.resetAt))}</span></div>`;
+      box.innerHTML = `<div class="acct-who"><span class="acct-avatar" aria-hidden="true">${esc(name.slice(0, 1).toUpperCase())}</span><div><span class="k">Signed in as</span><b>${esc(name)}</b></div></div>
+        ${limit ? `<div class="acct-left" role="status">${limit}</div>` : ''}
+        <button type="button" class="btn sm signout">Use a different code</button>`;
+    });
+    document.querySelectorAll('.foot .signout').forEach(x => { x.hidden = !S.code; });
+    $('start').disabled = n === 0;
+    $('start-help').textContent = n === 0
+      ? `You've used today's ${w.perDay} interviews. ${resetText(w.resetAt, true)}`
+      : '30 minutes, the last 5 for your questions. Uses your microphone.';
   }
+  setInterval(() => { if (S.who && S.who.perDay) renderWho(); }, 30000);
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.go === 'history') renderHistory(); else show('setup');
   }));
@@ -684,7 +740,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
     try { localStorage.removeItem('bi_code'); } catch {}
     show('gate');
   }
-  document.querySelectorAll('.signout').forEach(b => b.addEventListener('click', signOut));
+  document.addEventListener('click', e => { if (e.target.closest('.signout')) signOut(); });
 
   // ---------- Privacy ----------
   const privacy = $('privacy');
@@ -908,7 +964,7 @@ dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
       show('setup');
       if ((x.code === 'link_unreadable' || x.code === 'bad_link') && !jdAsText) $('jd-toggle').click();
       showSetupErr(errMsg(x), true);
-      if (x.code === 'daily_limit' && S.who) { S.who.usedToday = x.data.limit || S.who.perDay; renderWho(); }
+      if (x.code === 'daily_limit' && S.who) { S.who.usedToday = x.data.limit || S.who.perDay; if (x.data.resetAt) S.who.resetAt = x.data.resetAt; renderWho(); }
       if (x.code === 'locked') signOut();
     }
   });

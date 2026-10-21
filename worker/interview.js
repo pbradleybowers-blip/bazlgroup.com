@@ -10,7 +10,8 @@
 // (date, role, company, level, panelist, mode, length, verdict, pattern) plus usage counts.
 // Resumes, job descriptions and transcripts are never stored. Without HISTORY, history stays in the browser.
 // Spend: each call has a hard output cap, inputs are trimmed, requests are rate limited per visitor,
-// and each person can start SESSIONS_PER_DAY interviews a day (default 3; Brad is exempt). Needs HISTORY.
+// and each person can start SESSIONS_PER_DAY interviews a day (default 3; Brad is exempt), resetting at
+// midnight US Central time. Needs HISTORY.
 // The real ceiling is the monthly spend limit on the Anthropic workspace that owns the key.
 //
 // Routes (all POST unless noted):
@@ -695,16 +696,28 @@ async function debrief(body, env, cfg) {
 // ---------------------------------------------------------------------------
 // History and usage (KV namespace bound as HISTORY)
 // Keys:  h:<id>          JSON array of session summaries, newest first
-//        n:<id>:<date>   interviews started that UTC day (expires after two days)
+//        n:<id>:<date>   interviews started that day, US Central time (expires after two days)
 //        u:<id>          empty value; metadata { started, finished, last } for the admin view
 
 const MAX_SAVED = 100;
-const today = () => new Date().toISOString().slice(0, 10);
+// The daily limit resets at midnight US Central time (CST, or CDT in summer).
+const RESET_TZ = 'America/Chicago';
+const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: RESET_TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
+const clockFmt = new Intl.DateTimeFormat('en-US', { timeZone: RESET_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+const centralDay = (d = new Date()) => dayFmt.format(d); // YYYY-MM-DD
+function nextCentralMidnight(now = new Date()) {
+  const [h, m, s] = clockFmt.format(now).split(':').map(Number);
+  let t = now.getTime() - ((h * 60 + m) * 60 + s) * 1000 - now.getMilliseconds() + 86400000;
+  // On daylight saving days the day is 23 or 25 hours long: nudge to the real midnight.
+  const lh = Number(clockFmt.format(new Date(t)).split(':')[0]);
+  if (lh === 23) t += 3600000; else if (lh === 1) t -= 3600000;
+  return new Date(t).toISOString();
+}
+const today = () => centralDay();
 const perDay = env => {
   const n = Math.floor(Number(env.SESSIONS_PER_DAY));
   return Number.isFinite(n) && n > 0 ? n : 3;
 };
-const nextUtcMidnight = () => { const d = new Date(); d.setUTCHours(24, 0, 0, 0); return d.toISOString(); };
 
 function cleanSummary(raw) {
   if (!raw || typeof raw !== 'object') return null;
@@ -751,7 +764,7 @@ async function checkDailyLimit(env, who) {
   const limit = perDay(env);
   if (await startedToday(env, who) >= limit) {
     log('daily_limit', { person: who.id });
-    return { status: 429, body: { error: 'daily_limit', limit, resetAt: nextUtcMidnight() } };
+    return { status: 429, body: { error: 'daily_limit', limit, resetAt: nextCentralMidnight() } };
   }
   return null;
 }
@@ -855,6 +868,7 @@ export default {
       const out = { ok: true, id: who.id, name: who.name, admin: who.admin, serverHistory: !!env.HISTORY };
       if (env.HISTORY && !who.admin) {
         out.perDay = perDay(env);
+        out.resetAt = nextCentralMidnight();
         try { out.usedToday = await startedToday(env, who); } catch { /* best effort */ }
       }
       return reply(out, 200, headers);
@@ -889,4 +903,4 @@ export default {
 };
 
 // Exposed for tests.
-export const _internals = { interviewerSystem, coachSystem, prepareSystem, debriefSystem, cleanHistory, cleanSummary, safeUrl, whoIs, TOOLS };
+export const _internals = { interviewerSystem, coachSystem, prepareSystem, debriefSystem, cleanHistory, cleanSummary, safeUrl, whoIs, centralDay, nextCentralMidnight, TOOLS };

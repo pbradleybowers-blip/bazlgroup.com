@@ -399,7 +399,7 @@ test('admin usage is Brad only and shows counts, never content', async () => {
   const r = await post('/admin/usage', {}, { env });
   assert.equal(r.status, 200);
   const t1 = r.json.people.find(p => p.id === 'tester1');
-  assert.deepEqual([t1.started, t1.finished, t1.last], [1, 1, new Date().toISOString().slice(0, 10)]);
+  assert.deepEqual([t1.started, t1.finished, t1.last], [1, 1, _internals.centralDay()]);
   const t2 = r.json.people.find(p => p.id === 'tester2');
   assert.deepEqual([t2.name, t2.started, t2.last], ['Sam', 0, '']);
   assert.ok(r.json.people.find(p => p.id === 'brad'));
@@ -412,4 +412,24 @@ test('deleting history keeps the usage counts but removes every summary', async 
   await post('/history/delete', {}, { env, code: T1 });
   assert.equal(env.HISTORY.m.has('h:tester1'), false);
   assert.equal((await post('/admin/usage', {}, { env })).json.people.find(p => p.id === 'tester1').finished, 1);
+});
+
+test('the day and the reset follow US Central time, including daylight saving changes', () => {
+  const { centralDay, nextCentralMidnight } = _internals;
+  assert.equal(centralDay(new Date('2026-10-22T03:00:00Z')), '2026-10-21'); // 10 PM CDT
+  assert.equal(centralDay(new Date('2026-10-22T05:30:00Z')), '2026-10-22'); // 12:30 AM CDT
+  assert.equal(nextCentralMidnight(new Date('2026-10-21T15:00:00Z')), '2026-10-22T05:00:00.000Z'); // CDT
+  assert.equal(nextCentralMidnight(new Date('2026-12-10T20:00:00Z')), '2026-12-11T06:00:00.000Z'); // CST
+  assert.equal(nextCentralMidnight(new Date('2026-10-31T20:00:00Z')), '2026-11-01T05:00:00.000Z'); // before fall back
+  assert.equal(nextCentralMidnight(new Date('2026-11-01T12:00:00Z')), '2026-11-02T06:00:00.000Z'); // fall-back day, 25 hours
+  assert.equal(nextCentralMidnight(new Date('2026-03-07T20:00:00Z')), '2026-03-08T06:00:00.000Z'); // before spring forward
+  assert.equal(nextCentralMidnight(new Date('2026-03-08T12:00:00Z')), '2026-03-09T05:00:00.000Z'); // spring-forward day, 23 hours
+  assert.equal(nextCentralMidnight(new Date('2026-10-22T04:59:59Z')), '2026-10-22T05:00:00.000Z'); // one second before
+});
+
+test('unlock tells the page when the daily count resets', async () => {
+  const r = await post('/unlock', {}, { env: kvEnv(), code: T1 });
+  const at = Date.parse(r.json.resetAt);
+  assert.ok(at > Date.now() && at <= Date.now() + 25 * 3600000);
+  assert.equal(_internals.centralDay(new Date(at - 1000)), _internals.centralDay());
 });
