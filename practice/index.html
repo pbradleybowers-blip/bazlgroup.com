@@ -226,6 +226,25 @@ table.hist { width:100%; border-collapse:collapse; font-size:14px; }
 table.hist th, table.hist td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
 table.hist th { font-weight:500; color:var(--ink-muted); }
 .tablebox { overflow-x:auto; }
+.danger-btn { color:var(--danger); border-color:var(--danger); }
+
+/* Footer and privacy */
+.foot { max-width:1280px; margin:0 auto; display:flex; flex-wrap:wrap; gap:8px 24px; align-items:center; justify-content:space-between; border-top:1px solid var(--line); font-size:14px; color:var(--ink-muted);
+  padding:20px max(16px, env(safe-area-inset-right,0px)) max(24px, env(safe-area-inset-bottom,0px)) max(16px, env(safe-area-inset-left,0px)); }
+@media (min-width:900px) { .foot { padding-left:40px; padding-right:40px; } }
+.foot .row { gap:8px 20px; }
+.linkbtn { background:none; border:0; padding:0; cursor:pointer; color:var(--signal-text); font-weight:500; text-decoration:underline; text-underline-offset:.18em; font-size:inherit; }
+.privacy-note { display:flex; gap:12px; align-items:flex-start; font-size:14px; line-height:1.45; color:var(--ink-muted); }
+.privacy-note svg { flex:none; margin-top:2px; }
+dialog.privacy { width:min(720px, calc(100% - 32px)); max-height:calc(100vh - 48px); padding:0; border:0; border-radius:var(--r-l); background:var(--surface); color:var(--ink); box-shadow:0 24px 64px -12px rgba(17,17,18,.4); }
+dialog.privacy::backdrop { background:rgba(17,17,18,.45); }
+.privacy-in { padding:32px; display:flex; flex-direction:column; gap:20px; }
+@media (max-width:640px) { .privacy-in { padding:24px; } }
+.privacy-in h3 { margin:0 0 6px; font-size:16px; font-weight:600; }
+.privacy-in p, .privacy-in ul { margin:0; }
+.privacy-in ul { padding-left:20px; display:flex; flex-direction:column; gap:6px; }
+.privacy-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; position:sticky; top:0; background:var(--surface); padding:24px 32px 16px; margin:-32px -32px 0; border-bottom:1px solid var(--line); z-index:1; }
+@media (max-width:640px) { .privacy-head { padding:20px 24px 12px; margin:-24px -24px 0; } }
 </style>
 </head>
 <body>
@@ -246,8 +265,10 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
         <span id="code-err" class="err" hidden></span>
       </div>
       <button class="btn primary" type="submit">Continue</button>
+      <p class="privacy-note" style="margin:0"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Your code is personal. It keeps your practice history together, so please don't share it. This site doesn't save your resume or your answers. <button type="button" class="linkbtn" data-privacy>How your information is handled</button></span></p>
     </form>
   </main>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 <!-- Setup -->
@@ -323,6 +344,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
           <button type="button" class="btn sm" id="resume-toggle" style="align-self:flex-start">Paste resume text instead</button>
           <textarea id="f-resumetext" class="textarea" hidden placeholder="Paste your resume text" aria-labelledby="l-resume" style="min-height:180px"></textarea>
           <span id="e-resume" class="err" hidden></span>
+          <p class="privacy-note" style="margin:0"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Your resume and the job description are sent to Anthropic's Claude to prepare and run your interview. This site doesn't save them. <button type="button" class="linkbtn" data-privacy>Your privacy</button></span></p>
         </div>
         <div class="field">
           <label for="f-context" class="label">Other context <span class="req">· Optional</span></label>
@@ -380,6 +402,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       </div>
     </form>
   </main>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 <!-- Preparing -->
@@ -495,6 +518,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     </nav>
   </header>
   <main class="wrap" id="debrief" style="gap:64px"></main>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
 <!-- History -->
@@ -507,8 +531,36 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     </nav>
   </header>
   <main class="wrap" id="history"></main>
+  <footer class="foot"><span>Interview practice by Brad Bowers</span><span class="row"><span class="who-line" hidden></span><button type="button" class="linkbtn" data-privacy>Your privacy</button><button type="button" class="linkbtn signout" hidden>Use a different code</button></span></footer>
 </div>
 
+
+<dialog class="privacy" id="privacy" aria-labelledby="privacy-h">
+  <div class="privacy-in">
+    <div class="privacy-head">
+      <div class="stack" style="gap:4px"><h2 class="h3" id="privacy-h">Your privacy</h2><p class="small muted" style="margin:0">Plain answers about what happens to your information.</p></div>
+      <button type="button" class="btn sm" id="privacy-close">Close</button>
+    </div>
+    <p>This is a practice space, and you should feel comfortable using it. Here is exactly what happens to what you share.</p>
+    <div><h3>Your resume and the job description</h3>
+      <p>They are sent to Anthropic's Claude, the AI that prepares and runs your interview. This site does not save them. They pass through this site's small backend on Cloudflare only on their way to Claude. If you give a job link, the backend opens that page to read the posting.</p></div>
+    <div><h3>Your answers and the transcript</h3>
+      <p>They stay in your browser while you practice. To write each reply, the feedback and the debrief, the conversation so far is sent to Claude, and this site does not save it. When you close or refresh the page, the transcript is gone.</p></div>
+    <div><h3>What is saved</h3>
+      <ul>
+        <li>A short summary of each finished session, saved under your access code so your history follows you to any device: the date, role, company, level, panelist, mode, length, verdict and the recurring pattern from the debrief. Nothing else.</li>
+        <li>How many interviews your code has started and the date it was last used. This keeps the daily limit working. Brad can see these counts, never what anyone said.</li>
+        <li>You can delete your history at any time from the History page.</li>
+      </ul></div>
+    <div><h3>Your voice</h3>
+      <p>Turning your speech into text is done by your browser, not this site. Chrome sends your voice to Google's speech service to turn it into text, and other browsers may use their own service. If you'd rather not, press the keyboard button in the interview room and type your answers instead. The interviewer's voice also comes from your browser, and some of Chrome's voices are made on Google's servers.</p></div>
+    <div><h3>How Anthropic handles it</h3>
+      <p>Anthropic's published policy says that, by default, it does not use inputs or outputs from its commercial products, including the API this site uses, to train its models. It says it deletes API inputs and outputs within 30 days, and may keep them longer when needed to enforce its usage policy or comply with the law. Read it yourself: <a href="https://privacy.claude.com/en/articles/7996868-is-my-data-used-for-training" target="_blank" rel="noopener">training</a> and <a href="https://privacy.claude.com/en/articles/7996866-how-long-do-you-store-my-data" target="_blank" rel="noopener">how long data is kept</a>.</p></div>
+    <div><h3>Your access code</h3>
+      <p>Your code is how the site knows your history is yours, so keep it to yourself. This browser remembers it so you don't have to type it each time. On a shared computer, choose "Use a different code" at the bottom of the page to forget it.</p></div>
+    <p class="small muted">Questions? <a href="https://bazlgroup.com/#contact">Get in touch with Brad</a>.</p>
+  </div>
+</dialog>
 <div class="toast" id="toast" role="status" hidden><span id="toast-text"></span><button type="button" class="btn sm" id="toast-act" hidden></button></div>
 
 <script>
@@ -543,11 +595,21 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     rate_limited: 'Too many requests at once. Wait a minute, then try again.',
     spend_limit: 'Practice is paused for now. Let Brad know.',
     unavailable: 'Practice is unavailable right now. Try again later.',
-    network: 'Couldn\'t reach the interviewer. Check your connection and try again.'
+    network: 'Couldn\'t reach the interviewer. Check your connection and try again.',
+    no_server_history: 'History isn\'t saved online yet, so it stays in this browser.'
   };
   const errText = code => ERRORS[code] || 'Something went wrong reaching the interviewer. Try again.';
   // Known problems get a plain message; anything else also shows the technical reason, so it can be fixed.
-  const errMsg = x => ERRORS[x.code] ? ERRORS[x.code] : errMsg(x) + (x.detail ? ' Details: ' + x.detail : (x.code && x.code !== 'upstream_error' ? ' Details: ' + x.code : ''));
+  const errMsg = x => {
+    if (x.code === 'daily_limit') return dailyLimitText(x.data || {});
+    return ERRORS[x.code] ? ERRORS[x.code] : errText(x.code) + (x.detail ? ' Details: ' + x.detail : (x.code && x.code !== 'upstream_error' ? ' Details: ' + x.code : ''));
+  };
+  function dailyLimitText(d) {
+    const n = d.limit || (S.who && S.who.perDay) || 3;
+    const at = d.resetAt ? new Date(d.resetAt) : null;
+    const when = at && !isNaN(at) ? ' More open up at ' + at.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + (at.toDateString() === new Date().toDateString() ? ' today.' : ' tomorrow.') : ' Come back tomorrow.';
+    return `You've used all ${n} of today's practice interviews.` + when;
+  }
 
   // ---------- Small helpers ----------
   const $ = id => document.getElementById(id);
@@ -575,13 +637,13 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     } catch { const e = new Error('network'); e.code = 'network'; throw e; }
     let j = null;
     try { j = await res.json(); } catch { /* not JSON */ }
-    if (!res.ok) { const e = new Error((j && j.error) || 'upstream_error'); e.code = (j && j.error) || (res.status ? 'http_' + res.status : 'upstream_error'); e.detail = (j && j.detail) || (j ? '' : 'status ' + res.status); throw e; }
+    if (!res.ok) { const e = new Error((j && j.error) || 'upstream_error'); e.code = (j && j.error) || (res.status ? 'http_' + res.status : 'upstream_error'); e.detail = (j && j.detail) || (j ? '' : 'status ' + res.status); e.data = j || {}; throw e; }
     return j;
   }
 
   // ---------- State ----------
   const S = {
-    code: store.get('code', ''), setup: null, brief: null, history: [], persona: PERSONAS[0],
+    code: store.get('code', ''), who: null, setup: null, brief: null, history: [], persona: PERSONAS[0],
     elapsed: 0, running: false, lastTick: 0, phase: 'core', busy: false, hand: false,
     listenKind: 'answer', lastQuestion: '', notes: [], ended: false, typing: false, startedAt: null
   };
@@ -592,6 +654,15 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     $('toast').hidden = true;
     document.body.classList.toggle('is-dark', name === 'room' || name === 'ready');
     window.scrollTo(0, 0);
+    renderWho();
+  }
+  function renderWho() {
+    const w = S.who;
+    document.querySelectorAll('.who-line').forEach(n => { n.hidden = !w; n.textContent = w ? 'Signed in as ' + (w.name || w.id) : ''; });
+    document.querySelectorAll('.signout').forEach(n => { n.hidden = !S.code; });
+    const left = w && w.perDay ? Math.max(0, w.perDay - (w.usedToday || 0)) : null;
+    $('start-help').textContent = '30 minutes, the last 5 for your questions. Uses your microphone.' +
+      (left === null ? '' : left ? ` ${left} of ${w.perDay} interviews left today.` : ` You've used today's ${w.perDay} interviews.`);
   }
   document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.go === 'history') renderHistory(); else show('setup');
@@ -605,9 +676,29 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     err.hidden = true; $('code').removeAttribute('aria-invalid');
     if (!code) { err.textContent = 'Enter your access code.'; err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); return; }
     S.code = code;
-    try { await call('/unlock'); store.set('code', code); show('setup'); }
-    catch (x) { err.textContent = errMsg(x); err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); }
+    try { S.who = await call('/unlock'); store.set('code', code); $('code').value = ''; show('setup'); }
+    catch (x) { S.code = ''; err.textContent = errMsg(x); err.hidden = false; $('code').setAttribute('aria-invalid', 'true'); }
   });
+  function signOut() {
+    S.code = ''; S.who = null; store.set('code', '');
+    try { localStorage.removeItem('bi_code'); } catch {}
+    show('gate');
+  }
+  document.querySelectorAll('.signout').forEach(b => b.addEventListener('click', signOut));
+
+  // ---------- Privacy ----------
+  const privacy = $('privacy');
+  let privacyOpener = null;
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-privacy]');
+    if (!b) return;
+    privacyOpener = b;
+    if (privacy.showModal) privacy.showModal(); else privacy.setAttribute('open', '');
+    $('privacy-close').focus();
+  });
+  $('privacy-close').addEventListener('click', () => privacy.close ? privacy.close() : privacy.removeAttribute('open'));
+  privacy.addEventListener('click', e => { if (e.target === privacy) privacy.close(); });
+  privacy.addEventListener('close', () => { if (privacyOpener) privacyOpener.focus(); });
 
   // ---------- Voices ----------
   const synth = window.speechSynthesis;
@@ -809,6 +900,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     try {
       const out = await call('/prepare', body);
       S.brief = out.brief; S.opening = out.opening;
+      if (S.who && S.who.perDay) S.who.usedToday = (S.who.usedToday || 0) + 1;
       await prep.finish();
       showReady();
     } catch (x) {
@@ -816,7 +908,8 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       show('setup');
       if ((x.code === 'link_unreadable' || x.code === 'bad_link') && !jdAsText) $('jd-toggle').click();
       showSetupErr(errMsg(x), true);
-      if (x.code === 'locked') { store.set('code', ''); show('gate'); }
+      if (x.code === 'daily_limit' && S.who) { S.who.usedToday = x.data.limit || S.who.perDay; renderWho(); }
+      if (x.code === 'locked') signOut();
     }
   });
 
@@ -1220,7 +1313,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
     const w = unpauseWaiters; unpauseWaiters = []; w.forEach(r => r());
     S.ended = true; listening = false;
     stopRec(); stopSpeaking(); runClock(false);
-    $('end').textContent = 'End interview';
+    endArmed = 0; $('end').textContent = 'End interview';
     const answers = S.history.filter(h => h.who === 'candidate');
     if (!answers.length) { toast('No answers yet, so there\'s nothing to debrief.'); show('setup'); return; }
     show('debrief');
@@ -1242,15 +1335,44 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
       persona: S.persona.name, personaType: S.persona.type, mode: S.setup.mode, elapsed: Math.round(S.elapsed),
       verdict: d.verdict, pattern: d.pattern
     };
+    renderDebrief(d, session, await saveSession(session));
+  }
+
+  // ---------- History storage ----------
+  // With server history, the summary is saved under the access code and nothing is kept in the browser.
+  // Without it (or if the save fails), it falls back to this browser, as before.
+  const serverHistory = () => !!(S.who && S.who.serverHistory);
+  async function ensureWho() {
+    if (S.who || !S.code) return;
+    try { S.who = await call('/unlock'); renderWho(); } catch { /* fall back to this browser */ }
+  }
+  async function saveSession(session) {
+    await ensureWho();
+    if (serverHistory()) {
+      try { const r = await call('/history/save', { summary: session }); return { sessions: r.sessions, where: 'server' }; }
+      catch (x) { if (x.code === 'no_server_history' && S.who) S.who.serverHistory = false; }
+    }
     const all = store.get('sessions', []);
     all.unshift(session);
     store.set('sessions', all.slice(0, 50));
-    renderDebrief(d, session);
+    return { sessions: all, where: 'browser' };
+  }
+  async function loadSessions() {
+    await ensureWho();
+    if (serverHistory()) {
+      try { return { sessions: (await call('/history/list')).sessions || [], where: 'server' }; }
+      catch (x) {
+        if (x.code === 'locked') { signOut(); return null; }
+        if (x.code === 'no_server_history' && S.who) S.who.serverHistory = false;
+        else return { sessions: store.get('sessions', []), where: 'browser', error: errMsg(x) };
+      }
+    }
+    return { sessions: store.get('sessions', []), where: 'browser' };
   }
 
   // ---------- Debrief ----------
   const VERDICTS = ['Strong No', 'No', 'Maybe', 'Yes', 'Strong Yes'];
-  function renderDebrief(d, session) {
+  function renderDebrief(d, session, saved) {
     const first = S.persona.name.split(' ')[0];
     const date = new Date(session.at || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
     const answers = S.history.map((h, i) => ({ ...h, i })).filter(h => h.who === 'candidate');
@@ -1275,7 +1397,7 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
           ${tips.filter(Boolean).length ? `<div class="note"><b>Coach</b>${tips.filter(Boolean).map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
         </div></details>`;
     }).join('');
-    const past = store.get('sessions', []).filter(s => s.id !== session.id && s.role === session.role);
+    const past = ((saved && saved.sessions) || []).filter(s => s.id !== session.id && s.role === session.role);
     const trend = past.length
       ? `<p style="margin:0">Your verdicts for this role, oldest first: ${[...past].reverse().concat(session).map(s => `<b>${esc(s.verdict)}</b>`).join(' → ')}.</p>`
       : `<p style="margin:0">This is your first session for this role. After your next one, you'll see your verdict trend here.</p>`;
@@ -1298,26 +1420,76 @@ table.hist th { font-weight:500; color:var(--ink-muted); }
         <div class="row" style="justify-content:space-between;align-items:baseline"><h2 id="ab-h" class="h2">Answer by answer</h2>${d.pattern ? `<span class="small muted">Pattern: ${esc(d.pattern)}</span>` : ''}</div>
         <div class="card" style="padding:8px 24px;gap:0">${rows}</div>
       </section>
-      <section class="probe" aria-labelledby="pg-h"><h2 id="pg-h" class="h3">Your progress</h2>${trend}<p class="small" style="margin:0">Sessions are saved in this browser only.</p></section>`;
+      <section class="probe" aria-labelledby="pg-h"><h2 id="pg-h" class="h3">Your progress</h2>${trend}<p class="small" style="margin:0">${saved && saved.where === 'server' ? 'This summary is saved under your access code, so it follows you to any device. The transcript is not saved. <button type="button" class="linkbtn" data-privacy>Your privacy</button>' : 'Sessions are saved in this browser only.'}</p></section>`;
     $('again').onclick = () => { S.persona = PERSONAS.find(p => p.id === S.setup.panelist) || S.persona; showReady(); };
     $('other').onclick = () => show('setup');
   }
 
-  function renderHistory() {
-    const all = store.get('sessions', []);
-    $('history').innerHTML = `
-      <div class="stack"><h1 class="h1">History</h1><p class="lead">Every session you've finished in this browser, newest first.</p></div>
-      ${all.length ? `<div class="card" style="padding:24px"><div class="tablebox"><table class="hist"><thead><tr><th>Date</th><th>Role</th><th>Panelist</th><th>Mode</th><th>Length</th><th>Verdict</th><th>Pattern</th></tr></thead><tbody>
-        ${all.map(s => `<tr><td class="mono">${esc(new Date(s.at || s.id).toLocaleDateString())}</td><td>${esc([s.company, s.role].filter(Boolean).join(' · '))}</td><td>${esc(s.persona)}</td><td>${s.mode === 'coach' ? 'Coach' : 'Realistic'}</td><td class="mono">${esc(short(s.elapsed || 0))}</td><td style="font-weight:600">${esc(s.verdict)}</td><td class="small muted">${esc(s.pattern || '')}</td></tr>`).join('')}
+  async function renderHistory() {
+    const box = $('history');
+    box.innerHTML = `<div class="stack"><h1 class="h1">History</h1><p class="lead">Loading your sessions.</p></div><div class="skel"><span style="width:70%"></span><span style="width:90%"></span></div>`;
+    show('history');
+    const got = await loadSessions();
+    if (!got) return;
+    const all = got.sessions;
+    const onServer = got.where === 'server';
+    const local = onServer ? store.get('sessions', []) : [];
+    const table = all.length ? `<div class="card" style="padding:24px"><div class="tablebox"><table class="hist"><thead><tr><th>Date</th><th>Role</th><th>Level</th><th>Panelist</th><th>Mode</th><th>Length</th><th>Verdict</th><th>Pattern</th></tr></thead><tbody>
+        ${all.map(s => `<tr><td class="mono">${esc(new Date(s.at || s.id).toLocaleDateString())}</td><td>${esc([s.company, s.role].filter(Boolean).join(' · '))}</td><td>${esc(s.level || '')}</td><td>${esc(s.persona)}</td><td>${s.mode === 'coach' ? 'Coach' : 'Realistic'}</td><td class="mono">${esc(short(s.elapsed || 0))}</td><td style="font-weight:600">${esc(s.verdict)}</td><td class="small muted">${esc(s.pattern || '')}</td></tr>`).join('')}
       </tbody></table></div></div>`
-      : `<div class="empty"><h2 class="h3">No sessions yet</h2><p class="muted" style="margin:0">Finish an interview and its verdict shows up here.</p><button class="btn inkfill" type="button" data-go2="setup" style="align-self:flex-start">Set up an interview</button></div>`}`;
+      : `<div class="empty"><h2 class="h3">No sessions yet</h2><p class="muted" style="margin:0">Finish an interview and its verdict shows up here.</p><button class="btn inkfill" type="button" data-go2="setup" style="align-self:flex-start">Set up an interview</button></div>`;
+    box.innerHTML = `
+      <div class="stack"><h1 class="h1">History</h1><p class="lead">${onServer ? 'Every session you\'ve finished with your access code, newest first. It follows you to any device.' : 'Every session you\'ve finished in this browser, newest first.'}</p></div>
+      ${got.error ? `<p class="notice bad" role="alert">Couldn't load your saved history, so this shows sessions from this browser. ${esc(got.error)}</p>` : ''}
+      ${local.length ? `<div class="notice row" style="justify-content:space-between"><span>${local.length} older ${local.length === 1 ? 'session is' : 'sessions are'} saved only in this browser.</span><span class="row"><button class="btn sm inkfill" type="button" id="h-move">Add to my history</button><button class="btn sm" type="button" id="h-drop">Remove from this browser</button></span></div>` : ''}
+      ${table}
+      <section class="card tight" aria-labelledby="h-del-h">
+        <div class="stack" style="gap:4px"><h2 class="h3" id="h-del-h">Your data</h2>
+        <p class="small muted" style="margin:0">${onServer ? 'Saved for each session: date, role, company, level, panelist, mode, length, verdict and pattern. Never your resume, the job description or the transcript.' : 'These summaries live only in this browser.'} <button type="button" class="linkbtn" data-privacy>Your privacy</button></p></div>
+        <div class="row"><button class="btn sm danger-btn" type="button" id="h-delete" ${all.length || local.length ? '' : 'disabled'}>Delete my history</button><span class="small" id="h-del-msg" role="status"></span></div>
+      </section>
+      <div id="admin-box"></div>`;
     const b = document.querySelector('[data-go2]');
     if (b) b.onclick = () => show('setup');
-    show('history');
+    let armed = 0;
+    $('h-delete').onclick = async () => {
+      if (Date.now() - armed > 4000) { armed = Date.now(); $('h-delete').textContent = 'Click again to delete everything'; setTimeout(() => { if ($('h-delete')) $('h-delete').textContent = 'Delete my history'; }, 4000); return; }
+      $('h-delete').disabled = true;
+      try {
+        if (onServer) await call('/history/delete');
+        try { localStorage.removeItem('bi_sessions'); } catch {}
+        await renderHistory();
+        toast('Your history is deleted.');
+      } catch (x) { $('h-delete').disabled = false; $('h-delete').textContent = 'Delete my history'; $('h-del-msg').textContent = errMsg(x); }
+    };
+    if ($('h-move')) $('h-move').onclick = async () => {
+      $('h-move').disabled = true;
+      try { await call('/history/save', { sessions: local }); try { localStorage.removeItem('bi_sessions'); } catch {} renderHistory(); }
+      catch (x) { $('h-move').disabled = false; toast(errMsg(x)); }
+    };
+    if ($('h-drop')) $('h-drop').onclick = () => { try { localStorage.removeItem('bi_sessions'); } catch {} renderHistory(); };
+    if (S.who && S.who.admin && onServer) renderAdmin();
+  }
+
+  async function renderAdmin() {
+    const box = $('admin-box');
+    if (!box) return;
+    let r;
+    try { r = await call('/admin/usage'); } catch (x) { box.innerHTML = `<p class="notice bad">Couldn't load usage. ${esc(errMsg(x))}</p>`; return; }
+    if (!$('admin-box')) return;
+    box.innerHTML = `<section class="card tight" aria-labelledby="admin-h">
+      <div class="stack" style="gap:4px"><h2 class="h3" id="admin-h">People using it</h2><p class="small muted" style="margin:0">Only you see this. Counts only, no content. Testers can start ${esc(r.perDay)} a day.</p></div>
+      <div class="tablebox"><table class="hist" id="admin-table"><thead><tr><th>Person</th><th>Interviews started</th><th>Finished</th><th>Last used</th></tr></thead><tbody>
+      ${r.people.map(p => `<tr><td>${esc(p.name)}${p.name.toLowerCase() !== p.id.toLowerCase() ? ` <span class="muted small">${esc(p.id)}</span>` : ''}${p.active ? '' : ' <span class="muted small">(code removed)</span>'}</td><td class="mono">${esc(p.started)}</td><td class="mono">${esc(p.finished)}</td><td class="mono">${p.last ? esc(new Date(p.last + 'T12:00:00Z').toLocaleDateString()) : '<span class="muted">Not yet</span>'}</td></tr>`).join('')}
+      </tbody></table></div></section>`;
   }
 
   // ---------- Start ----------
-  if (S.code) show('setup'); else show('gate');
+  if (S.code) {
+    show('setup');
+    // Check the saved code in the background, to learn whose it is and whether history is saved online.
+    call('/unlock').then(w => { S.who = w; renderWho(); }).catch(x => { if (x.code === 'locked') signOut(); });
+  } else show('gate');
   window.addEventListener('beforeunload', e => { if (!S.ended && S.history.length && !$('v-room').hidden) { e.preventDefault(); e.returnValue = ''; } });
 })();
 </script>
