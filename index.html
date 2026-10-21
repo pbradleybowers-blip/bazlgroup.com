@@ -385,6 +385,12 @@ footer .brand { font-size:16px; }
   .nav-links { scrollbar-width:none; -webkit-mask-image:linear-gradient(90deg,#000 85%,transparent); mask-image:linear-gradient(90deg,#000 85%,transparent); padding-right:32px; }
   .nav-links::-webkit-scrollbar { display:none; }
 }
+/* Proof band: hairline dividers so each number reads as its own stat */
+.proof > div { padding-bottom:var(--space-2); }
+.proof > div + div { border-left:1px solid var(--line); padding-left:var(--space-5); }
+.proof .num { font-size:clamp(36px,3.9vw,52px); }
+@media (max-width:860px) { .proof > div:nth-child(odd) { border-left:0; padding-left:0; } .proof > div:nth-child(n+3) { border-top:1px solid var(--line); } }
+@media (max-width:640px) { .proof > div + div { padding-left:var(--space-4); } .proof > div:nth-child(odd) { padding-left:0; } .proof .num { font-size:clamp(26px,8.2vw,40px); } }
 /* Ask box: keep the example question readable on phones */
 @media (max-width:640px) {
   .ask-form { padding-left:14px; }
