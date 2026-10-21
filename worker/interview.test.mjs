@@ -272,3 +272,144 @@ test('JSON written as text instead of a tool call is still accepted', async () =
   assert.equal(r.status, 200);
   assert.equal(r.json.say, 'Okay, next one.');
 });
+
+// ---------------------------------------------------------------------------
+// Personal codes, server history, daily limit, admin view
+
+const fingerprint = (code, salt) => 'sha256:' + salt + ':' + createHash('sha256').update(Buffer.concat([Buffer.from(salt, 'hex'), Buffer.from(code)])).digest('hex');
+const T1 = 'maple-river-123', T2 = 'cobalt-stone-456';
+const ACCESS_CODES = JSON.stringify({
+  tester1: fingerprint(T1, '00112233445566778899aabbccddeeff'),
+  tester2: { hash: fingerprint(T2, '0f1e2d3c4b5a69788796a5b4c3d2e1f0'), name: 'Sam' },
+  brad: fingerprint('sneaky', '00112233445566778899aabbccddeeff') // ignored: "brad" is ACCESS_HASH only
+});
+
+// A Map-backed stand-in for a Cloudflare KV namespace.
+function mockKV() {
+  const m = new Map();
+  return {
+    m,
+    async get(k, type) { const e = m.get(k); if (!e) return null; return type === 'json' ? JSON.parse(e.value) : e.value; },
+    async getWithMetadata(k) { const e = m.get(k); return e ? { value: e.value, metadata: e.metadata ?? null } : { value: null, metadata: null }; },
+    async put(k, value, opts = {}) { m.set(k, { value: String(value), metadata: opts.metadata, ttl: opts.expirationTtl }); },
+    async delete(k) { m.delete(k); },
+    async list({ prefix = '' } = {}) { return { keys: [...m.keys()].filter(k => k.startsWith(prefix)).map(name => ({ name, metadata: m.get(name).metadata })), list_complete: true }; }
+  };
+}
+const kvEnv = (extra = {}) => ({ ...ENV, ACCESS_CODES, HISTORY: mockKV(), ...extra });
+const SUMMARY = { id: 1761000000000, at: '2026-10-20T15:00:00.000Z', role: 'Director of Product', company: 'Acme', level: 'Director', persona: 'Elena Marsh', personaType: 'Hiring manager', mode: 'coach', elapsed: 1500, verdict: 'Yes', pattern: 'Lead with numbers.' };
+
+test('unlock says who a code belongs to; ACCESS_HASH is Brad and the only admin', async () => {
+  const env = kvEnv();
+  const brad = await post('/unlock', {}, { env });
+  assert.deepEqual([brad.json.id, brad.json.admin, brad.json.serverHistory], ['brad', true, true]);
+  const t1 = await post('/unlock', {}, { env, code: T1 });
+  assert.deepEqual([t1.json.id, t1.json.name, t1.json.admin, t1.json.perDay, t1.json.usedToday], ['tester1', 'tester1', false, 3, 0]);
+  const t2 = await post('/unlock', {}, { env, code: T2 });
+  assert.deepEqual([t2.json.id, t2.json.name], ['tester2', 'Sam']);
+  assert.equal((await post('/unlock', {}, { env, code: 'sneaky' })).status, 401);
+  assert.equal((await post('/unlock', {}, { env, code: 'maple-river-124' })).status, 401);
+});
+
+test('personal codes work without ACCESS_HASH, and a broken ACCESS_CODES only locks testers out', async () => {
+  assert.equal((await post('/unlock', {}, { env: { ACCESS_CODES }, code: T1 })).json.id, 'tester1');
+  assert.equal((await post('/unlock', {}, { env: { ...ENV, ACCESS_CODES: '{not json' }, code: T1 })).status, 401);
+  assert.equal((await post('/unlock', {}, { env: { ...ENV, ACCESS_CODES: '{not json' } })).status, 200);
+});
+
+test('history routes explain when no HISTORY namespace is bound', async () => {
+  const r = await post('/history/list', {}, { env: { ...ENV, ACCESS_CODES }, code: T1 });
+  assert.equal(r.status, 501);
+  assert.equal(r.json.error, 'no_server_history');
+  assert.equal((await post('/unlock', {}, { env: { ...ENV, ACCESS_CODES }, code: T1 })).json.serverHistory, false);
+});
+
+test('history save, list and delete are per person, and keep only summary fields', async () => {
+  const env = kvEnv();
+  const saved = await post('/history/save', { summary: { ...SUMMARY, transcript: 'secret words', resume: 'my resume', jdText: 'the job' } }, { env, code: T1 });
+  assert.equal(saved.status, 200);
+  assert.equal(saved.json.sessions.length, 1);
+  const stored = env.HISTORY.m.get('h:tester1').value;
+  assert.doesNotMatch(stored, /secret words|my resume|the job/);
+  assert.deepEqual(Object.keys(JSON.parse(stored)[0]).sort(), ['at', 'company', 'elapsed', 'id', 'level', 'mode', 'pattern', 'persona', 'personaType', 'role', 'verdict']);
+  // Saving the same session twice does not duplicate it.
+  await post('/history/save', { summary: SUMMARY }, { env, code: T1 });
+  const mine = await post('/history/list', {}, { env, code: T1 });
+  assert.equal(mine.json.sessions.length, 1);
+  assert.equal(mine.json.sessions[0].verdict, 'Yes');
+  // Another person sees nothing of it.
+  assert.deepEqual((await post('/history/list', {}, { env, code: T2 })).json.sessions, []);
+  assert.equal((await post('/history/delete', {}, { env, code: T1 })).status, 200);
+  assert.deepEqual((await post('/history/list', {}, { env, code: T1 })).json.sessions, []);
+});
+
+test('history save takes a batch moved from the browser, newest first, and rejects junk', async () => {
+  const env = kvEnv();
+  const older = { ...SUMMARY, id: 1, at: '2026-09-01T10:00:00.000Z', verdict: 'No' };
+  const r = await post('/history/save', { sessions: [older, SUMMARY, { role: 'x' }] }, { env, code: T1 });
+  assert.deepEqual(r.json.sessions.map(s => s.verdict), ['Yes', 'No']);
+  assert.equal((await post('/history/save', { summary: { role: 'PM', verdict: 'Great' } }, { env, code: T1 })).status, 400);
+  assert.equal((await post('/history/list', {}, { env, code: 'wrong' })).status, 401);
+});
+
+test('history routes do not need the Anthropic key', async () => {
+  const env = kvEnv({ ANTHROPIC_API_KEY: '' });
+  assert.equal((await post('/history/list', {}, { env, code: T1 })).status, 200);
+  assert.equal((await post('/turn', { setup: SETUP, brief: BRIEF }, { env, code: T1 })).status, 503);
+});
+
+test('each person can start SESSIONS_PER_DAY interviews a day; Brad is exempt', async () => {
+  const env = kvEnv({ SESSIONS_PER_DAY: '2' });
+  const go = code => post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env, code });
+  for (let i = 0; i < 2; i++) { plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' })); assert.equal((await go(T1)).status, 200); }
+  const blocked = await go(T1);
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.json.error, 'daily_limit');
+  assert.equal(blocked.json.limit, 2);
+  assert.ok(Date.parse(blocked.json.resetAt) > Date.now());
+  assert.equal(calls.length, 2, 'the blocked call never reaches the API');
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  assert.equal((await go(T2)).status, 200, 'other people have their own count');
+  for (let i = 0; i < 3; i++) { plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' })); assert.equal((await go(TEST_CODE)).status, 200); }
+  assert.equal((await post('/unlock', {}, { env, code: T1 })).json.usedToday, 2);
+});
+
+test('a failed prepare does not use up a session', async () => {
+  const env = kvEnv({ SESSIONS_PER_DAY: '1' });
+  plan.push(errReply(401));
+  assert.equal((await post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env, code: T1 })).status, 502);
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  assert.equal((await post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env, code: T1 })).status, 200);
+});
+
+test('the daily limit defaults to 3 and is skipped without HISTORY', async () => {
+  const env = kvEnv();
+  for (let i = 0; i < 3; i++) { plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' })); await post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env, code: T1 }); }
+  assert.equal((await post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env, code: T1 })).json.error, 'daily_limit');
+  const noKv = { ...ENV, ACCESS_CODES };
+  for (let i = 0; i < 4; i++) { plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' })); assert.equal((await post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env: noKv, code: T1 })).status, 200); }
+});
+
+test('admin usage is Brad only and shows counts, never content', async () => {
+  const env = kvEnv();
+  plan.push(toolReply('interview_brief', { ...BRIEF, opening: 'Hi.' }));
+  await post('/prepare', { setup: SETUP, jdText: JD, resume: { text: RESUME } }, { env, code: T1 });
+  await post('/history/save', { summary: SUMMARY }, { env, code: T1 });
+  assert.equal((await post('/admin/usage', {}, { env, code: T1 })).status, 403);
+  const r = await post('/admin/usage', {}, { env });
+  assert.equal(r.status, 200);
+  const t1 = r.json.people.find(p => p.id === 'tester1');
+  assert.deepEqual([t1.started, t1.finished, t1.last], [1, 1, new Date().toISOString().slice(0, 10)]);
+  const t2 = r.json.people.find(p => p.id === 'tester2');
+  assert.deepEqual([t2.name, t2.started, t2.last], ['Sam', 0, '']);
+  assert.ok(r.json.people.find(p => p.id === 'brad'));
+  assert.doesNotMatch(JSON.stringify(r.json), /Director of Product|Lead with numbers|Acme/);
+});
+
+test('deleting history keeps the usage counts but removes every summary', async () => {
+  const env = kvEnv();
+  await post('/history/save', { summary: SUMMARY }, { env, code: T1 });
+  await post('/history/delete', {}, { env, code: T1 });
+  assert.equal(env.HISTORY.m.has('h:tester1'), false);
+  assert.equal((await post('/admin/usage', {}, { env })).json.people.find(p => p.id === 'tester1').finished, 1);
+});

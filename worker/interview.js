@@ -1,18 +1,29 @@
 // bazl-interview: the backend for the mock interview practice page at bazlgroup.com/practice/.
 // Runs as its own Cloudflare Worker, separate from bazl-ask, so a problem here never touches the site assistant.
 // Holds the Anthropic API key (ANTHROPIC_API_KEY secret) and builds every prompt server-side.
-// Access: every call needs an invite code (X-Access-Code header). The Worker stores only a salted
-// SHA-256 fingerprint of it in the ACCESS_HASH secret, and stays locked if that secret is missing.
-// Spend: each call has a hard output cap, inputs are trimmed, and requests are rate limited per visitor.
+// Access: every call needs a personal access code (X-Access-Code header). The code is the person's identity.
+// The Worker stores only salted SHA-256 fingerprints (sha256:<salt hex>:<hash hex>):
+//   ACCESS_HASH   Brad's own code (person id "brad", the only admin)
+//   ACCESS_CODES  JSON object, person id -> fingerprint, or -> { "hash": fingerprint, "name": "Display name" }
+// It stays locked if neither secret is set. Make new codes with: node scripts/make-code.mjs <person-id>
+// History: if a KV namespace is bound as HISTORY, it keeps per person ONLY short session summaries
+// (date, role, company, level, panelist, mode, length, verdict, pattern) plus usage counts.
+// Resumes, job descriptions and transcripts are never stored. Without HISTORY, history stays in the browser.
+// Spend: each call has a hard output cap, inputs are trimmed, requests are rate limited per visitor,
+// and each person can start SESSIONS_PER_DAY interviews a day (default 3; Brad is exempt). Needs HISTORY.
 // The real ceiling is the monthly spend limit on the Anthropic workspace that owns the key.
 //
 // Routes (all POST unless noted):
-//   /unlock    check an invite code
-//   /prepare   read the resume and job description once, return a short interview brief
-//   /turn      the interviewer's next line
-//   /coach     feedback on one answer, or on one question the candidate asked
-//   /debrief   the verdict and written critique at the end
-//   GET /health  whether the API key works
+//   /unlock          check an access code, return who it belongs to
+//   /prepare         read the resume and job description once, return a short interview brief
+//   /turn            the interviewer's next line
+//   /coach           feedback on one answer, or on one question the candidate asked
+//   /debrief         the verdict and written critique at the end
+//   /history/save    save one session summary (or a batch moved from the browser)
+//   /history/list    my saved session summaries, newest first
+//   /history/delete  delete all my saved history
+//   /admin/usage     Brad only: each person's interview counts and last-used date, no content
+//   GET /health      whether the API key works
 
 const ALLOWED_ORIGINS = ['https://bazlgroup.com', 'https://www.bazlgroup.com'];
 const API_URL = 'https://api.anthropic.com/v1/messages';
@@ -511,6 +522,27 @@ async function codeMatches(code, stored) {
   return diff === 0;
 }
 
+// Who does this code belong to? Returns { id, name, admin } or null.
+function accessCodes(env) {
+  if (!env.ACCESS_CODES) return [];
+  let raw;
+  try { raw = typeof env.ACCESS_CODES === 'string' ? JSON.parse(env.ACCESS_CODES) : env.ACCESS_CODES; } catch { log('access_codes_unreadable', {}); return []; }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return [];
+  return Object.entries(raw).map(([id, v]) => ({
+    id: String(id).slice(0, 60),
+    hash: typeof v === 'string' ? v : v && typeof v.hash === 'string' ? v.hash : '',
+    name: v && typeof v === 'object' && typeof v.name === 'string' ? v.name.slice(0, 60) : ''
+  })).filter(p => p.id && p.id !== 'brad' && p.hash);
+}
+async function whoIs(code, env) {
+  if (!code) return null;
+  if (await codeMatches(code, env.ACCESS_HASH)) return { id: 'brad', name: 'Brad', admin: true };
+  for (const p of accessCodes(env)) {
+    if (await codeMatches(code, p.hash)) return { id: p.id, name: p.name || p.id, admin: false };
+  }
+  return null;
+}
+
 const hits = new Map();
 function overLimit(ip) {
   const now = Date.now();
@@ -535,9 +567,10 @@ const statusFor = err => ({ rate_limited: 429, spend_limit: 503, too_large: 413 
 // ---------------------------------------------------------------------------
 // Routes
 
-async function prepare(body, env, cfg) {
+async function prepare(body, env, cfg, who) {
   const setup = cleanSetup(body.setup);
   if (!setup) return { status: 400, body: { error: 'missing_setup' } };
+  if (who) { const limited = await checkDailyLimit(env, who); if (limited) return limited; }
 
   let jd = str(body.jdText, 20000);
   if (!jd && body.jdUrl) {
@@ -566,6 +599,7 @@ async function prepare(body, env, cfg) {
   const brief = cleanBrief(out.input);
   const opening = str(out.input.opening, 1200);
   if (!brief || !opening) return { status: 502, body: { error: 'upstream_error' } };
+  if (who) await countStart(env, who);
   return { status: 200, body: { brief, opening } };
 }
 
@@ -658,7 +692,120 @@ async function debrief(body, env, cfg) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// History and usage (KV namespace bound as HISTORY)
+// Keys:  h:<id>          JSON array of session summaries, newest first
+//        n:<id>:<date>   interviews started that UTC day (expires after two days)
+//        u:<id>          empty value; metadata { started, finished, last } for the admin view
+
+const MAX_SAVED = 100;
+const today = () => new Date().toISOString().slice(0, 10);
+const perDay = env => {
+  const n = Math.floor(Number(env.SESSIONS_PER_DAY));
+  return Number.isFinite(n) && n > 0 ? n : 3;
+};
+const nextUtcMidnight = () => { const d = new Date(); d.setUTCHours(24, 0, 0, 0); return d.toISOString(); };
+
+function cleanSummary(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const at = str(raw.at, 40);
+  const when = Date.parse(at);
+  const s = {
+    id: Number.isFinite(Number(raw.id)) ? Math.floor(Number(raw.id)) : Date.now(),
+    at: Number.isNaN(when) ? new Date().toISOString() : new Date(when).toISOString(),
+    role: str(raw.role, 160),
+    company: str(raw.company, 120),
+    level: str(raw.level, 40),
+    persona: str(raw.persona, 60),
+    personaType: str(raw.personaType, 60),
+    mode: raw.mode === 'realistic' ? 'realistic' : 'coach',
+    elapsed: Math.max(0, Math.min(36000, Math.round(Number(raw.elapsed) || 0))),
+    verdict: VERDICTS.includes(raw.verdict) ? raw.verdict : '',
+    pattern: str(raw.pattern, 400)
+  };
+  return s.role && s.verdict ? s : null;
+}
+
+async function readJson(kv, key, fallback) {
+  try { const v = await kv.get(key, 'json'); return v == null ? fallback : v; } catch { return fallback; }
+}
+async function readUsage(kv, id) {
+  try {
+    const r = await kv.getWithMetadata('u:' + id);
+    return (r && r.metadata) || { started: 0, finished: 0, last: '' };
+  } catch { return { started: 0, finished: 0, last: '' }; }
+}
+async function bumpUsage(kv, id, field, by = 1) {
+  const u = await readUsage(kv, id);
+  const meta = { started: Number(u.started) || 0, finished: Number(u.finished) || 0, last: today() };
+  meta[field] += by;
+  await kv.put('u:' + id, '', { metadata: meta });
+}
+
+async function startedToday(env, who) {
+  return Number(await env.HISTORY.get(`n:${who.id}:${today()}`)) || 0;
+}
+// Called before /prepare spends anything. Returns an error result, or null to go ahead.
+async function checkDailyLimit(env, who) {
+  if (!env.HISTORY || who.admin) return null;
+  const limit = perDay(env);
+  if (await startedToday(env, who) >= limit) {
+    log('daily_limit', { person: who.id });
+    return { status: 429, body: { error: 'daily_limit', limit, resetAt: nextUtcMidnight() } };
+  }
+  return null;
+}
+async function countStart(env, who) {
+  if (!env.HISTORY) return;
+  try {
+    const key = `n:${who.id}:${today()}`;
+    await env.HISTORY.put(key, String(await startedToday(env, who) + 1), { expirationTtl: 172800 });
+    await bumpUsage(env.HISTORY, who.id, 'started');
+  } catch (e) { log('count_failed', { message: String(e && e.message || e).slice(0, 120) }); }
+}
+
+async function historySave(body, env, cfg, who) {
+  const incoming = (Array.isArray(body.sessions) ? body.sessions.slice(0, 50) : [body.summary]).map(cleanSummary).filter(Boolean);
+  if (!incoming.length) return { status: 400, body: { error: 'bad_request' } };
+  const all = await readJson(env.HISTORY, 'h:' + who.id, []);
+  const have = new Set(all.map(s => s.id));
+  const fresh = incoming.filter(s => !have.has(s.id));
+  const merged = fresh.concat(all).sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, MAX_SAVED);
+  await env.HISTORY.put('h:' + who.id, JSON.stringify(merged));
+  if (fresh.length) await bumpUsage(env.HISTORY, who.id, 'finished', fresh.length);
+  return { status: 200, body: { ok: true, sessions: merged } };
+}
+
+async function historyList(body, env, cfg, who) {
+  return { status: 200, body: { sessions: await readJson(env.HISTORY, 'h:' + who.id, []) } };
+}
+
+async function historyDelete(body, env, cfg, who) {
+  await env.HISTORY.delete('h:' + who.id);
+  log('history_deleted', { person: who.id });
+  return { status: 200, body: { ok: true } };
+}
+
+async function adminUsage(body, env, cfg, who) {
+  if (!who.admin) return { status: 403, body: { error: 'not_admin' } };
+  const names = new Map([['brad', 'Brad'], ...accessCodes(env).map(p => [p.id, p.name || p.id])]);
+  const seen = new Map();
+  let cursor;
+  do {
+    const page = await env.HISTORY.list({ prefix: 'u:', cursor });
+    for (const k of page.keys) seen.set(k.name.slice(2), k.metadata || {});
+    cursor = page.list_complete ? undefined : page.cursor;
+  } while (cursor);
+  const ids = new Set([...names.keys(), ...seen.keys()]);
+  const people = [...ids].map(id => {
+    const m = seen.get(id) || {};
+    return { id, name: names.get(id) || id, active: names.has(id), started: Number(m.started) || 0, finished: Number(m.finished) || 0, last: str(m.last, 10) };
+  }).sort((a, b) => String(b.last).localeCompare(String(a.last)) || a.id.localeCompare(b.id));
+  return { status: 200, body: { people, perDay: perDay(env) } };
+}
+
 const ROUTES = { '/prepare': prepare, '/turn': turn, '/coach': coach, '/debrief': debrief };
+const KV_ROUTES = { '/history/save': historySave, '/history/list': historyList, '/history/delete': historyDelete, '/admin/usage': adminUsage };
 
 async function health(env) {
   if (!env.ANTHROPIC_API_KEY) return { ok: false, reason: 'missing_key' };
@@ -702,16 +849,23 @@ export default {
       return reply({ error: 'rate_limited' }, 429, headers);
     }
 
-    const unlocked = await codeMatches(request.headers.get('X-Access-Code') || '', env.ACCESS_HASH);
+    const who = await whoIs(request.headers.get('X-Access-Code') || '', env);
     if (url.pathname === '/unlock') {
-      if (!unlocked) log('unlock_failed', {});
-      return unlocked ? reply({ ok: true }, 200, headers) : reply({ error: 'locked' }, 401, headers);
+      if (!who) { log('unlock_failed', {}); return reply({ error: 'locked' }, 401, headers); }
+      const out = { ok: true, id: who.id, name: who.name, admin: who.admin, serverHistory: !!env.HISTORY };
+      if (env.HISTORY && !who.admin) {
+        out.perDay = perDay(env);
+        try { out.usedToday = await startedToday(env, who); } catch { /* best effort */ }
+      }
+      return reply(out, 200, headers);
     }
-    if (!unlocked) return reply({ error: 'locked' }, 401, headers);
+    if (!who) return reply({ error: 'locked' }, 401, headers);
 
-    const route = ROUTES[url.pathname];
+    const kvRoute = KV_ROUTES[url.pathname];
+    const route = ROUTES[url.pathname] || kvRoute;
     if (!route) return reply({ error: 'not_found' }, 404, headers);
-    if (!env.ANTHROPIC_API_KEY) return reply({ error: 'unavailable' }, 503, headers);
+    if (kvRoute && !env.HISTORY) return reply({ error: 'no_server_history' }, 501, headers);
+    if (!kvRoute && !env.ANTHROPIC_API_KEY) return reply({ error: 'unavailable' }, 503, headers);
 
     const len = Number(request.headers.get('Content-Length') || 0);
     if (len > MAX_BODY) return reply({ error: 'too_large' }, 413, headers);
@@ -724,7 +878,8 @@ export default {
     if (!body || typeof body !== 'object') return reply({ error: 'bad_request' }, 400, headers);
 
     try {
-      const result = await route(body, env, settings(env));
+      if (kvRoute && (Number(request.headers.get('Content-Length') || 0) > 200_000)) return reply({ error: 'too_large' }, 413, headers);
+      const result = await route(body, env, settings(env), who);
       return reply(result.body, result.status, headers);
     } catch (e) {
       log('crashed', { route: url.pathname, message: String(e && e.message || e).slice(0, 200) });
@@ -734,4 +889,4 @@ export default {
 };
 
 // Exposed for tests.
-export const _internals = { interviewerSystem, coachSystem, prepareSystem, debriefSystem, cleanHistory, safeUrl, TOOLS };
+export const _internals = { interviewerSystem, coachSystem, prepareSystem, debriefSystem, cleanHistory, cleanSummary, safeUrl, whoIs, TOOLS };
