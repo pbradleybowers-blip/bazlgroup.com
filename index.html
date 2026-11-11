@@ -37,6 +37,7 @@
   --duration-quick:160ms; --duration-base:260ms; --duration-reveal:700ms; --duration-glide:220ms;
   --ease-out:cubic-bezier(.22,1,.36,1);
   --gutter:var(--space-6);
+  --jewel:#9a7a45; --jewel-shine:#e9d5a8; --jewel-deep:#6e5428; --jewel-glint:#9a7a45; --on-jewel:#111112;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --canvas:#0e0e0f; --surface:#18181b; --surface-sunken:#222226;
@@ -46,6 +47,7 @@
   --field-navy:#1f2f57; --field-forest:#14493d; --field-clay:#9a4429;
   --success:#6aa9ff; --warning:#f2b04a; --danger:#ff6b7d; --focus-ring:#f2f1ed;
   --shadow-float:0 12px 32px -8px rgba(0,0,0,.6);
+  --jewel:#c4a46a; --jewel-shine:#f1dfb4; --jewel-deep:#7d6334; --jewel-glint:#f1dfb4;
   color-scheme:dark } }
 :root[data-theme="dark"] {
   --canvas:#0e0e0f; --surface:#18181b; --surface-sunken:#222226;
@@ -55,6 +57,7 @@
   --field-navy:#1f2f57; --field-forest:#14493d; --field-clay:#9a4429;
   --success:#6aa9ff; --warning:#f2b04a; --danger:#ff6b7d; --focus-ring:#f2f1ed;
   --shadow-float:0 12px 32px -8px rgba(0,0,0,.6);
+  --jewel:#c4a46a; --jewel-shine:#f1dfb4; --jewel-deep:#7d6334; --jewel-glint:#f1dfb4;
   color-scheme:dark }
 
 html { scroll-behavior:smooth; }
@@ -317,9 +320,9 @@ a { color:inherit; }
 @media (max-width:860px) { .contact { grid-template-columns:1fr; } }
 .contact-card { display:flex; flex-direction:column; gap:var(--space-4); }
 .copyline { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; padding:var(--space-3) var(--space-3) var(--space-3) var(--space-5); border:1px solid rgba(244,243,239,.5); border-radius:var(--radius-pill); }
-.copyline span { font:400 17px/1.3 var(--font-mono); flex:1 1 200px; min-width:0; overflow-wrap:anywhere; user-select:all; }
+.copyline > span { font:400 17px/1.3 var(--font-mono); flex:1 1 200px; min-width:0; overflow-wrap:anywhere; user-select:all; }
 .toast { min-height:1.4em; }
-.copyline span.is-hidden { font:400 16px/1.3 var(--font-sans); opacity:.8; user-select:none; letter-spacing:.04em; }
+.copyline > span.is-hidden { font:400 16px/1.3 var(--font-sans); opacity:.8; user-select:none; letter-spacing:.04em; }
 footer .wrap { display:flex; flex-wrap:wrap; justify-content:space-between; gap:var(--space-3); align-items:center; padding-block:var(--space-6); }
 footer .brand { font-size:16px; }
 
@@ -397,6 +400,46 @@ footer .brand { font-size:16px; }
   .ask-form .btn { padding:10px 16px; }
   .ask-input { font-size:16px; }
 }
+/* ===== Jewelry (Bowers): three named pieces, one material. Brass is used nowhere else. ===== */
+/* Light signature: a band of light sweeps across the mark and name on arrival and on return to the top */
+.sig { position:relative; gap:var(--space-2); }
+.sig-mark { width:32px; height:26px; flex:none; background:var(--ink); -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 96'%3E%3Cpath d='M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z'/%3E%3Cpath transform='translate%28120 0%29 scale%28-1 1%29' d='M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z'/%3E%3C/svg%3E") center/contain no-repeat; mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 96'%3E%3Cpath d='M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z'/%3E%3Cpath transform='translate%28120 0%29 scale%28-1 1%29' d='M52,0 H81 A23,23 0 0 1 81,46 H68 V42 H85 A27,27 0 0 1 85,96 H52 Z M68,14 V32 H81 A9,9 0 0 0 81,14 Z M68,56 V82 H85 A13,13 0 0 0 85,56 Z'/%3E%3C/svg%3E") center/contain no-repeat; }
+.sig-name { position:relative; }
+.sig-name::after { content:""; position:absolute; left:0; bottom:-6px; width:2.4em; height:2px; border-radius:2px; background:linear-gradient(90deg,var(--jewel-deep),var(--jewel-shine) 55%,var(--jewel)); }
+@supports ((-webkit-background-clip:text) or (background-clip:text)) {
+  .sig.is-lit .sig-mark, .sig.is-lit .sig-name { background-image:linear-gradient(105deg,var(--ink) 0 44%,var(--jewel-glint) 50%,var(--ink) 56% 100%); background-size:320% 100%; background-position:100% 0; background-color:transparent; animation:sig-sweep 1100ms cubic-bezier(.52,0,0,1) 1 forwards; }
+  .sig.is-lit .sig-name { -webkit-background-clip:text; background-clip:text; color:transparent; animation-delay:140ms; }
+}
+@keyframes sig-sweep { from { background-position:100% 0; } to { background-position:0 0; } }
+
+/* Theme dial: Light, Auto, Dark as a knurled brass knob over a native radio group */
+.dial { display:inline-grid; grid-template-columns:auto 40px auto; grid-template-areas:". auto ." "light knob dark"; align-items:center; justify-items:center; column-gap:2px; margin:0; padding:0; border:0; min-width:0; }
+.dial-knob { grid-area:knob; position:relative; width:32px; height:32px; border-radius:50%; cursor:pointer; border:1px solid var(--jewel-deep);
+  background:repeating-conic-gradient(var(--jewel-deep) 0deg 3deg,var(--jewel-shine) 3deg 5deg,var(--jewel) 5deg 9deg);
+  transform:rotate(var(--dial-angle,0deg)); transition:transform 180ms var(--ease-out); }
+.dial-knob::before { content:""; position:absolute; inset:5px; border-radius:50%; border:1px solid var(--jewel-deep); background:radial-gradient(circle at 35% 30%,var(--jewel-shine),var(--jewel) 55%,var(--jewel-deep)); }
+.dial-notch { position:absolute; left:50%; top:6px; width:3px; height:8px; margin-left:-1.5px; border-radius:2px; background:var(--on-jewel); }
+.dial-opt { display:inline-flex; align-items:center; justify-content:center; min-height:24px; min-width:24px; padding:2px 5px; cursor:pointer; font:500 12px/1 var(--font-sans); color:var(--ink-muted); border-radius:var(--radius-pill); }
+.dial-opt--light { grid-area:light; } .dial-opt--auto { grid-area:auto; } .dial-opt--dark { grid-area:dark; }
+.dial-opt input { position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none; }
+.dial-opt:has(input:checked) { color:var(--ink); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:3px; }
+.dial-opt:hover { color:var(--ink); }
+.dial:has(input[value="light"]:checked) { --dial-angle:-90deg; }
+.dial:has(input[value="dark"]:checked) { --dial-angle:90deg; }
+.dial-opt:has(input:focus-visible) { outline:2px solid var(--focus-ring); outline-offset:1px; }
+
+/* Ignition: the contact control. A brass grip turns a quarter, a pine line lights */
+.ignite { position:relative; display:inline-flex; align-items:center; gap:var(--space-3); min-height:52px; padding:6px 24px 6px 6px; overflow:hidden; border:1px solid var(--ink); border-radius:var(--radius-pill); background:var(--ink); color:var(--on-ink); cursor:pointer; font:500 16px/1.2 var(--font-sans); letter-spacing:-.01em; text-decoration:none; text-align:left; }
+.ignite-grip { position:relative; flex:none; width:40px; height:40px; border-radius:50%; background:repeating-conic-gradient(var(--jewel-deep) 0deg 4deg,var(--jewel-shine) 4deg 6deg,var(--jewel) 6deg 12deg); transition:transform 260ms var(--ease-out); }
+.ignite-grip::before { content:""; position:absolute; inset:6px; border-radius:50%; background:radial-gradient(circle at 35% 30%,var(--jewel-shine),var(--jewel) 55%,var(--jewel-deep)); }
+.ignite-slot { position:absolute; left:50%; top:50%; width:16px; height:4px; margin:-2px 0 0 -8px; border-radius:2px; background:var(--on-jewel); }
+.ignite:hover .ignite-grip { transform:rotate(24deg); }
+.ignite.is-on .ignite-grip, .ignite:active .ignite-grip { transform:rotate(90deg); }
+.ignite::after { content:""; position:absolute; left:22px; right:22px; bottom:0; height:3px; border-radius:3px 3px 0 0; background:var(--signal); transform:scaleX(0); transform-origin:left; transition:transform 420ms var(--ease-out) 120ms; }
+.ignite.is-on::after, .ignite:active::after { transform:scaleX(1); }
+.field .ignite { background:var(--on-field); color:var(--field-forest); border-color:var(--on-field); }
+.field .ignite::after { background:var(--field-forest); }
+@media (max-width:760px) { .nav .btn--ghost.btn--s { display:none; } }
 </style>
 <style>
 *,*::before,*::after{box-sizing:border-box}
@@ -417,7 +460,7 @@ body{margin:0}
 
 <header class="nav">
   <div class="wrap">
-    <a class="brand" href="#top"><svg class="mark" aria-hidden="true"><use href="#bb"/></svg>Brad Bowers</a>
+    <a class="brand sig" id="sig" href="#top"><span class="sig-mark" aria-hidden="true"></span><span class="sig-name">Brad Bowers</span></a>
     <nav class="nav-links" aria-label="Sections" data-bw-fluid="x">
       <a href="#work">Work</a>
       <a href="#paradigms">Paradigms</a>
@@ -426,6 +469,13 @@ body{margin:0}
       <a href="#system">Design system</a>
       <a href="#resume">Resume</a>
     </nav>
+    <fieldset class="dial" id="dial">
+      <legend class="vh">Color theme</legend>
+      <span class="dial-knob" aria-hidden="true"><span class="dial-notch"></span></span>
+      <label class="dial-opt dial-opt--light"><input type="radio" name="theme" value="light">Light</label>
+      <label class="dial-opt dial-opt--auto"><input type="radio" name="theme" value="auto" checked>Auto</label>
+      <label class="dial-opt dial-opt--dark"><input type="radio" name="theme" value="dark">Dark</label>
+    </fieldset>
     <a class="btn btn--ghost btn--s" href="#contact">Get in touch</a>
   </div>
 </header>
@@ -443,8 +493,8 @@ body{margin:0}
       <h1 class="display-xl reveal reveal-2">Building is cheap. Knowing what to build is the job.</h1>
       <p class="body-l prose muted reveal reveal-3">Digital product and experience executive. Twenty years leading product, UX design and research, and still building.</p>
       <div class="hero-actions reveal reveal-3">
-        <a class="btn btn--primary" href="#contact">Start a conversation</a>
-        <a class="btn btn--ghost" href="#resume">Read the resume</a>
+        <a class="ignite" href="#contact"><span class="ignite-grip" aria-hidden="true"><span class="ignite-slot"></span></span><span>Start a conversation</span></a>
+        <a class="btn btn--ghost" href="#resume" style="min-height:52px">Read the resume</a>
       </div>
     </div>
     <figure class="hero-portrait reveal reveal-2">
@@ -841,7 +891,7 @@ body{margin:0}
       <p class="body-l muted" style="max-width:40ch">I’m talking with companies about senior-level product and digital experience roles.</p>
     </div>
     <div class="contact-card">
-      <div class="copyline"><span id="email" class="is-hidden">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226; @ gmail.com</span><button class="btn btn--inverse btn--s" type="button" id="copy">Show email</button></div>
+      <div class="copyline"><span id="email" class="is-hidden">&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226; @ gmail.com</span><button class="ignite" type="button" id="copy" aria-describedby="toast"><span class="ignite-grip" aria-hidden="true"><span class="ignite-slot"></span></span><span id="copy-label">Copy my email</span></button></div>
       <p class="body-s toast" role="status" id="toast"></p>
       <p class="body-s"><a class="link" href="https://www.linkedin.com/in/brad-bowers-000" target="_blank" rel="noopener">LinkedIn: brad-bowers-000</a></p>
     </div>
@@ -899,20 +949,39 @@ body{margin:0}
   const toast = document.getElementById('toast'), email = document.getElementById('email'), btn = document.getElementById('copy');
   const parts = ['moc.liamg', 'srewobyeldarbp'];
   let shown = false;
+  const copyLabel = document.getElementById('copy-label');
   btn.addEventListener('click', () => {
     if (!shown) {
       const rev = s => s.split('').reverse().join('');
       email.textContent = rev(parts[1]) + '@' + rev(parts[0]);
       email.classList.remove('is-hidden');
-      btn.textContent = 'Copy email';
-      toast.textContent = 'Email shown.';
       shown = true;
-      return;
     }
-    const done = () => { toast.textContent = 'Email copied.'; };
-    const fallback = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast.textContent = 'Email selected. Press Ctrl or Cmd + C to copy.'; };
+    btn.classList.add('is-on');
+    const done = () => { copyLabel.textContent = 'Email copied'; toast.textContent = 'Email copied to your clipboard.'; };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(email); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast.textContent = 'Email shown and selected. Press Ctrl or Cmd + C to copy.'; };
     try { navigator.clipboard.writeText(email.textContent).then(done, fallback); } catch (e) { fallback(); }
   });
+
+  // Jewelry: light signature. Sweeps once on arrival and again when the reader returns to the top. Never loops.
+  const sig = document.getElementById('sig');
+  const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const playSig = () => { if (reduce()) return; sig.classList.remove('is-lit'); void sig.offsetWidth; sig.classList.add('is-lit'); };
+  sig.querySelector('.sig-name').addEventListener('animationend', () => sig.classList.remove('is-lit'));
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => requestAnimationFrame(playSig));
+  if ('IntersectionObserver' in window) {
+    let away = false;
+    new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) away = true; else if (away) { away = false; playSig(); } }), { threshold: 0.35 }).observe(document.getElementById('top'));
+  }
+
+  // Jewelry: theme dial. Light, Auto (follows the device) and Dark; remembered in this browser.
+  const dial = document.getElementById('dial'), radios = [...dial.querySelectorAll('input')];
+  const applyTheme = v => { if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v); else document.documentElement.removeAttribute('data-theme'); };
+  let saved = null; try { saved = localStorage.getItem('bw-theme'); } catch (e) {}
+  if (saved) { radios.forEach(r => { r.checked = r.value === saved; }); applyTheme(saved); }
+  const commit = () => { const v = (radios.find(r => r.checked) || {}).value || 'auto'; applyTheme(v); try { localStorage.setItem('bw-theme', v); } catch (e) {} };
+  radios.forEach(r => r.addEventListener('change', commit));
+  dial.querySelector('.dial-knob').addEventListener('click', () => { const i = radios.findIndex(r => r.checked); const n = radios[(i + 1) % radios.length]; n.checked = true; n.focus({ preventScroll: true }); commit(); });
 
   // Deep links (bazlgroup.com#resume): jump once fonts settle, since smooth scrolling and font loading cancel the browser's own jump
   if (location.hash.length > 1) {
