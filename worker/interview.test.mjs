@@ -593,3 +593,13 @@ test('the coach prompt asks for fair scoring and a usable try_this', () => {
   assert.match(p, /never use placeholders/);
   assert.doesNotMatch(p, /blunt/);
 });
+
+test('a person can be added as their own ACCESS_CODE_<ID> secret', async () => {
+  const code = 'maple-otter-321', salt = '00112233445566778899aabbccddeeff';
+  const hash = 'sha256:' + salt + ':' + createHash('sha256').update(Buffer.concat([Buffer.from(salt, 'hex'), Buffer.from(code)])).digest('hex');
+  const env = { ...ENV, ACCESS_CODE_TESTER4: hash, ACCESS_CODE_JANE_DOE: JSON.stringify({ hash, name: 'Jane' }) };
+  const r = await post('/unlock', {}, { code, env });
+  assert.equal(r.status, 200);
+  assert.equal(r.json.id, 'tester4');
+  assert.equal((await post('/unlock', {}, { code: 'wrong-code-000', env })).status, 401);
+});

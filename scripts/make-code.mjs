@@ -24,4 +24,5 @@ const entry = name ? { hash, name } : hash;
 console.log(`Person:  ${id}${name ? ' (' + name + ')' : ''}`);
 console.log(`Code:    ${code}`);
 console.log(`Hash:    ${hash}`);
-console.log(`\nAdd this inside the ACCESS_CODES JSON object:\n  ${JSON.stringify(id)}: ${JSON.stringify(entry)}`);
+console.log(`\nEasiest: add a secret named ACCESS_CODE_${id.toUpperCase().replace(/-/g, '_')} on the bazl-interview Worker with this value:\n  ${name ? JSON.stringify(entry) : hash}`);
+console.log(`\nOr add this inside the ACCESS_CODES JSON object:\n  ${JSON.stringify(id)}: ${JSON.stringify(entry)}`);

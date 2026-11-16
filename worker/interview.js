@@ -529,11 +529,23 @@ async function codeMatches(code, stored) {
 }
 
 // Who does this code belong to? Returns { id, name, admin } or null.
+// People come from the ACCESS_CODES JSON secret, plus one secret per person named ACCESS_CODE_<ID>
+// (for example ACCESS_CODE_TESTER4), so a person can be added without rewriting ACCESS_CODES.
 function accessCodes(env) {
-  if (!env.ACCESS_CODES) return [];
-  let raw;
-  try { raw = typeof env.ACCESS_CODES === 'string' ? JSON.parse(env.ACCESS_CODES) : env.ACCESS_CODES; } catch { log('access_codes_unreadable', {}); return []; }
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return [];
+  let raw = {};
+  if (env.ACCESS_CODES) {
+    try { raw = typeof env.ACCESS_CODES === 'string' ? JSON.parse(env.ACCESS_CODES) : env.ACCESS_CODES; } catch { log('access_codes_unreadable', {}); raw = {}; }
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) raw = {};
+  }
+  raw = { ...raw };
+  for (const key of Object.keys(env || {})) {
+    const m = key.match(/^ACCESS_CODE_([A-Za-z0-9_]{1,50})$/);
+    if (!m) continue;
+    let v = env[key];
+    if (typeof v === 'string' && v.trim().startsWith('{')) { try { v = JSON.parse(v); } catch { continue; } }
+    const id = m[1].toLowerCase().replace(/_/g, '-');
+    if (!raw[id]) raw[id] = typeof v === 'string' ? v.trim() : v;
+  }
   return Object.entries(raw).map(([id, v]) => ({
     id: String(id).slice(0, 60),
     hash: typeof v === 'string' ? v : v && typeof v.hash === 'string' ? v.hash : '',
