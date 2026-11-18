@@ -440,6 +440,39 @@ footer .brand { font-size:16px; }
 .field .ignite { background:var(--on-field); color:var(--field-forest); border-color:var(--on-field); }
 .field .ignite::after { background:var(--field-forest); }
 @media (max-width:760px) { .nav .btn--ghost.btn--s { display:none; } }
+/* ===== Motion and clarity (Bowers): section rule, expanding work cards, fill-in headline, theme reveal ===== */
+/* Section rule: a hairline row above each section heading. Label left; a real link on the right only when one exists. */
+.sec-rule { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:var(--space-2) var(--space-5); padding-top:var(--space-3); margin-bottom:var(--space-5); border-top:1px solid var(--line); }
+.field .sec-rule { border-top-color:color-mix(in srgb, currentColor 32%, transparent); }
+.sec-rule .micro { color:var(--ink-muted); }
+.field .sec-rule .micro { color:inherit; opacity:.85; }
+.sec-link { display:inline-flex; align-items:center; gap:var(--space-2); min-height:24px; font:500 13px/1.2 var(--font-sans); color:var(--ink); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:.25em; }
+.sec-link:hover { text-decoration-thickness:2px; }
+.sec-link svg { width:16px; height:10px; transition:transform var(--duration-quick) var(--ease-out); }
+.sec-link:hover svg { transform:translateX(3px); }
+
+/* Expanding work cards (desktop): one row; the card you hover or focus widens to show its story. */
+@media (min-width:1000px) and (hover:hover) {
+  .work-grid.is-expand { display:flex; grid-template-columns:none; gap:var(--space-3); }
+  .work-grid.is-expand > .work { flex:1 1 0; min-width:0; overflow:hidden; cursor:default; transition:flex-grow 600ms var(--ease-out), background-color var(--duration-base) var(--ease-out); }
+  .work-grid.is-expand > .work.is-open { flex-grow:2.8; }
+  .work-grid.is-expand { min-height:400px; }
+  .work-grid.is-expand .work h3 { font:400 14px/1.45 var(--font-sans); letter-spacing:0; color:var(--ink-muted); text-wrap:pretty; }
+  .work-grid.is-expand .work.is-open h3 { font:500 22px/1.2 var(--font-sans); letter-spacing:-.012em; color:var(--ink); width:clamp(250px, 26vw - 30px, 370px); }
+  .work-grid.is-expand .work dl { width:clamp(250px, 26vw - 30px, 370px); opacity:0; transform:translateY(8px); transition:opacity 240ms var(--ease-out), transform 240ms var(--ease-out); }
+  .work-grid.is-expand .work.is-open dl { opacity:1; transform:none; transition-delay:180ms; }
+  .work-grid.is-expand .work:not(.is-open):hover { background:var(--highlight); }
+  .work-grid.is-expand .work .micro { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+}
+
+/* Fill-in headline: words darken from muted to ink as the line scrolls into view. Readable at every point. */
+@supports ((-webkit-background-clip:text) or (background-clip:text)) {
+  .paint.is-live .w { --p:0%; background-image:linear-gradient(90deg, var(--ink) var(--p), var(--ink-muted) var(--p)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+}
+
+/* Theme reveal: the new theme spreads in a circle from the dial */
+html.theme-swap::view-transition-old(root), html.theme-swap::view-transition-new(root) { animation:none; mix-blend-mode:normal; }
+html.theme-swap::view-transition-old(root) { z-index:1; } html.theme-swap::view-transition-new(root) { z-index:2; }
 </style>
 <style>
 *,*::before,*::after{box-sizing:border-box}
@@ -558,11 +591,12 @@ body{margin:0}
 <!-- Selected work -->
 <section class="section" id="work" style="padding-top:0">
   <div class="wrap">
+    <div class="sec-rule"><p class="micro">Case studies</p><a class="sec-link" href="#contact">Full case studies, in conversation<svg viewBox="0 0 18 12" aria-hidden="true"><use href="#arrow"/></svg></a></div>
     <div class="section-head">
       <h2 class="heading-1">Selected work</h2>
       <p class="body-l muted prose" style="max-width:44ch">Each one started as a problem, not a feature request.</p>
     </div>
-    <div class="work-grid">
+    <div class="work-grid" id="work-grid">
       <article class="work">
         <p class="micro muted">eCommerce</p>
         <p class="stat">$7M+</p>
@@ -619,9 +653,9 @@ body{margin:0}
 <!-- Paradigms -->
 <section class="field field--navy section" id="paradigms">
   <div class="wrap">
+    <div class="sec-rule"><p class="micro">A product point of view</p></div>
     <div class="section-head">
       <div style="display:flex;flex-direction:column;gap:var(--space-3)">
-        <p class="micro">A product point of view</p>
         <h2 class="display-l">Brad’s Product Paradigms</h2>
       </div>
       <p class="body-l muted" style="max-width:40ch">Ten beliefs shape how I run product. Four of them come up in every serious conversation.</p>
@@ -644,10 +678,10 @@ body{margin:0}
 <!-- Operating model -->
 <section class="section" id="model">
   <div class="wrap">
+    <div class="sec-rule"><p class="micro">I-D3-M operating model</p></div>
     <div class="section-head">
       <div style="display:flex;flex-direction:column;gap:var(--space-3)">
-        <p class="micro muted">I-D3-M operating model</p>
-        <h2 class="heading-1" style="max-width:20ch">Nothing reaches engineering without clearing two gates.</h2>
+        <h2 class="heading-1 paint" style="max-width:20ch">Nothing reaches engineering without clearing two gates.</h2>
       </div>
     </div>
     <div class="flow-scroll" role="region" aria-label="I-D3-M stages" tabindex="0">
@@ -691,9 +725,9 @@ body{margin:0}
 <!-- Builder lab -->
 <section class="field field--sage section" id="lab">
   <div class="wrap">
+    <div class="sec-rule"><p class="micro">Builder lab</p></div>
     <div class="section-head">
       <div style="display:flex;flex-direction:column;gap:var(--space-3)">
-        <p class="micro">Builder lab</p>
         <h2 class="heading-1" style="max-width:18ch">Things I built this year, by hand, with AI.</h2>
       </div>
     </div>
@@ -778,9 +812,9 @@ body{margin:0}
 <!-- Design system -->
 <section class="section" id="system">
   <div class="wrap">
+    <div class="sec-rule"><p class="micro">Bowers design system</p></div>
     <div class="section-head">
       <div style="display:flex;flex-direction:column;gap:var(--space-3)">
-        <p class="micro muted">Bowers design system</p>
         <h2 class="heading-1" style="max-width:18ch">Confident type, a neutral canvas, color with intent.</h2>
       </div>
       <p class="body-l muted" style="max-width:40ch">This site runs on it, in light and dark, to WCAG 2.1 AA.</p>
@@ -834,6 +868,7 @@ body{margin:0}
 <!-- Resume -->
 <section class="section" id="resume" style="padding-top:0">
   <div class="wrap">
+    <div class="sec-rule"><p class="micro">Career</p></div>
     <div class="section-head">
       <h2 class="heading-1">Resume</h2>
       <a class="btn btn--ghost" href="Brad-Bowers-Resume.pdf" download="Brad-Bowers-Resume.pdf">Download PDF resume</a>
@@ -894,9 +929,9 @@ body{margin:0}
 
 <!-- Contact -->
 <section class="field field--forest section" id="contact">
+  <div class="wrap"><div class="sec-rule"><p class="micro">Get in touch</p></div></div>
   <div class="wrap contact">
     <div style="display:flex;flex-direction:column;gap:var(--space-4)">
-      <p class="micro">Get in touch</p>
       <h2 class="display-l">Strategy and the hands to build it.</h2>
       <p class="body-l muted" style="max-width:40ch">I’m talking with companies about senior-level product and digital experience roles.</p>
     </div>
@@ -984,14 +1019,54 @@ body{margin:0}
     new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) away = true; else if (away) { away = false; playSig(); } }), { threshold: 0.35 }).observe(document.getElementById('top'));
   }
 
+  // Expanding work cards (desktop with hover): the hovered or focused card widens; the first starts open.
+  (() => {
+    const grid = document.getElementById('work-grid'); if (!grid) return;
+    const cards = [...grid.querySelectorAll('.work')];
+    const mq = matchMedia('(min-width:1000px) and (hover:hover)');
+    const open = c => cards.forEach(x => x.classList.toggle('is-open', x === c));
+    const setup = () => {
+      const on = mq.matches;
+      grid.classList.toggle('is-expand', on);
+      cards.forEach((c, i) => { if (on) { c.tabIndex = 0; c.setAttribute('aria-label', c.querySelector('h3').textContent); } else { c.removeAttribute('tabindex'); c.removeAttribute('aria-label'); c.classList.remove('is-open'); } });
+      if (on && !grid.querySelector('.is-open')) open(cards[0]);
+    };
+    cards.forEach(c => { c.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch' && grid.classList.contains('is-expand')) open(c); }); c.addEventListener('focus', () => { if (grid.classList.contains('is-expand')) open(c); }); });
+    (mq.addEventListener ? mq.addEventListener('change', setup) : mq.addListener(setup)); setup();
+  })();
+
+  // Fill-in headline: words darken as the line scrolls into view. Off under reduced motion.
+  (() => {
+    const h = document.querySelector('.paint'); if (!h || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const text = h.textContent.trim();
+    h.setAttribute('aria-label', text);
+    h.innerHTML = text.split(/\s+/).map(w => '<span class="w" aria-hidden="true">' + w + '</span>').join(' ');
+    h.classList.add('is-live');
+    const ws = [...h.querySelectorAll('.w')]; let raf = 0;
+    const paint = () => { raf = 0; const r = h.getBoundingClientRect(), vh = innerHeight;
+      const P = Math.max(0, Math.min(1, (vh * 0.9 - r.top) / (vh * 0.5)));
+      ws.forEach((w, i) => { const p = Math.max(0, Math.min(1, P * ws.length - i)); w.style.setProperty('--p', (p * 100).toFixed(1) + '%'); }); };
+    const ask = () => { if (!raf) raf = requestAnimationFrame(paint); };
+    addEventListener('scroll', ask, { passive: true }); addEventListener('resize', ask); paint();
+  })();
+
   // Jewelry: theme dial. Light, Auto (follows the device) and Dark; remembered in this browser.
   const dial = document.getElementById('dial'), radios = [...dial.querySelectorAll('input')];
   const applyTheme = v => { if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v); else document.documentElement.removeAttribute('data-theme'); };
   let saved = null; try { saved = localStorage.getItem('bw-theme'); } catch (e) {}
   if (saved) { radios.forEach(r => { r.checked = r.value === saved; }); applyTheme(saved); }
-  const commit = () => { const v = (radios.find(r => r.checked) || {}).value || 'auto'; applyTheme(v); try { localStorage.setItem('bw-theme', v); } catch (e) {} };
+  const knob = dial.querySelector('.dial-knob');
+  const commit = () => { const v = (radios.find(r => r.checked) || {}).value || 'auto'; try { localStorage.setItem('bw-theme', v); } catch (e) {}
+    const root = document.documentElement;
+    if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { applyTheme(v); return; }
+    const k = knob.getBoundingClientRect(), x = k.left + k.width / 2, y = k.top + k.height / 2;
+    const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    root.classList.add('theme-swap');
+    const vt = document.startViewTransition(() => applyTheme(v));
+    vt.ready.then(() => root.animate({ clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + R + 'px at ' + x + 'px ' + y + 'px)'] }, { duration: 600, easing: 'cubic-bezier(.52,0,0,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
+    const end = () => root.classList.remove('theme-swap'); vt.finished.then(end, end); };
   radios.forEach(r => r.addEventListener('change', commit));
-  dial.querySelector('.dial-knob').addEventListener('click', () => { const i = radios.findIndex(r => r.checked); const n = radios[(i + 1) % radios.length]; n.checked = true; n.focus({ preventScroll: true }); commit(); });
+  knob.addEventListener('click', () => { const i = radios.findIndex(r => r.checked); const n = radios[(i + 1) % radios.length]; n.checked = true; n.focus({ preventScroll: true }); commit(); });
 
   // Deep links (bazlgroup.com#resume): jump once fonts settle, since smooth scrolling and font loading cancel the browser's own jump
   if (location.hash.length > 1) {
