@@ -412,21 +412,18 @@ footer .brand { font-size:16px; }
 }
 @keyframes sig-sweep { from { background-position:100% 0; } to { background-position:0 0; } }
 
-/* Theme dial: Light, Auto, Dark as a knurled brass knob over a native radio group */
-.dial { display:inline-grid; grid-template-columns:auto 40px auto; grid-template-areas:". auto ." "light knob dark"; align-items:center; justify-items:center; column-gap:2px; margin:0; padding:0; border:0; min-width:0; }
-.dial-knob { grid-area:knob; position:relative; width:32px; height:32px; border-radius:50%; cursor:pointer; border:1px solid var(--jewel-deep);
-  background:repeating-conic-gradient(var(--jewel-deep) 0deg 3deg,var(--jewel-shine) 3deg 5deg,var(--jewel) 5deg 9deg);
-  transform:rotate(var(--dial-angle,0deg)); transition:transform 180ms var(--ease-out); }
-.dial-knob::before { content:""; position:absolute; inset:5px; border-radius:50%; border:1px solid var(--jewel-deep); background:radial-gradient(circle at 35% 30%,var(--jewel-shine),var(--jewel) 55%,var(--jewel-deep)); }
-.dial-notch { position:absolute; left:50%; top:6px; width:3px; height:8px; margin-left:-1.5px; border-radius:2px; background:var(--on-jewel); }
-.dial-opt { display:inline-flex; align-items:center; justify-content:center; min-height:24px; min-width:24px; padding:2px 5px; cursor:pointer; font:500 12px/1 var(--font-sans); color:var(--ink-muted); border-radius:var(--radius-pill); }
-.dial-opt--light { grid-area:light; } .dial-opt--auto { grid-area:auto; } .dial-opt--dark { grid-area:dark; }
+/* Theme switch: Light, Auto, Dark as a brass puck sliding in a three-segment track, over a native radio group */
+.dial { position:relative; display:inline-grid; grid-template-columns:repeat(3,52px); height:44px; margin:0; padding:0; min-width:0; border:1px solid var(--line-strong); border-radius:var(--radius-pill); background:var(--surface-sunken); }
+.dial-puck { position:absolute; top:3px; left:3px; width:46px; height:36px; border-radius:var(--radius-pill); border:1px solid var(--jewel-deep); pointer-events:none;
+  background:repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) left 3px center / 5px 56% no-repeat, repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) right 3px center / 5px 56% no-repeat, var(--jewel);
+  transform:translateX(calc(var(--dial-i,1) * 52px)); transition:transform 320ms var(--ease-out); }
+.dial:has(input[value="light"]:checked) { --dial-i:0; } .dial:has(input[value="auto"]:checked) { --dial-i:1; } .dial:has(input[value="dark"]:checked) { --dial-i:2; }
+.dial-opt { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; height:42px; cursor:pointer; border-radius:var(--radius-pill); color:var(--ink-muted); font:500 12px/1 var(--font-sans); transition:color var(--duration-quick) var(--ease-out); }
+.dial-opt svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .dial-opt input { position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none; }
-.dial-opt:has(input:checked) { color:var(--ink); text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:3px; }
 .dial-opt:hover { color:var(--ink); }
-.dial:has(input[value="light"]:checked) { --dial-angle:-90deg; }
-.dial:has(input[value="dark"]:checked) { --dial-angle:90deg; }
-.dial-opt:has(input:focus-visible) { outline:2px solid var(--focus-ring); outline-offset:1px; }
+.dial-opt:has(input:checked), .dial-opt:has(input:checked):hover { color:var(--on-jewel); }
+.dial-opt:has(input:focus-visible) { outline:2px solid var(--focus-ring); outline-offset:2px; }
 
 /* Ignition: the contact control. A brass grip turns a quarter, a pine line lights */
 .ignite { position:relative; display:inline-flex; align-items:center; gap:var(--space-3); min-height:52px; padding:6px 24px 6px 6px; overflow:hidden; border:1px solid var(--ink); border-radius:var(--radius-pill); background:var(--ink); color:var(--on-ink); cursor:pointer; font:500 16px/1.2 var(--font-sans); letter-spacing:-.01em; text-decoration:none; text-align:left; }
@@ -470,7 +467,7 @@ footer .brand { font-size:16px; }
   .paint.is-live .w { --p:0%; background-image:linear-gradient(90deg, var(--ink) var(--p), var(--ink-muted) var(--p)); -webkit-background-clip:text; background-clip:text; color:transparent; }
 }
 
-/* Theme reveal: the new theme spreads in a circle from the dial */
+/* Theme reveal: the new theme spreads in a circle from the chosen segment */
 html.theme-swap::view-transition-old(root), html.theme-swap::view-transition-new(root) { animation:none; mix-blend-mode:normal; }
 html.theme-swap::view-transition-old(root) { z-index:1; } html.theme-swap::view-transition-new(root) { z-index:2; }
 </style>
@@ -504,10 +501,10 @@ body{margin:0}
     </nav>
     <fieldset class="dial" id="dial">
       <legend class="vh">Color theme</legend>
-      <span class="dial-knob" aria-hidden="true"><span class="dial-notch"></span></span>
-      <label class="dial-opt dial-opt--light"><input type="radio" name="theme" value="light">Light</label>
-      <label class="dial-opt dial-opt--auto"><input type="radio" name="theme" value="auto" checked>Auto</label>
-      <label class="dial-opt dial-opt--dark"><input type="radio" name="theme" value="dark">Dark</label>
+      <span class="dial-puck" aria-hidden="true"></span>
+      <label class="dial-opt" title="Light"><input type="radio" name="theme" value="light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span class="vh">Light</span></label>
+      <label class="dial-opt" title="Follows your device"><input type="radio" name="theme" value="auto" checked>Auto</label>
+      <label class="dial-opt" title="Dark"><input type="radio" name="theme" value="dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><span class="vh">Dark</span></label>
     </fieldset>
     <a class="btn btn--ghost btn--s" href="#contact">Get in touch</a>
   </div>
@@ -1050,23 +1047,21 @@ body{margin:0}
     addEventListener('scroll', ask, { passive: true }); addEventListener('resize', ask); paint();
   })();
 
-  // Jewelry: theme dial. Light, Auto (follows the device) and Dark; remembered in this browser.
+  // Jewelry: theme switch. Light, Auto (follows the device) and Dark; remembered in this browser.
   const dial = document.getElementById('dial'), radios = [...dial.querySelectorAll('input')];
   const applyTheme = v => { if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v); else document.documentElement.removeAttribute('data-theme'); };
   let saved = null; try { saved = localStorage.getItem('bw-theme'); } catch (e) {}
   if (saved) { radios.forEach(r => { r.checked = r.value === saved; }); applyTheme(saved); }
-  const knob = dial.querySelector('.dial-knob');
   const commit = () => { const v = (radios.find(r => r.checked) || {}).value || 'auto'; try { localStorage.setItem('bw-theme', v); } catch (e) {}
     const root = document.documentElement;
     if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { applyTheme(v); return; }
-    const k = knob.getBoundingClientRect(), x = k.left + k.width / 2, y = k.top + k.height / 2;
+    const sel = (radios.find(r => r.checked) || radios[1]).closest('label'), k = sel.getBoundingClientRect(), x = k.left + k.width / 2, y = k.top + k.height / 2;
     const R = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
     root.classList.add('theme-swap');
     const vt = document.startViewTransition(() => applyTheme(v));
     vt.ready.then(() => root.animate({ clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + R + 'px at ' + x + 'px ' + y + 'px)'] }, { duration: 600, easing: 'cubic-bezier(.52,0,0,1)', pseudoElement: '::view-transition-new(root)' })).catch(() => {});
     const end = () => root.classList.remove('theme-swap'); vt.finished.then(end, end); };
   radios.forEach(r => r.addEventListener('change', commit));
-  knob.addEventListener('click', () => { const i = radios.findIndex(r => r.checked); const n = radios[(i + 1) % radios.length]; n.checked = true; n.focus({ preventScroll: true }); commit(); });
 
   // Deep links (bazlgroup.com#resume): jump once fonts settle, since smooth scrolling and font loading cancel the browser's own jump
   if (location.hash.length > 1) {
