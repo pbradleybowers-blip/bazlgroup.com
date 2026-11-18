@@ -467,6 +467,27 @@ footer .brand { font-size:16px; }
   .paint.is-live .w { --p:0%; background-image:linear-gradient(90deg, var(--ink) var(--p), var(--ink-muted) var(--p)); -webkit-background-clip:text; background-clip:text; color:transparent; }
 }
 
+/* Design system section: jewelry note and the retired dial, before and after (static illustrations) */
+.ds-retired { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); gap:var(--space-5) var(--space-6); align-items:center; border-top:1px solid var(--line); padding-top:var(--space-5); }
+@media (max-width:760px) { .ds-retired { grid-template-columns:1fr; } }
+@media (max-width:560px) { .ba { flex-direction:column; align-items:flex-start; } .ba-arrow { transform:rotate(90deg); margin-left:var(--space-6); } }
+.ds-retired > div:first-child { display:flex; flex-direction:column; gap:var(--space-2); }
+.ba { display:flex; flex-wrap:wrap; align-items:center; gap:var(--space-4) var(--space-5); margin:0; }
+.ba figure { display:flex; flex-direction:column; align-items:center; gap:var(--space-3); margin:0; }
+.ba figcaption { font:400 13px/1.3 var(--font-sans); color:var(--ink-muted); text-align:center; }
+.ba-arrow { width:22px; height:14px; color:var(--ink-muted); flex:none; }
+.ba-stage { display:flex; align-items:center; justify-content:center; min-height:72px; padding:var(--space-3) var(--space-5); border-radius:var(--radius-m); background:var(--canvas); }
+.ret-dial { display:inline-grid; grid-template-columns:auto 40px auto; grid-template-areas:". a ." "l k d"; align-items:center; justify-items:center; column-gap:2px; font:500 12px/1 var(--font-sans); color:var(--ink-muted); }
+.ret-dial .k { grid-area:k; position:relative; width:32px; height:32px; border-radius:50%; border:1px solid var(--jewel-deep); background:repeating-conic-gradient(var(--jewel-deep) 0deg 3deg,var(--jewel-shine) 3deg 5deg,var(--jewel) 5deg 9deg); }
+.ret-dial .k::before { content:""; position:absolute; inset:5px; border-radius:50%; border:1px solid var(--jewel-deep); background:var(--jewel); }
+.ret-dial .k::after { content:""; position:absolute; left:50%; top:6px; width:3px; height:8px; margin-left:-1.5px; border-radius:2px; background:var(--on-jewel); }
+.ret-dial .a { grid-area:a; color:var(--ink); text-decoration:underline; text-underline-offset:3px; } .ret-dial .l { grid-area:l; } .ret-dial .d { grid-area:d; }
+.ret-slider { position:relative; display:inline-grid; grid-template-columns:repeat(3,52px); height:44px; border:1px solid var(--line-strong); border-radius:var(--radius-pill); background:var(--surface-sunken); }
+.ret-slider .puck { position:absolute; top:3px; left:55px; width:46px; height:36px; border-radius:var(--radius-pill); border:1px solid var(--jewel-deep); background:repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) left 3px center / 5px 56% no-repeat, repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) right 3px center / 5px 56% no-repeat, var(--jewel); }
+.ret-slider span:not(.puck) { position:relative; display:flex; align-items:center; justify-content:center; color:var(--ink-muted); font:500 12px/1 var(--font-sans); }
+.ret-slider span.on { color:var(--on-jewel); }
+.ret-slider svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
 /* Theme reveal: the new theme spreads in a circle from the chosen segment */
 html.theme-swap::view-transition-old(root), html.theme-swap::view-transition-new(root) { animation:none; mix-blend-mode:normal; }
 html.theme-swap::view-transition-old(root) { z-index:1; } html.theme-swap::view-transition-new(root) { z-index:2; }
@@ -856,6 +877,24 @@ body{margin:0}
           <div><h4 class="micro muted">Depth</h4><p class="body-s">Depth comes from surface color. Shadows only for things that float.</p></div>
           <div><h4 class="micro muted">Color</h4><p class="body-s">One pine signal per view region. If two things are pine, one is wrong.</p></div>
           <div><h4 class="micro muted">Motion</h4><p class="body-s">In a row of choices, one highlight glides to whatever your pointer is nearest. Try the chips.</p></div>
+          <div><h4 class="micro muted">Jewelry</h4><p class="body-s">Three crafted details, in brass, used nowhere else: the light on my name, the theme switch up top, the key in Get in touch. Try them.</p></div>
+        </div>
+        <div class="ds-retired">
+          <div>
+            <h4 class="micro muted">Retired</h4>
+            <p class="body-s">The theme control started as a rotary dial. It looked like something you twist, but on the web you can only click, and its labels were small targets. I replaced it with a slider: bigger targets, one click to any setting.</p>
+          </div>
+          <div class="ba">
+            <figure>
+              <div class="ba-stage" aria-hidden="true"><span class="ret-dial"><span class="a">Auto</span><span class="l">Light</span><span class="k"></span><span class="d">Dark</span></span></div>
+              <figcaption>Before: rotary dial</figcaption>
+            </figure>
+            <svg class="ba-arrow" viewBox="0 0 18 12" aria-hidden="true"><use href="#arrow"/></svg>
+            <figure>
+              <div class="ba-stage" aria-hidden="true"><span class="ret-slider"><span class="puck"></span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></span><span class="on">Auto</span><span><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></span></span></div>
+              <figcaption>Now: slider switch</figcaption>
+            </figure>
+          </div>
         </div>
       </div>
     </div>
