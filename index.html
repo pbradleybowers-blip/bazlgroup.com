@@ -412,11 +412,12 @@ footer .brand { font-size:16px; }
 }
 @keyframes sig-sweep { from { background-position:100% 0; } to { background-position:0 0; } }
 
-/* Theme switch: Light, Auto, Dark as a brass puck sliding in a three-segment track, over a native radio group */
+/* Theme switch: Light, Auto, Dark as a round knurled brass knob sliding in a three-segment track, over a native radio group */
 .dial { position:relative; display:inline-grid; grid-template-columns:repeat(3,52px); height:44px; margin:0; padding:0; min-width:0; border:1px solid var(--line-strong); border-radius:var(--radius-pill); background:var(--surface-sunken); }
-.dial-puck { position:absolute; top:3px; left:3px; width:46px; height:36px; border-radius:var(--radius-pill); border:1px solid var(--jewel-deep); pointer-events:none;
-  background:repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) left 3px center / 5px 56% no-repeat, repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) right 3px center / 5px 56% no-repeat, var(--jewel);
+.dial-puck { position:absolute; top:2px; left:7px; width:38px; height:38px; border-radius:50%; border:1px solid var(--jewel-deep); pointer-events:none;
+  background:repeating-conic-gradient(var(--jewel-deep) 0deg 3deg,var(--jewel-shine) 3deg 5deg,var(--jewel) 5deg 9deg);
   transform:translateX(calc(var(--dial-i,1) * 52px)); transition:transform 320ms var(--ease-out); }
+.dial-puck::before { content:""; position:absolute; inset:6px; border-radius:50%; border:1px solid var(--jewel-deep); background:var(--jewel); }
 .dial:has(input[value="light"]:checked) { --dial-i:0; } .dial:has(input[value="auto"]:checked) { --dial-i:1; } .dial:has(input[value="dark"]:checked) { --dial-i:2; }
 .dial-opt { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; height:42px; cursor:pointer; border-radius:var(--radius-pill); color:var(--ink-muted); font:500 12px/1 var(--font-sans); transition:color var(--duration-quick) var(--ease-out); }
 .dial-opt svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
@@ -483,7 +484,8 @@ footer .brand { font-size:16px; }
 .ret-dial .k::after { content:""; position:absolute; left:50%; top:6px; width:3px; height:8px; margin-left:-1.5px; border-radius:2px; background:var(--on-jewel); }
 .ret-dial .a { grid-area:a; color:var(--ink); text-decoration:underline; text-underline-offset:3px; } .ret-dial .l { grid-area:l; } .ret-dial .d { grid-area:d; }
 .ret-slider { position:relative; display:inline-grid; grid-template-columns:repeat(3,52px); height:44px; border:1px solid var(--line-strong); border-radius:var(--radius-pill); background:var(--surface-sunken); }
-.ret-slider .puck { position:absolute; top:3px; left:55px; width:46px; height:36px; border-radius:var(--radius-pill); border:1px solid var(--jewel-deep); background:repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) left 3px center / 5px 56% no-repeat, repeating-linear-gradient(90deg,var(--jewel-deep) 0 1px,transparent 1px 2.5px) right 3px center / 5px 56% no-repeat, var(--jewel); }
+.ret-slider .puck { position:absolute; top:2px; left:59px; width:38px; height:38px; border-radius:50%; border:1px solid var(--jewel-deep); background:repeating-conic-gradient(var(--jewel-deep) 0deg 3deg,var(--jewel-shine) 3deg 5deg,var(--jewel) 5deg 9deg); }
+.ret-slider .puck::before { content:""; position:absolute; inset:6px; border-radius:50%; border:1px solid var(--jewel-deep); background:var(--jewel); }
 .ret-slider span:not(.puck) { position:relative; display:flex; align-items:center; justify-content:center; color:var(--ink-muted); font:500 12px/1 var(--font-sans); }
 .ret-slider span.on { color:var(--on-jewel); }
 .ret-slider svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
@@ -524,7 +526,7 @@ body{margin:0}
       <legend class="vh">Color theme</legend>
       <span class="dial-puck" aria-hidden="true"></span>
       <label class="dial-opt" title="Light"><input type="radio" name="theme" value="light"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg><span class="vh">Light</span></label>
-      <label class="dial-opt" title="Follows your device"><input type="radio" name="theme" value="auto" checked>Auto</label>
+      <label class="dial-opt" title="Auto: follows your device"><input type="radio" name="theme" value="auto" checked><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 4.5a7.5 7.5 0 0 1 0 15Z" fill="currentColor" stroke="none"/></svg><span class="vh">Auto</span></label>
       <label class="dial-opt" title="Dark"><input type="radio" name="theme" value="dark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg><span class="vh">Dark</span></label>
     </fieldset>
     <a class="btn btn--ghost btn--s" href="#contact">Get in touch</a>
@@ -882,7 +884,7 @@ body{margin:0}
         <div class="ds-retired">
           <div>
             <h4 class="micro muted">Retired</h4>
-            <p class="body-s">The theme control started as a rotary dial. It looked like something you twist, but on the web you can only click, and its labels were small targets. I replaced it with a slider: bigger targets, one click to any setting.</p>
+            <p class="body-s">The theme control started as a rotary dial. It looked like something you twist, but on the web you can only click, and its labels were small targets. I kept the knurled knob and put it on a track: it slides to any setting in one click, and every target is bigger.</p>
           </div>
           <div class="ba">
             <figure>
@@ -891,8 +893,8 @@ body{margin:0}
             </figure>
             <svg class="ba-arrow" viewBox="0 0 18 12" aria-hidden="true"><use href="#arrow"/></svg>
             <figure>
-              <div class="ba-stage" aria-hidden="true"><span class="ret-slider"><span class="puck"></span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></span><span class="on">Auto</span><span><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></span></span></div>
-              <figcaption>Now: slider switch</figcaption>
+              <div class="ba-stage" aria-hidden="true"><span class="ret-slider"><span class="puck"></span><span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg></span><span class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><path d="M12 4.5a7.5 7.5 0 0 1 0 15Z" fill="currentColor" stroke="none"/></svg></span><span><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></span></span></div>
+              <figcaption>Now: the knob, on a track</figcaption>
             </figure>
           </div>
         </div>
