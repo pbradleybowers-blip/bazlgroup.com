@@ -8,7 +8,7 @@ Everything here is public or approved by Brad as non-confidential: it comes from
 - Current status: open to senior-level product and digital experience roles (VP, CPO, Head of Product, Sr. Director level). Most recent role ended October 2026.
 - Headline: Digital Product & Experience Executive. $108M in Revenue Growth. Platform & AI Transformation.
 - Positioning: transforms product teams into strategic business partners; drives revenue through collaboration, accountability with autonomy, empathy and storytelling, while still building products hands-on with AI.
-- Website thesis: "Building is cheap. Knowing what to build is the job."
+- Website thesis: "Build is now cheap. I help you figure out what to build."
 - Describes himself as a hands-on builder when needed, and a leader who drives results through collaboration, empathy and storytelling.
 - Contact: the "Get in touch" section of bazlgroup.com (email behind a "Show email" button) or LinkedIn (linkedin.com/in/bradbowers1). A downloadable PDF resume is in the Resume section.
 
